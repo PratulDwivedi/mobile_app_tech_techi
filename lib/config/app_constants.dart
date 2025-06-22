@@ -41,6 +41,16 @@ class ControlDisplayModes {
   static const int noneHidden = 37;
 }
 
+
+class ChildDiaplayModes {
+  static const int form = 31;
+  static const int dataTable = 32;
+  static const int dataTableReport = 39;
+  static const int dataTableReportAdvance = 40;
+  static const int googleMap = 41;
+}
+
+
 class ControlTypes {
   static const int alphaNumeric = 1;
   static const int alphaOnly = 2;

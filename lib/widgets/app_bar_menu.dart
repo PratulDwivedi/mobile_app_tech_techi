@@ -31,7 +31,7 @@ class AppBarMenu extends StatelessWidget {
             children: [
               Icon(LucideIcons.logOut, color: Colors.red, size: 20),
               const SizedBox(width: 10),
-              const Text('Logout/Exit'),
+              const Text('Exit'),
             ],
           ),
         ),
