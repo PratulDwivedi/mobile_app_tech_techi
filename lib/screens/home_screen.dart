@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:mobile_app_tech_techi/models/page_item.dart';
 import 'package:mobile_app_tech_techi/screens/search_screen.dart';
+import 'package:mobile_app_tech_techi/widgets/app_bar_menu.dart';
 import 'package:mobile_app_tech_techi/widgets/app_drawer.dart';
 import 'package:mobile_app_tech_techi/widgets/bottom_navigation_bar.dart';
 import 'package:mobile_app_tech_techi/widgets/theme_selector.dart';
@@ -77,19 +78,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         title: const Text('Tech Techi'),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(LucideIcons.logOut),
-            onPressed: () async => await _authService.signOut(),
-          ),
-          IconButton(
-            icon: const Icon(LucideIcons.moreVertical),
-            onPressed: () => showModalBottomSheet(
-              context: context,
-              backgroundColor: Colors.transparent,
-              builder: (context) => const ThemeSelector(),
-            ),
-          ),
+        actions: const [
+          AppBarMenu(),
         ],
       ),
       drawer: FutureBuilder<List<PageItem>>(
