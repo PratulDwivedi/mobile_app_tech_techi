@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../providers/theme_provider.dart';
-import '../services/auth_service.dart';
+import '../services/auth/auth_service.dart';
 import '../services/navigation_service.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -19,7 +19,7 @@ class _LoginScreenState extends State<LoginScreen>
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _authService = AuthService();
+  final _authService = AuthService.instance;
   
   bool _isLoading = false;
   bool _isSignUp = false;
@@ -105,15 +105,10 @@ class _LoginScreenState extends State<LoginScreen>
           password: _passwordController.text,
         );
 
-        print('Login result: $result'); // Debug log
-
         // Handle successful login
         if (result['authResponse'] != null) {
           final authResponse = result['authResponse'];
           final profile = result['profile'];
-
-          print('Auth response: $authResponse'); // Debug log
-          print('Profile: $profile'); // Debug log
 
           if (authResponse.user != null && profile != null) {
             // Store profile in shared preferences
@@ -123,31 +118,23 @@ class _LoginScreenState extends State<LoginScreen>
             final profileData = profile['data'] as Map<String, dynamic>?;
             final routeNameMobile = profileData?['route_name_mobile'] as String?;
 
-            print('Profile data: $profileData'); // Debug log
-            print('Route name mobile: $routeNameMobile'); // Debug log
-
             if (routeNameMobile != null && routeNameMobile.isNotEmpty) {
               // Navigate to the mobile route instead of home
-              print('Navigating to: $routeNameMobile'); // Debug log
               NavigationService.navigateTo(routeNameMobile);
             } else {
               // Fallback to home if no mobile route specified
-              print('No mobile route found, navigating to home'); // Debug log
               NavigationService.navigateTo('home');
             }
           } else {
             // Fallback to home if profile fetch failed
-            print('Profile fetch failed, navigating to home'); // Debug log
             NavigationService.navigateTo('home');
           }
         } else {
           // Fallback to home if auth failed
-          print('Auth failed, navigating to home'); // Debug log
           NavigationService.navigateTo('home');
         }
       }
     } catch (e) {
-      print('Login error: $e'); // Debug log
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

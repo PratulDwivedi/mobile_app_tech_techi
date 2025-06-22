@@ -3,7 +3,7 @@ import 'package:mobile_app_tech_techi/config/app_constants.dart';
 import 'package:mobile_app_tech_techi/models/page_item.dart';
 import 'package:mobile_app_tech_techi/models/page_schema.dart';
 import 'package:mobile_app_tech_techi/providers/theme_provider.dart';
-import 'package:mobile_app_tech_techi/services/auth_service.dart';
+import 'package:mobile_app_tech_techi/services/dynamic_page/dynamic_page_service.dart';
 import 'package:mobile_app_tech_techi/widgets/app_bar_menu.dart';
 import 'package:mobile_app_tech_techi/widgets/bottom_navigation_bar.dart';
 import 'package:mobile_app_tech_techi/widgets/section_widget.dart';
@@ -19,7 +19,7 @@ class DynamicScreen extends StatefulWidget {
 }
 
 class _DynamicScreenState extends State<DynamicScreen> {
-  final AuthService _authService = AuthService();
+  final _dynamicPageService = DynamicPageService.instance;
   late Future<PageSchema> _pageSchemaFuture;
   late Future<List<PageItem>> _userPagesFuture;
   final _formKey = GlobalKey<FormState>();
@@ -28,8 +28,8 @@ class _DynamicScreenState extends State<DynamicScreen> {
   @override
   void initState() {
     super.initState();
-    _pageSchemaFuture = _authService.getPageSchema(widget.routeName);
-    _userPagesFuture = _authService.getUserPages();
+    _pageSchemaFuture = _dynamicPageService.getPageSchema(widget.routeName);
+    _userPagesFuture = _dynamicPageService.getUserPages();
   }
 
   void _onBottomNavTap(int index) {
@@ -145,7 +145,7 @@ class _DynamicScreenState extends State<DynamicScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.error_outline,
                         size: 48,
                         color: Colors.red,

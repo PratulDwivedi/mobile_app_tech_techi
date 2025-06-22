@@ -5,13 +5,13 @@ import 'package:mobile_app_tech_techi/screens/search_screen.dart';
 import 'package:mobile_app_tech_techi/widgets/app_bar_menu.dart';
 import 'package:mobile_app_tech_techi/widgets/app_drawer.dart';
 import 'package:mobile_app_tech_techi/widgets/bottom_navigation_bar.dart';
-import 'package:mobile_app_tech_techi/widgets/theme_selector.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../providers/theme_provider.dart';
-import '../services/auth_service.dart';
+import '../services/auth/auth_service.dart';
+import '../services/dynamic_page/dynamic_page_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -21,7 +21,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
-  final _authService = AuthService();
+  final _authService = AuthService.instance;
+  final _dynamicPageService = DynamicPageService.instance;
   late Future<List<PageItem>> _userPagesFuture;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
@@ -32,7 +33,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _userPagesFuture = _authService.getUserPages();
+    _userPagesFuture = _dynamicPageService.getUserPages();
     _loadUserProfile();
 
     _animationController = AnimationController(

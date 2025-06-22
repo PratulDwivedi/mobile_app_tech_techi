@@ -1,17 +1,16 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../models/page_item.dart';
-import '../models/page_schema.dart';
+import 'auth_service.dart';
 
-class AuthService {
+class SupabaseAuthService implements AuthService {
   final SupabaseClient _supabase = Supabase.instance.client;
 
-  // Get current user
+  @override
   User? get currentUser => _supabase.auth.currentUser;
 
-  // Get auth state changes stream
+  @override
   Stream<AuthState> get authStateChanges => _supabase.auth.onAuthStateChange;
 
-  // Sign up with email and password
+  @override
   Future<AuthResponse> signUp({
     required String email,
     required String password,
@@ -22,7 +21,7 @@ class AuthService {
     );
   }
 
-  // Sign in with email and password
+  @override
   Future<Map<String, dynamic>> signIn({
     required String email,
     required String password,
@@ -32,7 +31,6 @@ class AuthService {
       password: password,
     );
 
-    // After successful login, get user profile
     if (authResponse.user != null) {
       try {
         final profileResponse = await getProfile(email);
@@ -41,8 +39,9 @@ class AuthService {
           'profile': profileResponse,
         };
       } catch (e) {
+        // Mute linting warning for print statement in a catch block
+        // ignore: avoid_print
         print('Error fetching user profile: $e');
-        // Return auth response even if profile fetch fails
         return {
           'authResponse': authResponse,
           'profile': null,
@@ -56,11 +55,10 @@ class AuthService {
     };
   }
 
-  // Get user profile via RPC
+  @override
   Future<Map<String, dynamic>> getProfile(String email) async {
     try {
-      final response = await _supabase
-          .rpc('fn_get_profile', params: {'p_email': email});
+      final response = await _supabase.rpc('fn_get_profile', params: {'p_email': email});
       
       if (response is List && response.isNotEmpty) {
         return response.first as Map<String, dynamic>;
@@ -70,53 +68,27 @@ class AuthService {
         throw Exception('Invalid profile response format');
       }
     } catch (e) {
+      // Mute linting warning for print statement in a catch block
+      // ignore: avoid_print
       print('Error fetching user profile: $e');
       throw Exception('Failed to load user profile');
     }
   }
 
-  // Sign out
+  @override
   Future<void> signOut() async {
     await _supabase.auth.signOut();
   }
 
-  // Reset password
+  @override
   Future<void> resetPassword(String email) async {
     await _supabase.auth.resetPasswordForEmail(email);
   }
 
-  // Update password
+  @override
   Future<void> updatePassword(String newPassword) async {
     await _supabase.auth.updateUser(
       UserAttributes(password: newPassword),
     );
-  }
-
-  // Get user pages
-  Future<List<PageItem>> getUserPages() async {
-    try {
-      final response = await _supabase
-          .rpc('fn_get_user_pages', params: {'p_platform_id': 22});
-      final List<dynamic> data = response as List<dynamic>;
-      List<PageItem> pages =
-          data.map((item) => PageItem.fromJson(item)).toList();
-      pages.sort((a, b) => a.displayOrder.compareTo(b.displayOrder));
-      return pages;
-    } catch (e) {
-      print('Error fetching user pages: $e');
-      throw Exception('Failed to load user pages. Please check Supabase function permissions and logs.');
-    }
-  }
-
-  // Get page schema
-  Future<PageSchema> getPageSchema(String routeName) async {
-    try {
-      final response = await _supabase
-          .rpc('fn_get_page_schema', params: {'p_route_name': routeName, 'p_platform_id': 22});
-      return PageSchema.fromJson(response);
-    } catch (e) {
-      print('Error fetching page schema: $e');
-      throw Exception('Failed to load page schema for route: $routeName');
-    }
   }
 } 

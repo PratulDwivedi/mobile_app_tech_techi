@@ -281,7 +281,7 @@ packages:
     source: hosted
     version: "1.3.0"
   lucide_icons:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: lucide_icons
       sha256: ad24d0fd65707e48add30bebada7d90bff2a1bba0a72d6e9b19d44246b0e83c4
@@ -409,7 +409,7 @@ packages:
     source: hosted
     version: "2.4.2"
   provider:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: provider
       sha256: "4abbd070a04e9ddc287673bf5a030c7ca8b685ff70218720abab8b092f53dd84"
@@ -441,7 +441,7 @@ packages:
     source: hosted
     version: "0.28.0"
   shared_preferences:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: shared_preferences
       sha256: "6e8bf70b7fef813df4e9a36f658ac46d107db4b4cfe1048b477d4e453a8159f5"

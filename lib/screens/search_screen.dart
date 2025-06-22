@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:mobile_app_tech_techi/models/page_item.dart';
-import 'package:mobile_app_tech_techi/services/auth_service.dart';
+import 'package:mobile_app_tech_techi/services/dynamic_page/dynamic_page_service.dart';
 import 'package:mobile_app_tech_techi/services/navigation_service.dart';
 import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
@@ -14,7 +14,7 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  final AuthService _authService = AuthService();
+  final _dynamicPageService = DynamicPageService.instance;
   final TextEditingController _searchController = TextEditingController();
   late Future<List<PageItem>> _userPagesFuture;
   List<PageItem> _allPages = [];
@@ -24,7 +24,7 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   void initState() {
     super.initState();
-    _userPagesFuture = _authService.getUserPages();
+    _userPagesFuture = _dynamicPageService.getUserPages();
     _searchController.addListener(_onSearchChanged);
   }
 
@@ -128,7 +128,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     fontSize: 16,
                   ),
                   decoration: InputDecoration(
-                    hintText: 'Search for pages...',
+                    hintText: 'Search ...',
                     hintStyle: TextStyle(
                       color: isDarkMode ? Colors.white70 : Colors.black54,
                     ),
@@ -250,60 +250,100 @@ class _SearchScreenState extends State<SearchScreen> {
                     );
                   }
 
-                  // Initialize all pages and filtered pages if not done yet
+                  // Initialize all pages if not done yet
                   if (_allPages.isEmpty) {
                     _allPages = _getAllChildPages(snapshot.data!);
                     _filteredPages = List<PageItem>.from(_allPages);
                   }
 
-                  // If search box is empty, show all items
-                  final showPages = _searchController.text.isEmpty ? _allPages : _filteredPages;
+                  // Show all pages by default, or filtered results if searching
+                  final pagesToShow = _isSearching ? _filteredPages : _allPages;
 
-                  if (showPages.isEmpty) {
-                    return Center(
-                      child: Container(
-                        padding: const EdgeInsets.all(24),
-                        decoration: BoxDecoration(
-                          color: isDarkMode
-                              ? Colors.white.withOpacity(0.1)
-                              : Colors.white.withOpacity(0.9),
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 20,
-                              offset: const Offset(0, 10),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              LucideIcons.searchX,
-                              size: 48,
-                              color: primaryColor,
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'No results found for "${_searchController.text}"',
-                              style: TextStyle(
-                                color: isDarkMode ? Colors.white : Colors.black87,
-                                fontSize: 16,
+                  if (pagesToShow.isEmpty) {
+                    if (_isSearching) {
+                      return Center(
+                        child: Container(
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: isDarkMode
+                                ? Colors.white.withOpacity(0.1)
+                                : Colors.white.withOpacity(0.9),
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 20,
+                                offset: const Offset(0, 10),
                               ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
+                            ],
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                LucideIcons.searchX,
+                                size: 48,
+                                color: primaryColor,
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'No results found for "${_searchController.text}"',
+                                style: TextStyle(
+                                  color: isDarkMode ? Colors.white : Colors.black87,
+                                  fontSize: 16,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    );
+                      );
+                    } else {
+                      return Center(
+                        child: Container(
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: isDarkMode
+                                ? Colors.white.withOpacity(0.1)
+                                : Colors.white.withOpacity(0.9),
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 20,
+                                offset: const Offset(0, 10),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.search_off,
+                                size: 48,
+                                color: primaryColor,
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'No pages found',
+                                style: TextStyle(
+                                  color: isDarkMode ? Colors.white : Colors.black87,
+                                  fontSize: 16,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
                   }
 
                   return ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
-                    itemCount: showPages.length,
+                    itemCount: pagesToShow.length,
                     itemBuilder: (context, index) {
-                      final page = showPages[index];
+                      final page = pagesToShow[index];
                       return Container(
                         margin: const EdgeInsets.only(bottom: 12),
                         decoration: BoxDecoration(

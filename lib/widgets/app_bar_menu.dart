@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:mobile_app_tech_techi/services/auth_service.dart';
+import 'package:mobile_app_tech_techi/services/auth/auth_service.dart';
 import 'package:mobile_app_tech_techi/widgets/theme_selector.dart';
 
 class AppBarMenu extends StatelessWidget {
@@ -13,7 +13,7 @@ class AppBarMenu extends StatelessWidget {
       onSelected: (option) async {
         switch (option) {
           case _MenuOption.logout:
-            await AuthService().signOut();
+            await AuthService.instance.signOut();
             break;
           case _MenuOption.theme:
             showModalBottomSheet(
