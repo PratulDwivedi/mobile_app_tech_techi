@@ -175,10 +175,12 @@ class _LoginScreenState extends State<LoginScreen>
     
     return Scaffold(
       body: Container(
+        width: double.infinity,
+        height: double.infinity,
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
             colors: isDarkMode
                 ? [
                     const Color(0xFF1a1a2e),
