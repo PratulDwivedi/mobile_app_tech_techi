@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
 import '../services/auth_service.dart';
+import '../services/navigation_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -51,6 +52,9 @@ class _LoginScreenState extends State<LoginScreen>
     ));
     
     _animationController.forward();
+    
+    _emailController.text ="demo@gmail.com";
+    _passwordController.text = "Demo@123";
   }
 
   @override
@@ -93,12 +97,51 @@ class _LoginScreenState extends State<LoginScreen>
           );
         }
       } else {
-        await _authService.signIn(
+        // Call signIn which now returns both auth response and profile
+        final result = await _authService.signIn(
           email: _emailController.text.trim(),
           password: _passwordController.text,
         );
+
+        print('Login result: $result'); // Debug log
+
+        // Handle successful login
+        if (result['authResponse'] != null) {
+          final authResponse = result['authResponse'];
+          final profile = result['profile'];
+
+          print('Auth response: $authResponse'); // Debug log
+          print('Profile: $profile'); // Debug log
+
+          if (authResponse.user != null && profile != null) {
+            final profileData = profile['data'] as Map<String, dynamic>?;
+            final routeNameMobile = profileData?['route_name_mobile'] as String?;
+
+            print('Profile data: $profileData'); // Debug log
+            print('Route name mobile: $routeNameMobile'); // Debug log
+
+            if (routeNameMobile != null && routeNameMobile.isNotEmpty) {
+              // Navigate to the mobile route instead of home
+              print('Navigating to: $routeNameMobile'); // Debug log
+              NavigationService.navigateTo(routeNameMobile);
+            } else {
+              // Fallback to home if no mobile route specified
+              print('No mobile route found, navigating to home'); // Debug log
+              NavigationService.navigateTo('home');
+            }
+          } else {
+            // Fallback to home if profile fetch failed
+            print('Profile fetch failed, navigating to home'); // Debug log
+            NavigationService.navigateTo('home');
+          }
+        } else {
+          // Fallback to home if auth failed
+          print('Auth failed, navigating to home'); // Debug log
+          NavigationService.navigateTo('home');
+        }
       }
     } catch (e) {
+      print('Login error: $e'); // Debug log
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

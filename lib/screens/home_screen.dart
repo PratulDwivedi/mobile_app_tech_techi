@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:mobile_app_tech_techi/models/page_item.dart';
+import 'package:mobile_app_tech_techi/screens/search_screen.dart';
 import 'package:mobile_app_tech_techi/widgets/app_drawer.dart';
 import 'package:mobile_app_tech_techi/widgets/bottom_navigation_bar.dart';
 import 'package:mobile_app_tech_techi/widgets/theme_selector.dart';
@@ -22,7 +23,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-  final _searchController = TextEditingController();
   int _currentIndex = 0;
 
   @override
@@ -57,7 +57,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   void dispose() {
     _animationController.dispose();
-    _searchController.dispose();
     super.dispose();
   }
 
@@ -148,8 +147,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 10),
-                      _buildSearchBox(themeProvider),
-                      const SizedBox(height: 24),
                       if (user != null) _buildUserProfileCard(user, themeProvider),
                       const SizedBox(height: 24),
                       Text(
@@ -171,6 +168,19 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           },
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => const SearchScreen(),
+            ),
+          );
+        },
+        backgroundColor: themeProvider.primaryColor,
+        foregroundColor: Colors.white,
+        elevation: 8,
+        child: const Icon(LucideIcons.search),
+      ),
       bottomNavigationBar: FutureBuilder<List<PageItem>>(
         future: _userPagesFuture,
         builder: (context, snapshot) {
@@ -186,33 +196,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             onTap: _onBottomNavTap,
           );
         },
-      ),
-    );
-  }
-
-  Widget _buildSearchBox(ThemeProvider themeProvider) {
-    return Container(
-      decoration: BoxDecoration(
-        color: themeProvider.isDarkMode
-            ? Colors.white.withOpacity(0.1)
-            : Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: TextField(
-        controller: _searchController,
-        decoration: InputDecoration(
-          hintText: 'Search for a page...',
-          prefixIcon: Icon(LucideIcons.search, color: themeProvider.primaryColor),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        ),
       ),
     );
   }

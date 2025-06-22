@@ -23,14 +23,56 @@ class AuthService {
   }
 
   // Sign in with email and password
-  Future<AuthResponse> signIn({
+  Future<Map<String, dynamic>> signIn({
     required String email,
     required String password,
   }) async {
-    return await _supabase.auth.signInWithPassword(
+    final authResponse = await _supabase.auth.signInWithPassword(
       email: email,
       password: password,
     );
+
+    // After successful login, get user profile
+    if (authResponse.user != null) {
+      try {
+        final profileResponse = await getProfile(email);
+        return {
+          'authResponse': authResponse,
+          'profile': profileResponse,
+        };
+      } catch (e) {
+        print('Error fetching user profile: $e');
+        // Return auth response even if profile fetch fails
+        return {
+          'authResponse': authResponse,
+          'profile': null,
+        };
+      }
+    }
+
+    return {
+      'authResponse': authResponse,
+      'profile': null,
+    };
+  }
+
+  // Get user profile via RPC
+  Future<Map<String, dynamic>> getProfile(String email) async {
+    try {
+      final response = await _supabase
+          .rpc('fn_get_profile', params: {'p_email': email});
+      
+      if (response is List && response.isNotEmpty) {
+        return response.first as Map<String, dynamic>;
+      } else if (response is Map<String, dynamic>) {
+        return response;
+      } else {
+        throw Exception('Invalid profile response format');
+      }
+    } catch (e) {
+      print('Error fetching user profile: $e');
+      throw Exception('Failed to load user profile');
+    }
   }
 
   // Sign out
