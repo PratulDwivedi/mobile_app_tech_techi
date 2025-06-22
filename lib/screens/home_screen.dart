@@ -8,6 +8,8 @@ import 'package:mobile_app_tech_techi/widgets/bottom_navigation_bar.dart';
 import 'package:mobile_app_tech_techi/widgets/theme_selector.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 import '../providers/theme_provider.dart';
 import '../services/auth_service.dart';
 
@@ -25,11 +27,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
   int _currentIndex = 0;
+  Map<String, dynamic>? _userProfile;
 
   @override
   void initState() {
     super.initState();
     _userPagesFuture = _authService.getUserPages();
+    _loadUserProfile();
 
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 800),
@@ -53,6 +57,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     ));
 
     _animationController.forward();
+  }
+
+  Future<void> _loadUserProfile() async {
+    final prefs = await SharedPreferences.getInstance();
+    final profileString = prefs.getString('user_profile');
+    if (profileString != null) {
+      setState(() {
+        _userProfile = json.decode(profileString);
+      });
+    }
   }
 
   @override
@@ -101,7 +115,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return const Drawer(child: Center(child: Text('No menu items found.')));
           }
-          return AppDrawer(pages: snapshot.data!);
+          return AppDrawer(pages: snapshot.data!, userProfile: _userProfile);
         },
       ),
       body: Container(

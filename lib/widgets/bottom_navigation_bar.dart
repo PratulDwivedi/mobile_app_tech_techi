@@ -22,7 +22,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final isDarkMode = themeProvider.isDarkMode;
-    final primaryColor = themeProvider.primaryColor;
+    
 
     // Get all pages recursively and filter for quick links that have no children
     final allPages = _getAllPagesRecursively(pages);

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 import '../providers/theme_provider.dart';
 import '../services/auth_service.dart';
 import '../services/navigation_service.dart';
@@ -114,6 +116,10 @@ class _LoginScreenState extends State<LoginScreen>
           print('Profile: $profile'); // Debug log
 
           if (authResponse.user != null && profile != null) {
+            // Store profile in shared preferences
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.setString('user_profile', json.encode(profile));
+
             final profileData = profile['data'] as Map<String, dynamic>?;
             final routeNameMobile = profileData?['route_name_mobile'] as String?;
 

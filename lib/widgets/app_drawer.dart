@@ -6,7 +6,8 @@ import '../models/page_item.dart';
 
 class AppDrawer extends StatelessWidget {
   final List<PageItem> pages;
-  const AppDrawer({super.key, required this.pages});
+  final Map<String, dynamic>? userProfile; // Should contain name, email, tenant_name
+  const AppDrawer({super.key, required this.pages, this.userProfile});
 
   @override
   Widget build(BuildContext context) {
@@ -14,19 +15,28 @@ class AppDrawer extends StatelessWidget {
     final features = pages.where((p) => p.displayLocationId == PageDisplayLocations.sidebar).toList();
 
     return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
+      child: Stack(
         children: [
-          _buildDrawerHeader(context),
-          if (features.isNotEmpty) ...[
-            _buildSectionHeader('FEATURES'),
-            ...features.map((page) => _buildDrawerItem(context, page)),
-          ],
-          const Divider(),
-          ListTile(
-            leading: const Icon(LucideIcons.info),
-            title: const Text('v0.0.1'),
-            onTap: () {},
+          ListView(
+            padding: EdgeInsets.zero,
+            children: [
+              _buildDrawerHeader(context),
+              if (features.isNotEmpty) ...[
+                _buildSectionHeader('FEATURES'),
+                ...features.map((page) => _buildDrawerItem(context, page)),
+              ],
+              const SizedBox(height: 80), // Space for version info at bottom
+            ],
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: ListTile(
+              leading: const Icon(LucideIcons.info),
+              title: const Text('v0.0.1'),
+              onTap: () {},
+            ),
           ),
         ],
       ),
@@ -34,45 +44,50 @@ class AppDrawer extends StatelessWidget {
   }
 
   Widget _buildDrawerHeader(BuildContext context) {
+    final name = userProfile?['full_name'] ?? 'User';
+    final email = userProfile?['email'] ?? '';
+    final tenant = userProfile?['tenant_name'] ?? '';
     return Container(
-      height: 120,
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      height: 160,
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
       ),
       child: SafeArea(
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            CircleAvatar(
+              radius: 32,
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              child: Text(
+                name.isNotEmpty ? name[0] : '?',
+                style: const TextStyle(fontSize: 28, color: Colors.white, fontWeight: FontWeight.bold),
+              ),
+            ),
+            const SizedBox(width: 16),
             Expanded(
-              child: Row(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Image.network(
-                    'https://tpgyuqvncljnuyrohqre.supabase.co/storage/v1/object/public/tech-techi-public/images/logo.png',
-                    width: 40,
-                    height: 40,
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return const SizedBox(
-                        width: 40,
-                        height: 40,
-                        child: CircularProgressIndicator(),
-                      );
-                    },
-                    errorBuilder: (context, error, stackTrace) {
-                      return const Icon(LucideIcons.imageOff, size: 40);
-                    },
+                  Text(
+                    name,
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(width: 12),
-                  const Flexible(
-                    child: Text(
-                      'Tech Techi',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  if (tenant.isNotEmpty)
+                    Text(
+                      tenant,
+                      style: const TextStyle(fontSize: 14, color: Colors.purple, fontWeight: FontWeight.w500),
                       overflow: TextOverflow.ellipsis,
                     ),
-                  ),
+                  if (email.isNotEmpty)
+                    Text(
+                      email,
+                      style: const TextStyle(fontSize: 13, color: Colors.grey),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                 ],
               ),
             ),

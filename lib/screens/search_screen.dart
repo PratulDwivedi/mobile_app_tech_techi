@@ -38,7 +38,7 @@ class _SearchScreenState extends State<SearchScreen> {
     final query = _searchController.text.toLowerCase();
     if (query.isEmpty) {
       setState(() {
-        _filteredPages = [];
+        _filteredPages = List<PageItem>.from(_allPages);
         _isSearching = false;
       });
     } else {
@@ -250,52 +250,16 @@ class _SearchScreenState extends State<SearchScreen> {
                     );
                   }
 
-                  // Initialize all pages if not done yet
+                  // Initialize all pages and filtered pages if not done yet
                   if (_allPages.isEmpty) {
                     _allPages = _getAllChildPages(snapshot.data!);
+                    _filteredPages = List<PageItem>.from(_allPages);
                   }
 
-                  if (!_isSearching) {
-                    return Center(
-                      child: Container(
-                        padding: const EdgeInsets.all(24),
-                        decoration: BoxDecoration(
-                          color: isDarkMode
-                              ? Colors.white.withOpacity(0.1)
-                              : Colors.white.withOpacity(0.9),
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 20,
-                              offset: const Offset(0, 10),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              LucideIcons.search,
-                              size: 48,
-                              color: primaryColor,
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'Search for pages to navigate',
-                              style: TextStyle(
-                                color: isDarkMode ? Colors.white : Colors.black87,
-                                fontSize: 16,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  }
+                  // If search box is empty, show all items
+                  final showPages = _searchController.text.isEmpty ? _allPages : _filteredPages;
 
-                  if (_filteredPages.isEmpty) {
+                  if (showPages.isEmpty) {
                     return Center(
                       child: Container(
                         padding: const EdgeInsets.all(24),
@@ -337,9 +301,9 @@ class _SearchScreenState extends State<SearchScreen> {
 
                   return ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
-                    itemCount: _filteredPages.length,
+                    itemCount: showPages.length,
                     itemBuilder: (context, index) {
-                      final page = _filteredPages[index];
+                      final page = showPages[index];
                       return Container(
                         margin: const EdgeInsets.only(bottom: 12),
                         decoration: BoxDecoration(
