@@ -598,6 +598,9 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
                     },
                   ),
                 ),
+                topTitles: AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
               ),
               borderData: FlBorderData(show: false),
               gridData: FlGridData(show: true, drawVerticalLine: false),
@@ -695,6 +698,9 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
                       return const SizedBox.shrink();
                     },
                   ),
+                ),
+                topTitles: AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
                 ),
               ),
               borderData: FlBorderData(show: false),
