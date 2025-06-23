@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_app_tech_techi/models/page_schema.dart';
 import 'package:mobile_app_tech_techi/config/app_constants.dart';
+import '../providers/riverpod/data_providers.dart';
 import '../providers/riverpod/theme_provider.dart';
 import 'data_picker_dialog.dart';
+import 'package:fl_chart/fl_chart.dart';
 
 class ControlWidget extends ConsumerStatefulWidget {
   final Control control;
@@ -347,6 +349,44 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
             ),
           ),
         );
+      case ControlTypes.barChart:
+      case ControlTypes.lineChart:
+      case ControlTypes.pieChart:
+        if (widget.control.bindingListRouteName == null) {
+          return const Text('No data');
+        }
+        final listData = ref.watch(bindingListProvider(widget.control.bindingListRouteName!));
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 20.0),
+          child: listData.when(
+            data: (data) {
+              if (data == null || data.isEmpty) {
+                return const Text('No chart data');
+              }
+              Widget chart;
+              if (widget.control.controlTypeId == ControlTypes.barChart) {
+                chart = _buildBarChart(data, widget.control.name);
+              } else if (widget.control.controlTypeId == ControlTypes.lineChart) {
+                chart = _buildLineChart(data, widget.control.name);
+              } else if (widget.control.controlTypeId == ControlTypes.pieChart) {
+                chart = _buildPieChart(data, widget.control.name);
+              } else {
+                chart = const Text('Unsupported chart type');
+              }
+              return Container(
+                margin: const EdgeInsets.symmetric(vertical: 12),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.05),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: chart,
+              );
+            },
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (error, stack) => Text('Error: $error'),
+          ),
+        );
       default:
         return Container(
           margin: const EdgeInsets.only(bottom: 16.0),
@@ -480,5 +520,190 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
   String? _validate(Control control, String? value) {
     // Implement validation logic based on the control type
     return null; // Placeholder return, actual implementation needed
+  }
+
+  Widget _buildBarChart(List<dynamic> data, String title) {
+    final barColors = [Colors.blue, Colors.orange, Colors.green, Colors.purple, Colors.red, Colors.teal, Colors.amber];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        const SizedBox(height: 8),
+        SizedBox(
+          height: 200,
+          child: BarChart(
+            BarChartData(
+              barGroups: [
+                for (int i = 0; i < data.length; i++)
+                  BarChartGroupData(
+                    x: i,
+                    barRods: [
+                      BarChartRodData(
+                        toY: (data[i]['value'] as num).toDouble(),
+                        color: barColors[i % barColors.length],
+                        width: 18,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                    ],
+                  ),
+              ],
+              titlesData: FlTitlesData(
+                leftTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: 36,
+                    interval: 1,
+                    getTitlesWidget: (value, meta) {
+                      String text;
+                      if (value == 0) text = '0';
+                      else if (value >= 1000) text = '${(value ~/ 1000)}K';
+                      else text = value.toInt().toString();
+                      return SideTitleWidget(
+                        axisSide: meta.axisSide,
+                        space: 8,
+                        child: Text(text, style: const TextStyle(fontSize: 12)),
+                      );
+                    },
+                  ),
+                ),
+              ),
+              borderData: FlBorderData(show: false),
+              gridData: FlGridData(show: true, drawVerticalLine: false),
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 12,
+          children: [
+            for (int i = 0; i < data.length; i++)
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(width: 12, height: 12, color: barColors[i % barColors.length]),
+                  const SizedBox(width: 4),
+                  Text(data[i]['name'].toString(), style: const TextStyle(fontSize: 12)),
+                ],
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLineChart(List<dynamic> data, String title) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        const SizedBox(height: 8),
+        SizedBox(
+          height: 200,
+          child: LineChart(
+            LineChartData(
+              lineBarsData: [
+                LineChartBarData(
+                  spots: [
+                    for (int i = 0; i < data.length; i++)
+                      FlSpot(i.toDouble(), (data[i]['value'] as num).toDouble()),
+                  ],
+                  isCurved: true,
+                  color: Colors.green,
+                  barWidth: 3,
+                  dotData: FlDotData(show: true),
+                ),
+              ],
+              titlesData: FlTitlesData(
+                leftTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: 36,
+                    interval: 1,
+                    getTitlesWidget: (value, meta) {
+                      String text;
+                      if (value == 0) text = '0';
+                      else if (value >= 1000) text = '${(value ~/ 1000)}K';
+                      else text = value.toInt().toString();
+                      return SideTitleWidget(
+                        axisSide: meta.axisSide,
+                        space: 8,
+                        child: Text(text, style: const TextStyle(fontSize: 12)),
+                      );
+                    },
+                  ),
+                ),
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: 40,
+                    interval: 1,
+                    getTitlesWidget: (value, meta) {
+                      final idx = value.toInt();
+                      String text = (idx >= 0 && idx < data.length) ? data[idx]['name'].toString() : '';
+                      return SideTitleWidget(
+                        axisSide: meta.axisSide,
+                        space: 8,
+                        child: Text(text, style: const TextStyle(fontSize: 12)),
+                      );
+                    },
+                  ),
+                ),
+              ),
+              borderData: FlBorderData(show: false),
+              gridData: FlGridData(show: true, drawVerticalLine: false),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPieChart(List<dynamic> data, String title) {
+    final pieColors = [Colors.pink, Colors.red, Colors.blue, Colors.orange, Colors.green, Colors.purple, Colors.teal, Colors.amber];
+    final total = data.fold<num>(0, (sum, item) => sum + (item['value'] as num));
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        const SizedBox(height: 8),
+        SizedBox(
+          height: 180,
+          child: PieChart(
+            PieChartData(
+              sections: [
+                for (int i = 0; i < data.length; i++)
+                  PieChartSectionData(
+                    value: (data[i]['value'] as num).toDouble(),
+                    color: pieColors[i % pieColors.length],
+                    title: '',
+                    radius: 60,
+                    titleStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+              ],
+              sectionsSpace: 2,
+              centerSpaceRadius: 32,
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 12,
+          children: [
+            for (int i = 0; i < data.length; i++)
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(width: 12, height: 12, color: pieColors[i % pieColors.length]),
+                  const SizedBox(width: 4),
+                  Text(
+                    '${data[i]['name']} (${((data[i]['value'] as num) / total * 100).toStringAsFixed(1)}%)',
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                ],
+              ),
+          ],
+        ),
+      ],
+    );
   }
 } 

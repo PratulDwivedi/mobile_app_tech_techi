@@ -45,6 +45,7 @@ dependencies:
   # UI and utilities
   lucide_icons: ^0.257.0
   shared_preferences: ^2.2.2
+  fl_chart: ^0.63.0
 
 dev_dependencies:
   flutter_test:
