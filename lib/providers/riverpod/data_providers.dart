@@ -37,6 +37,13 @@ final authStateProvider = StreamProvider<AuthState>((ref) {
   return service.authStateChanges;
 });
 
+// Provider for binding list data
+final bindingListProvider =
+    FutureProvider.family<List<dynamic>, String>((ref, functionName) async {
+  final service = ref.read(dynamicPageServiceProvider);
+  return service.getBindingListData(functionName);
+});
+
 // User profile from shared preferences (for UI display)
 final userProfileFromPrefsProvider = FutureProvider<Map<String, dynamic>?>((ref) async {
   // This would be implemented to load from SharedPreferences

@@ -38,4 +38,16 @@ class SupabaseDynamicPageService implements DynamicPageService {
           'Failed to load user pages. Please check Supabase function permissions and logs.');
     }
   }
+
+  @override
+  Future<List<dynamic>> getBindingListData(String functionName) async {
+    try {
+      final response = await _supabase.rpc(functionName);
+      return response as List<dynamic>;
+    } catch (e) {
+      // ignore: avoid_print
+      print('Error fetching binding list data from $functionName: $e');
+      throw Exception('Failed to load binding list data');
+    }
+  }
 } 

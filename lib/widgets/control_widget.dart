@@ -3,8 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_app_tech_techi/models/page_schema.dart';
 import 'package:mobile_app_tech_techi/config/app_constants.dart';
 import '../providers/riverpod/theme_provider.dart';
+import 'data_picker_dialog.dart';
 
-class ControlWidget extends ConsumerWidget {
+class ControlWidget extends ConsumerStatefulWidget {
   final Control control;
   final GlobalKey<FormState> formKey;
 
@@ -15,12 +16,29 @@ class ControlWidget extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ControlWidget> createState() => _ControlWidgetState();
+}
+
+class _ControlWidgetState extends ConsumerState<ControlWidget> {
+  dynamic _selectedValue; // The full item (id, name, ...)
+
+  // Expose selected id and name for saving
+  dynamic get selectedId => _selectedValue?['id'];
+  String? get selectedName => _selectedValue?['name'];
+
+  @override
+  Widget build(BuildContext context) {
     final themeState = ref.watch(themeProvider);
     final isDarkMode = themeState.isDarkMode;
     final primaryColor = ref.watch(primaryColorProvider);
 
-    switch (control.controlTypeId) {
+    switch (widget.control.controlTypeId) {
+      case ControlTypes.dropdown:
+      case ControlTypes.dropdownMultiselect:
+      case ControlTypes.treeViewSingle:
+      case ControlTypes.treeViewMulti:
+        return _buildPopupSelector(
+            context, ref, widget.control, isDarkMode, primaryColor);
       case ControlTypes.alphaNumeric:
       case ControlTypes.alphaOnly:
       case ControlTypes.email:
@@ -43,12 +61,12 @@ class ControlWidget extends ConsumerWidget {
                 color: isDarkMode ? Colors.white : Colors.black87,
               ),
               decoration: InputDecoration(
-                labelText: control.name,
+                labelText: widget.control.name,
                 labelStyle: TextStyle(
                   color: isDarkMode ? Colors.white70 : Colors.black54,
                 ),
                 prefixIcon: Icon(
-                  _getIconForControlType(control.controlTypeId),
+                  _getIconForControlType(widget.control.controlTypeId),
                   color: primaryColor,
                 ),
                 border: InputBorder.none,
@@ -57,7 +75,7 @@ class ControlWidget extends ConsumerWidget {
                   vertical: 16,
                 ),
               ),
-              keyboardType: _getKeyboardType(control.controlTypeId),
+              keyboardType: _getKeyboardType(widget.control.controlTypeId),
             ),
           ),
         );
@@ -77,7 +95,7 @@ class ControlWidget extends ConsumerWidget {
                 color: isDarkMode ? Colors.white : Colors.black87,
               ),
               decoration: InputDecoration(
-                labelText: control.name,
+                labelText: widget.control.name,
                 labelStyle: TextStyle(
                   color: isDarkMode ? Colors.white70 : Colors.black54,
                 ),
@@ -110,7 +128,7 @@ class ControlWidget extends ConsumerWidget {
                 color: isDarkMode ? Colors.white : Colors.black87,
               ),
               decoration: InputDecoration(
-                labelText: control.name,
+                labelText: widget.control.name,
                 labelStyle: TextStyle(
                   color: isDarkMode ? Colors.white70 : Colors.black54,
                 ),
@@ -150,7 +168,7 @@ class ControlWidget extends ConsumerWidget {
               const SizedBox(width: 16),
               Expanded(
                 child: Text(
-                  control.name,
+                  widget.control.name,
                   style: TextStyle(
                     color: isDarkMode ? Colors.white : Colors.black87,
                     fontSize: 16,
@@ -190,7 +208,7 @@ class ControlWidget extends ConsumerWidget {
               const SizedBox(width: 16),
               Expanded(
                 child: Text(
-                  control.name,
+                  widget.control.name,
                   style: TextStyle(
                     color: isDarkMode ? Colors.white : Colors.black87,
                     fontSize: 16,
@@ -215,7 +233,7 @@ class ControlWidget extends ConsumerWidget {
             height: 56,
             child: ElevatedButton(
               onPressed: () {
-                if (formKey.currentState!.validate()) {
+                if (widget.formKey.currentState!.validate()) {
                   // Submit form
                 }
               },
@@ -229,7 +247,7 @@ class ControlWidget extends ConsumerWidget {
                 ),
               ),
               child: Text(
-                control.name,
+                widget.control.name,
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -244,7 +262,7 @@ class ControlWidget extends ConsumerWidget {
           child: ElevatedButton.icon(
             onPressed: () {},
             icon: const Icon(Icons.add_circle_outline),
-            label: Text(control.name),
+            label: Text(widget.control.name),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.green,
               foregroundColor: Colors.white,
@@ -261,7 +279,7 @@ class ControlWidget extends ConsumerWidget {
           child: ElevatedButton.icon(
             onPressed: () {},
             icon: const Icon(Icons.remove_circle_outline),
-            label: Text(control.name),
+            label: Text(widget.control.name),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
@@ -289,7 +307,7 @@ class ControlWidget extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                control.name,
+                widget.control.name,
                 style: TextStyle(
                   color: isDarkMode ? Colors.white : Colors.black87,
                   fontSize: 16,
@@ -298,7 +316,7 @@ class ControlWidget extends ConsumerWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Unsupported control type: ${control.controlTypeId}',
+                'Unsupported control type: ${widget.control.controlTypeId}',
                 style: TextStyle(
                   color: isDarkMode ? Colors.white70 : Colors.black54,
                   fontSize: 14,
@@ -310,8 +328,63 @@ class ControlWidget extends ConsumerWidget {
     }
   }
 
+  Widget _buildPopupSelector(BuildContext context, WidgetRef ref, Control control,
+      bool isDarkMode, Color primaryColor) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20.0),
+      child: InkWell(
+        onTap: () async {
+          final result = await showDialog(
+            context: context,
+            builder: (context) => DataPickerDialog(control: control, selectedValue: _selectedValue),
+          );
+          if (result != null) {
+            setState(() {
+              _selectedValue = result;
+            });
+          }
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            color: isDarkMode
+                ? Colors.white.withOpacity(0.1)
+                : Colors.grey.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(15),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          child: Row(
+            children: [
+              Icon(
+                _getIconForControlType(control.controlTypeId),
+                color: primaryColor,
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  _selectedValue != null
+                      ? _selectedValue['name']
+                      : control.name,
+                  style: TextStyle(
+                    color: isDarkMode ? Colors.white : Colors.black87,
+                  ),
+                ),
+              ),
+              const Icon(Icons.arrow_drop_down),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   IconData _getIconForControlType(int controlTypeId) {
     switch (controlTypeId) {
+      case ControlTypes.dropdown:
+      case ControlTypes.dropdownMultiselect:
+        return Icons.arrow_drop_down_circle_outlined;
+      case ControlTypes.treeViewSingle:
+      case ControlTypes.treeViewMulti:
+        return Icons.account_tree_outlined;
       case ControlTypes.alphaNumeric:
       case ControlTypes.alphaOnly:
         return Icons.text_fields;

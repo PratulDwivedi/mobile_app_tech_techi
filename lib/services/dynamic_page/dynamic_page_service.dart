@@ -8,4 +8,5 @@ abstract class DynamicPageService {
 
   Future<PageSchema> getPageSchema(String routeName);
   Future<List<PageItem>> getUserPages();
+  Future<List<dynamic>> getBindingListData(String functionName);
 } 
