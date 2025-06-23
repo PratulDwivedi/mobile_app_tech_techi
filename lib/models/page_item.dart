@@ -90,6 +90,8 @@ IconData getIconFromString(String? iconName) {
       return LucideIcons.settings;
     case 'Globe':
       return LucideIcons.globe;
+    case 'QrCode':
+      return LucideIcons.qrCode;
     default:
       return LucideIcons.circle;
   }

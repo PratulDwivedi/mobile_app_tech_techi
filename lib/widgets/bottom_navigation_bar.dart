@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 import 'package:mobile_app_tech_techi/config/app_constants.dart';
 import 'package:mobile_app_tech_techi/models/page_item.dart';
 import 'package:mobile_app_tech_techi/services/navigation_service.dart';
@@ -31,7 +30,7 @@ class CustomBottomNavigationBar extends ConsumerWidget {
         .toList();
 
     // Limit to 4 items for bottom navigation
-    final navigationItems = quickLinks.take(4).toList();
+    final navigationItems = quickLinks.take(5).toList();
 
     return Container(
       decoration: BoxDecoration(
@@ -56,16 +55,6 @@ class CustomBottomNavigationBar extends ConsumerWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              // Home tab
-              _buildNavigationItem(
-                context: context,
-                ref: ref,
-                icon: LucideIcons.home,
-                label: 'Home',
-                isSelected: currentIndex == 0,
-                onTap: () => onTap(0),
-              ),
-
               // Quick links
               ...navigationItems.asMap().entries.map((entry) {
                 final index = entry.key + 1; // +1 because 0 is home
