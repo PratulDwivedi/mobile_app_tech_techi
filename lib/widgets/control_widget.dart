@@ -53,12 +53,11 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
             widget.control.name,
             style: TextStyle(
               color: isDarkMode ? Colors.white70 : Colors.black54,
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
+              fontSize: 14
             ),
           ),
           if (widget.control.displayModeId == ControlDisplayModes.require)
-            const Text(' *', style: TextStyle(color: Colors.red, fontSize: 18)),
+            const Text(' *', style: TextStyle(color: Colors.red, fontSize: 14)),
         ],
       );
     }
@@ -463,7 +462,7 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
                     ? (_selectedValue is List
                         ? (_selectedValue as List).map((e) => e['name']).join(', ')
                         : _selectedValue['name'])
-                    : control.name,
+                    : "",
                 style: TextStyle(
                   color: isDarkMode ? Colors.white : Colors.black87,
                 ),
