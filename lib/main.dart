@@ -5,7 +5,7 @@ import 'config/supabase_config.dart';
 import 'providers/riverpod/theme_provider.dart';
 import 'providers/riverpod/data_providers.dart';
 import 'screens/login_screen.dart';
-import 'screens/home_screen.dart';
+import 'screens/dynamic_screen.dart';
 import 'services/navigation_service.dart';
 
 void main() async {
@@ -61,7 +61,8 @@ class AuthWrapper extends ConsumerWidget {
       data: (authState) {
         final session = authState.session;
         if (session != null) {
-          return const HomeScreen();
+          // Use a default route or fetch from user profile if needed
+          return const DynamicScreen(routeName: 'home', isHome: true);
         }
         return const LoginScreen();
       },

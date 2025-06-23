@@ -78,7 +78,7 @@ class CustomBottomNavigationBar extends ConsumerWidget {
                   isSelected: currentIndex == index,
                   onTap: () {
                     onTap(index);
-                    NavigationService.navigateTo(page.routeName);
+                    NavigationService.navigateTo(page.routeName, arguments: {'isHome': false});
                   },
                 );
               }),

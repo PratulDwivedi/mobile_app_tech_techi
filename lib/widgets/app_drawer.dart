@@ -121,7 +121,7 @@ class AppDrawer extends StatelessWidget {
         title: Text(page.name),
         onTap: () {
           Navigator.of(context).pop();
-          NavigationService.navigateTo(page.routeName);
+          NavigationService.navigateTo(page.routeName, arguments: {'isHome': false});
         },
       );
     } else {

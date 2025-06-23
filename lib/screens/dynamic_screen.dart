@@ -8,6 +8,7 @@ import '../providers/riverpod/theme_provider.dart';
 import '../providers/riverpod/data_providers.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/app_button.dart';
+import '../screens/search_screen.dart';
 
 class DynamicScreen extends ConsumerStatefulWidget {
   final String routeName;
@@ -193,6 +194,21 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
               ),
               loading: () => const SizedBox.shrink(),
               error: (error, stack) => const SizedBox.shrink(),
+            )
+          : null,
+      floatingActionButton: widget.isHome
+          ? FloatingActionButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const SearchScreen(),
+                  ),
+                );
+              },
+              backgroundColor: primaryColor,
+              foregroundColor: Colors.white,
+              elevation: 8,
+              child: const Icon(Icons.search),
             )
           : null,
       bottomSheet: pageSchemaAsync.when(

@@ -305,7 +305,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                           ),
                           onTap: () {
                             Navigator.of(context).pop();
-                            NavigationService.navigateTo(page.routeName);
+                            NavigationService.navigateTo(page.routeName, arguments: {'isHome': false});
                           },
                         ),
                       );

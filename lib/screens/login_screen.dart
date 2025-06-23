@@ -120,19 +120,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             final routeNameMobile = profileData?['route_name_mobile'] as String?;
 
             if (routeNameMobile != null && routeNameMobile.isNotEmpty) {
-              // Navigate to the mobile route instead of home
-              NavigationService.navigateTo(routeNameMobile);
+              // Navigate to the mobile route as home
+              NavigationService.navigateTo(routeNameMobile, arguments: {'isHome': true});
             } else {
-              // Fallback to home if no mobile route specified
-              NavigationService.navigateTo('home');
+              // Fallback to a default dynamic screen if no mobile route specified
+              NavigationService.navigateTo('default', arguments: {'isHome': true});
             }
           } else {
-            // Fallback to home if profile fetch failed
-            NavigationService.navigateTo('home');
+            // Fallback to a default dynamic screen if profile fetch failed
+            NavigationService.navigateTo('default', arguments: {'isHome': true});
           }
         } else {
-          // Fallback to home if auth failed
-          NavigationService.navigateTo('home');
+          // Fallback to a default dynamic screen if auth failed
+          NavigationService.navigateTo('default', arguments: {'isHome': true});
         }
       }
     } catch (e) {

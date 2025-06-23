@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app_tech_techi/screens/chat_screen.dart';
 import 'package:mobile_app_tech_techi/screens/dynamic_screen.dart';
-import 'package:mobile_app_tech_techi/screens/home_screen.dart';
 
 class NavigationService {
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
 
   static final Map<String, WidgetBuilder> _routes = {
-    '/home': (context) => const HomeScreen(),
     'chat': (context) => const ChatScreen(),
     // Add other fixed routes here
   };
@@ -17,10 +15,15 @@ class NavigationService {
     if (_routes.containsKey(routeName)) {
       navigatorKey.currentState?.pushNamed(routeName, arguments: arguments);
     } else {
-      // Navigate to DynamicScreen if route not found in fixed routes
+      // Always navigate to DynamicScreen for dynamic routes
+      bool isHome = false;
+      if (arguments is Map && arguments['isHome'] == true) {
+        isHome = true;
+      }
       navigatorKey.currentState?.push(MaterialPageRoute(
         builder: (context) => DynamicScreen(
           routeName: routeName,
+          isHome: isHome,
         ),
       ));
     }
