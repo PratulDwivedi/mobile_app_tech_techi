@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_app_tech_techi/widgets/app_bar_menu.dart';
 import 'package:mobile_app_tech_techi/widgets/bottom_navigation_bar.dart';
 import 'package:mobile_app_tech_techi/widgets/section_widget.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 import '../providers/riverpod/theme_provider.dart';
 import '../providers/riverpod/data_providers.dart';
 import '../widgets/app_drawer.dart';
@@ -199,7 +198,9 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
       bottomSheet: pageSchemaAsync.when(
         data: (pageSchema) {
           final pageTypeId = pageSchema.pageTypeId;
-          final showDelete = widget.id != null && widget.id!.isNotEmpty && pageSchema.bindingNameDelete!.isNotEmpty;
+          final showDelete = widget.id != null &&
+              widget.id!.isNotEmpty &&
+              pageSchema.bindingNameDelete!.isNotEmpty;
           return Container(
             color: Colors.transparent,
             padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
@@ -218,7 +219,8 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
                       }
                     },
                   ),
-                if (pageTypeId == PageTypes.report)
+                if (pageTypeId == PageTypes.report &&
+                    (pageSchema.bindingNameGet?.isNotEmpty ?? false))
                   AppButton(
                     label: 'Search',
                     icon: Icons.search,

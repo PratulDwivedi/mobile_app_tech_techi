@@ -193,7 +193,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             padding: const EdgeInsets.all(24.0),
             child: Column(
               children: [
-                SizedBox(height: 40),
+                const SizedBox(height: 40),
                 
                 // Main Login Form
                 AnimatedBuilder(
