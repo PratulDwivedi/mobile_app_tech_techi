@@ -109,8 +109,8 @@ class SectionWidget extends ConsumerWidget {
       default:
         // Default: Render as form section
         return Container(
-          margin: const EdgeInsets.only(bottom: 24),
-          padding: const EdgeInsets.all(32),
+          margin: const EdgeInsets.only(bottom: 80),
+          padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
             color: isDarkMode
                 ? Colors.white.withOpacity(0.1)
@@ -128,7 +128,6 @@ class SectionWidget extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // SectionTitle(primaryColor, section),
-              const SizedBox(height: 24),
               ...section.controls.map((control) =>
                   ControlWidget(control: control, formKey: formKey)),
             ],
