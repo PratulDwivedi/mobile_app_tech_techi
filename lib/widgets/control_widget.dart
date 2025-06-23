@@ -5,7 +5,9 @@ import 'package:mobile_app_tech_techi/config/app_constants.dart';
 import '../providers/riverpod/data_providers.dart';
 import '../providers/riverpod/theme_provider.dart';
 import 'data_picker_dialog.dart';
-import 'package:fl_chart/fl_chart.dart';
+import 'bar_chart_widget.dart';
+import 'pie_chart_widget.dart';
+import 'line_chart_widget.dart';
 
 class ControlWidget extends ConsumerStatefulWidget {
   final Control control;
@@ -360,16 +362,16 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
           padding: const EdgeInsets.only(bottom: 20.0),
           child: listData.when(
             data: (data) {
-              if (data == null || data.isEmpty) {
+              if (data.isEmpty) {
                 return const Text('No chart data');
               }
               Widget chart;
               if (widget.control.controlTypeId == ControlTypes.barChart) {
-                chart = _buildBarChart(data, widget.control.name);
+                chart = BarChartWidget(data: data, title: widget.control.name);
               } else if (widget.control.controlTypeId == ControlTypes.lineChart) {
-                chart = _buildLineChart(data, widget.control.name);
+                chart = LineChartWidget(data: data, title: widget.control.name);
               } else if (widget.control.controlTypeId == ControlTypes.pieChart) {
-                chart = _buildPieChart(data, widget.control.name);
+                chart = PieChartWidget(data: data, title: widget.control.name);
               } else {
                 chart = const Text('Unsupported chart type');
               }
@@ -520,244 +522,5 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
   String? _validate(Control control, String? value) {
     // Implement validation logic based on the control type
     return null; // Placeholder return, actual implementation needed
-  }
-
-  Widget _buildBarChart(List<dynamic> data, String title) {
-    final barColors = [Colors.blue, Colors.orange, Colors.green, Colors.purple, Colors.red, Colors.teal, Colors.amber];
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-        const SizedBox(height: 8),
-        SizedBox(
-          height: 200,
-          child: BarChart(
-            BarChartData(
-              barGroups: [
-                for (int i = 0; i < data.length; i++)
-                  BarChartGroupData(
-                    x: i,
-                    barRods: [
-                      BarChartRodData(
-                        toY: (data[i]['value'] as num).toDouble(),
-                        color: barColors[i % barColors.length],
-                        width: 18,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                    ],
-                  ),
-              ],
-              titlesData: FlTitlesData(
-                leftTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    reservedSize: 36,
-                    interval: 1000,
-                    getTitlesWidget: (value, meta) {
-                      if (value == 0) {
-                        return SideTitleWidget(
-                          axisSide: meta.axisSide,
-                          space: 8,
-                          child: const Text('0', style: TextStyle(fontSize: 12)),
-                        );
-                      } else if (value % 1000 == 0) {
-                        return SideTitleWidget(
-                          axisSide: meta.axisSide,
-                          space: 8,
-                          child: Text('${value ~/ 1000}K', style: const TextStyle(fontSize: 12)),
-                        );
-                      }
-                      return const SizedBox.shrink();
-                    },
-                  ),
-                ),
-                bottomTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    reservedSize: 40,
-                    interval: 1,
-                    getTitlesWidget: (value, meta) {
-                      final idx = value.toInt();
-                      if (idx >= 0 && idx < data.length && (data[idx]['name']?.toString()?.isNotEmpty ?? false)) {
-                        return SideTitleWidget(
-                          axisSide: meta.axisSide,
-                          space: 8,
-                          child: SizedBox(
-                            width: 60,
-                            child: Text(
-                              data[idx]['name'].toString(),
-                              style: const TextStyle(fontSize: 12),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        );
-                      }
-                      return const SizedBox.shrink();
-                    },
-                  ),
-                ),
-                topTitles: AxisTitles(
-                  sideTitles: SideTitles(showTitles: false),
-                ),
-              ),
-              borderData: FlBorderData(show: false),
-              gridData: FlGridData(show: true, drawVerticalLine: false),
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 12,
-          children: [
-            for (int i = 0; i < data.length; i++)
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(width: 12, height: 12, color: barColors[i % barColors.length]),
-                  const SizedBox(width: 4),
-                  Text(data[i]['name'].toString(), style: const TextStyle(fontSize: 12)),
-                ],
-              ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildLineChart(List<dynamic> data, String title) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-        const SizedBox(height: 8),
-        SizedBox(
-          height: 200,
-          child: LineChart(
-            LineChartData(
-              lineBarsData: [
-                LineChartBarData(
-                  spots: [
-                    for (int i = 0; i < data.length; i++)
-                      FlSpot(i.toDouble(), (data[i]['value'] as num).toDouble()),
-                  ],
-                  isCurved: true,
-                  color: Colors.green,
-                  barWidth: 3,
-                  dotData: FlDotData(show: true),
-                ),
-              ],
-              titlesData: FlTitlesData(
-                leftTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    reservedSize: 36,
-                    interval: 1000,
-                    getTitlesWidget: (value, meta) {
-                      if (value == 0) {
-                        return SideTitleWidget(
-                          axisSide: meta.axisSide,
-                          space: 8,
-                          child: const Text('0', style: TextStyle(fontSize: 12)),
-                        );
-                      } else if (value % 1000 == 0) {
-                        return SideTitleWidget(
-                          axisSide: meta.axisSide,
-                          space: 8,
-                          child: Text('${value ~/ 1000}K', style: const TextStyle(fontSize: 12)),
-                        );
-                      }
-                      return const SizedBox.shrink();
-                    },
-                  ),
-                ),
-                bottomTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    reservedSize: 40,
-                    interval: 1,
-                    getTitlesWidget: (value, meta) {
-                      final idx = value.toInt();
-                      if (idx >= 0 && idx < data.length && (data[idx]['name']?.toString()?.isNotEmpty ?? false)) {
-                        return SideTitleWidget(
-                          axisSide: meta.axisSide,
-                          space: 8,
-                          child: SizedBox(
-                            width: 60,
-                            child: Text(
-                              data[idx]['name'].toString(),
-                              style: const TextStyle(fontSize: 12),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        );
-                      }
-                      return const SizedBox.shrink();
-                    },
-                  ),
-                ),
-                topTitles: AxisTitles(
-                  sideTitles: SideTitles(showTitles: false),
-                ),
-              ),
-              borderData: FlBorderData(show: false),
-              gridData: FlGridData(show: true, drawVerticalLine: false),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPieChart(List<dynamic> data, String title) {
-    final pieColors = [Colors.pink, Colors.red, Colors.blue, Colors.orange, Colors.green, Colors.purple, Colors.teal, Colors.amber];
-    final total = data.fold<num>(0, (sum, item) => sum + (item['value'] as num));
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-        const SizedBox(height: 8),
-        SizedBox(
-          height: 180,
-          child: PieChart(
-            PieChartData(
-              sections: [
-                for (int i = 0; i < data.length; i++)
-                  PieChartSectionData(
-                    value: (data[i]['value'] as num).toDouble(),
-                    color: pieColors[i % pieColors.length],
-                    title: '',
-                    radius: 60,
-                    titleStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
-                  ),
-              ],
-              sectionsSpace: 2,
-              centerSpaceRadius: 32,
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 12,
-          children: [
-            for (int i = 0; i < data.length; i++)
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(width: 12, height: 12, color: pieColors[i % pieColors.length]),
-                  const SizedBox(width: 4),
-                  Text(
-                    '${data[i]['name']} (${((data[i]['value'] as num) / total * 100).toStringAsFixed(1)}%)',
-                    style: const TextStyle(fontSize: 12),
-                  ),
-                ],
-              ),
-          ],
-        ),
-      ],
-    );
   }
 } 
