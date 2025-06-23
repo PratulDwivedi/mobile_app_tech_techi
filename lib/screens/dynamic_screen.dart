@@ -214,16 +214,24 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
       bottomSheet: pageSchemaAsync.when(
         data: (pageSchema) {
           final pageTypeId = pageSchema.pageTypeId;
+          final showSave = pageTypeId == PageTypes.form;
+          final showSearch = pageTypeId == PageTypes.report && (pageSchema.bindingNameGet?.isNotEmpty ?? false);
           final showDelete = widget.id != null &&
               widget.id!.isNotEmpty &&
               pageSchema.bindingNameDelete!.isNotEmpty;
+
+          // If no button is visible, return SizedBox.shrink()
+          if (!showSave && !showSearch && !showDelete) {
+            return const SizedBox.shrink();
+          }
+
           return Container(
             color: Colors.transparent,
             padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                if (pageTypeId == PageTypes.form)
+                if (showSave)
                   AppButton(
                     label: 'Save',
                     icon: Icons.save,
@@ -235,8 +243,7 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
                       }
                     },
                   ),
-                if (pageTypeId == PageTypes.report &&
-                    (pageSchema.bindingNameGet?.isNotEmpty ?? false))
+                if (showSearch)
                   AppButton(
                     label: 'Search',
                     icon: Icons.search,
