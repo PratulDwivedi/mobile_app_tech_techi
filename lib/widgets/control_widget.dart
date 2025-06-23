@@ -20,11 +20,21 @@ class ControlWidget extends ConsumerStatefulWidget {
 }
 
 class _ControlWidgetState extends ConsumerState<ControlWidget> {
-  dynamic _selectedValue; // The full item (id, name, ...)
+  dynamic _selectedValue; // The full item (id, name, ...) or list of such maps for multi
 
-  // Expose selected id and name for saving
-  dynamic get selectedId => _selectedValue?['id'];
-  String? get selectedName => _selectedValue?['name'];
+  // Expose selected id(s) and name(s) for saving
+  dynamic get selectedId {
+    if (_selectedValue is List) {
+      return (_selectedValue as List).map((e) => e['id']).toList();
+    }
+    return _selectedValue?['id'];
+  }
+  String? get selectedName {
+    if (_selectedValue is List) {
+      return (_selectedValue as List).map((e) => e['name']).join(', ');
+    }
+    return _selectedValue?['name'];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -362,7 +372,9 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
               Expanded(
                 child: Text(
                   _selectedValue != null
-                      ? _selectedValue['name']
+                      ? (_selectedValue is List
+                          ? (_selectedValue as List).map((e) => e['name']).join(', ')
+                          : _selectedValue['name'])
                       : control.name,
                   style: TextStyle(
                     color: isDarkMode ? Colors.white : Colors.black87,
