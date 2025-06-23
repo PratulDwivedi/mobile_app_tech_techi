@@ -3,6 +3,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_app_tech_techi/widgets/theme_selector.dart';
 import '../providers/riverpod/service_providers.dart';
+import '../screens/login_screen.dart';
 
 class AppBarMenu extends ConsumerWidget {
   const AppBarMenu({super.key});
@@ -16,6 +17,10 @@ class AppBarMenu extends ConsumerWidget {
           case _MenuOption.logout:
             final authService = ref.read(authServiceProvider);
             await authService.signOut();
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (context) => const LoginScreen()),
+              (route) => false,
+            );
             break;
           case _MenuOption.theme:
             showModalBottomSheet(
