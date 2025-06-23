@@ -38,6 +38,7 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
     final primaryColor = ref.watch(primaryColorProvider);
     final pageSchemaAsync = ref.watch(pageSchemaProvider(widget.routeName));
     final userPagesAsync = ref.watch(userPagesProvider);
+    final userProfileAsync = ref.watch(userProfileProvider);
 
     return Scaffold(
       appBar: PreferredSize(
@@ -95,9 +96,14 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
       ),
       drawer: widget.isHome
           ? userPagesAsync.when(
-              data: (pages) => AppDrawer(pages: pages, userProfile: null),
-              loading: () => const Drawer(
-                  child: Center(child: CircularProgressIndicator())),
+              data: (pages) => userProfileAsync.when(
+                data: (profile) => AppDrawer(pages: pages, userProfile: profile),
+                loading: () => const Drawer(child: Center(child: CircularProgressIndicator())),
+                error: (error, stack) => Drawer(
+                  child: Center(child: Text('Error: $error')),
+                ),
+              ),
+              loading: () => const Drawer(child: Center(child: CircularProgressIndicator())),
               error: (error, stack) => Drawer(
                 child: Center(
                   child: Padding(

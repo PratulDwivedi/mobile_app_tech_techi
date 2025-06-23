@@ -16,8 +16,7 @@ class LineChartWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-        const SizedBox(height: 8),
+         Padding(padding: const EdgeInsets.all(10), child: Text(title, style: const TextStyle( fontSize: 14)),),
         SizedBox(
           height: 200,
           child: LineChart(
@@ -31,7 +30,7 @@ class LineChartWidget extends StatelessWidget {
                   isCurved: true,
                   color: Colors.green,
                   barWidth: 3,
-                  dotData: FlDotData(show: true),
+                  dotData: const FlDotData(show: true),
                 ),
               ],
               titlesData: FlTitlesData(
@@ -85,12 +84,12 @@ class LineChartWidget extends StatelessWidget {
                     },
                   ),
                 ),
-                topTitles: AxisTitles(
+                topTitles: const AxisTitles(
                   sideTitles: SideTitles(showTitles: false),
                 ),
               ),
               borderData: FlBorderData(show: false),
-              gridData: FlGridData(show: true, drawVerticalLine: false),
+              gridData: const FlGridData(show: true, drawVerticalLine: false),
             ),
           ),
         ),

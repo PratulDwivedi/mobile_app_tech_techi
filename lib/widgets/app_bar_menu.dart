@@ -17,10 +17,15 @@ class AppBarMenu extends ConsumerWidget {
           case _MenuOption.logout:
             final authService = ref.read(authServiceProvider);
             await authService.signOut();
-            Navigator.of(context).pushAndRemoveUntil(
+            try {
+              Navigator.of(context).pushAndRemoveUntil(
               MaterialPageRoute(builder: (context) => const LoginScreen()),
               (route) => false,
             );
+            } catch (e) {
+              // Handle error if needed
+            }
+           
             break;
           case _MenuOption.theme:
             showModalBottomSheet(
