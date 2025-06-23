@@ -49,7 +49,7 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
             widget.control.name,
             style: TextStyle(
               color: isDarkMode ? Colors.white70 : Colors.black54,
-              fontSize: 16,
+              fontSize: 14,
               fontWeight: FontWeight.w500,
             ),
           ),

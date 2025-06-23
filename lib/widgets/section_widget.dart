@@ -15,6 +15,29 @@ class SectionWidget extends ConsumerWidget {
     required this.formKey,
   });
 
+  Widget SectionTitle(primaryColor, Section section) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            primaryColor,
+            primaryColor.withOpacity(0.7),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: Text(
+        section.name,
+        style: const TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeState = ref.watch(themeProvider);
@@ -45,29 +68,11 @@ class SectionWidget extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      primaryColor,
-                      primaryColor.withOpacity(0.7),
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: Text(
-                  section.name,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
+             // SectionTitle(primaryColor, section),
               const SizedBox(height: 24),
               // TODO: Replace with actual table/report widget
-              const Center(child: Text('Table/Report rendering not implemented yet.')),
+              const Center(
+                  child: Text('Table/Report rendering not implemented yet.')),
             ],
           ),
         );
@@ -92,29 +97,11 @@ class SectionWidget extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      primaryColor,
-                      primaryColor.withOpacity(0.7),
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: Text(
-                  section.name,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
+              SectionTitle(primaryColor, section),
               const SizedBox(height: 24),
               // TODO: Replace with actual Google Map widget
-              const Center(child: Text('Google Map rendering not implemented yet.')),
+              const Center(
+                  child: Text('Google Map rendering not implemented yet.')),
             ],
           ),
         );
@@ -140,33 +127,13 @@ class SectionWidget extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      primaryColor,
-                      primaryColor.withOpacity(0.7),
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: Text(
-                  section.name,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
+              // SectionTitle(primaryColor, section),
               const SizedBox(height: 24),
-              ...section.controls
-                  .map((control) => ControlWidget(control: control, formKey: formKey))
-                  .toList(),
+              ...section.controls.map((control) =>
+                  ControlWidget(control: control, formKey: formKey)),
             ],
           ),
         );
     }
   }
-} 
+}

@@ -7,10 +7,15 @@ import 'package:mobile_app_tech_techi/widgets/section_widget.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../providers/riverpod/theme_provider.dart';
 import '../providers/riverpod/data_providers.dart';
+import '../widgets/app_drawer.dart';
+import '../widgets/app_button.dart';
 
 class DynamicScreen extends ConsumerStatefulWidget {
   final String routeName;
-  const DynamicScreen({super.key, required this.routeName});
+  final bool isHome;
+  final String? id;
+  const DynamicScreen(
+      {super.key, required this.routeName, this.isHome = false, this.id});
 
   @override
   ConsumerState<DynamicScreen> createState() => _DynamicScreenState();
@@ -40,8 +45,6 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
         child: pageSchemaAsync.when(
           data: (pageSchema) {
             String title = pageSchema.name;
-            int? pageTypeId = pageSchema.pageTypeId;
-            
             return AppBar(
               title: Text(
                 title,
@@ -55,28 +58,7 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
               iconTheme: IconThemeData(
                 color: isDarkMode ? Colors.white : Colors.black87,
               ),
-              actions: [
-                if (pageTypeId == PageTypes.form)
-                  IconButton(
-                    icon: Icon(LucideIcons.save, color: primaryColor),
-                    tooltip: 'Save',
-                    onPressed: () {
-                      // TODO: Implement save logic
-                      if (_formKey.currentState != null && _formKey.currentState!.validate()) {
-                        // Save form
-                      }
-                    },
-                  ),
-                if (pageTypeId == PageTypes.report)
-                  IconButton(
-                    icon: Icon(LucideIcons.search, color: primaryColor),
-                    tooltip: 'Search',
-                    onPressed: () {
-                      // TODO: Implement search/view logic
-                    },
-                  ),
-                const AppBarMenu(),
-              ],
+              actions: const [AppBarMenu()],
             );
           },
           loading: () => AppBar(
@@ -111,6 +93,21 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
           ),
         ),
       ),
+      drawer: widget.isHome
+          ? userPagesAsync.when(
+              data: (pages) => AppDrawer(pages: pages, userProfile: null),
+              loading: () => const Drawer(
+                  child: Center(child: CircularProgressIndicator())),
+              error: (error, stack) => Drawer(
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text('Error: $error'),
+                  ),
+                ),
+              ),
+            )
+          : null,
       body: Container(
         width: double.infinity,
         height: double.infinity,
@@ -138,7 +135,8 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
               key: _formKey,
               child: Column(
                 children: pageSchema.sections
-                    .map((section) => SectionWidget(section: section, formKey: _formKey))
+                    .map((section) =>
+                        SectionWidget(section: section, formKey: _formKey))
                     .toList(),
               ),
             ),
@@ -187,15 +185,64 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: userPagesAsync.when(
-        data: (pages) => CustomBottomNavigationBar(
-          pages: pages,
-          currentIndex: _currentIndex,
-          onTap: _onBottomNavTap,
-        ),
+      bottomNavigationBar: widget.isHome
+          ? userPagesAsync.when(
+              data: (pages) => CustomBottomNavigationBar(
+                pages: pages,
+                currentIndex: _currentIndex,
+                onTap: _onBottomNavTap,
+              ),
+              loading: () => const SizedBox.shrink(),
+              error: (error, stack) => const SizedBox.shrink(),
+            )
+          : null,
+      bottomSheet: pageSchemaAsync.when(
+        data: (pageSchema) {
+          final pageTypeId = pageSchema.pageTypeId;
+          final showDelete = widget.id != null && widget.id!.isNotEmpty && pageSchema.bindingNameDelete!.isNotEmpty;
+          return Container(
+            color: Colors.transparent,
+            padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                if (pageTypeId == PageTypes.form)
+                  AppButton(
+                    label: 'Save',
+                    icon: Icons.save,
+                    color: primaryColor,
+                    onPressed: () {
+                      if (_formKey.currentState != null &&
+                          _formKey.currentState!.validate()) {
+                        // Save form
+                      }
+                    },
+                  ),
+                if (pageTypeId == PageTypes.report)
+                  AppButton(
+                    label: 'Search',
+                    icon: Icons.search,
+                    color: primaryColor,
+                    onPressed: () {
+                      // Search/view logic
+                    },
+                  ),
+                if (showDelete)
+                  AppButton(
+                    label: 'Delete',
+                    icon: Icons.delete,
+                    color: Colors.red,
+                    onPressed: () {
+                      // Delete logic
+                    },
+                  ),
+              ],
+            ),
+          );
+        },
         loading: () => const SizedBox.shrink(),
         error: (error, stack) => const SizedBox.shrink(),
       ),
     );
   }
-} 
+}
