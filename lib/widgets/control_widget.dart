@@ -42,13 +42,40 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
     final isDarkMode = themeState.isDarkMode;
     final primaryColor = ref.watch(primaryColorProvider);
 
+    Widget buildLabel() {
+      return Row(
+        children: [
+          Text(
+            widget.control.name,
+            style: TextStyle(
+              color: isDarkMode ? Colors.white70 : Colors.black54,
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          if (widget.control.displayModeId == ControlDisplayModes.require)
+            const Text(' *', style: TextStyle(color: Colors.red, fontSize: 18)),
+        ],
+      );
+    }
+
     switch (widget.control.controlTypeId) {
       case ControlTypes.dropdown:
       case ControlTypes.dropdownMultiselect:
       case ControlTypes.treeViewSingle:
       case ControlTypes.treeViewMulti:
-        return _buildPopupSelector(
-            context, ref, widget.control, isDarkMode, primaryColor);
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildLabel(),
+              const SizedBox(height: 4),
+              _buildPopupSelector(
+                context, ref, widget.control, isDarkMode, primaryColor),
+            ],
+          ),
+        );
       case ControlTypes.alphaNumeric:
       case ControlTypes.alphaOnly:
       case ControlTypes.email:
@@ -59,100 +86,120 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
       case ControlTypes.currency:
         return Padding(
           padding: const EdgeInsets.only(bottom: 20.0),
-          child: Container(
-            decoration: BoxDecoration(
-              color: isDarkMode 
-                  ? Colors.white.withOpacity(0.1)
-                  : Colors.grey.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: TextFormField(
-              style: TextStyle(
-                color: isDarkMode ? Colors.white : Colors.black87,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildLabel(),
+              const SizedBox(height: 4),
+              Container(
+                decoration: BoxDecoration(
+                  color: isDarkMode 
+                      ? Colors.white.withOpacity(0.1)
+                      : Colors.grey.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: TextFormField(
+                  style: TextStyle(
+                    color: isDarkMode ? Colors.white : Colors.black87,
+                  ),
+                  decoration: InputDecoration(
+                    labelStyle: TextStyle(
+                      color: isDarkMode ? Colors.white70 : Colors.black54,
+                    ),
+                    prefixIcon: Icon(
+                      _getIconForControlType(widget.control.controlTypeId),
+                      color: primaryColor,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 16,
+                    ),
+                  ),
+                  keyboardType: _getKeyboardType(widget.control.controlTypeId),
+                  validator: (value) => _validate(widget.control, value),
+                ),
               ),
-              decoration: InputDecoration(
-                labelText: widget.control.name,
-                labelStyle: TextStyle(
-                  color: isDarkMode ? Colors.white70 : Colors.black54,
-                ),
-                prefixIcon: Icon(
-                  _getIconForControlType(widget.control.controlTypeId),
-                  color: primaryColor,
-                ),
-                border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 16,
-                ),
-              ),
-              keyboardType: _getKeyboardType(widget.control.controlTypeId),
-            ),
+            ],
           ),
         );
       case ControlTypes.password:
         return Padding(
           padding: const EdgeInsets.only(bottom: 20.0),
-          child: Container(
-            decoration: BoxDecoration(
-              color: isDarkMode 
-                  ? Colors.white.withOpacity(0.1)
-                  : Colors.grey.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: TextFormField(
-              obscureText: true,
-              style: TextStyle(
-                color: isDarkMode ? Colors.white : Colors.black87,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildLabel(),
+              const SizedBox(height: 4),
+              Container(
+                decoration: BoxDecoration(
+                  color: isDarkMode 
+                      ? Colors.white.withOpacity(0.1)
+                      : Colors.grey.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: TextFormField(
+                  obscureText: true,
+                  style: TextStyle(
+                    color: isDarkMode ? Colors.white : Colors.black87,
+                  ),
+                  decoration: InputDecoration(
+                    labelStyle: TextStyle(
+                      color: isDarkMode ? Colors.white70 : Colors.black54,
+                    ),
+                    prefixIcon: Icon(
+                      Icons.lock_outline,
+                      color: primaryColor,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 16,
+                    ),
+                  ),
+                  validator: (value) => _validate(widget.control, value),
+                ),
               ),
-              decoration: InputDecoration(
-                labelText: widget.control.name,
-                labelStyle: TextStyle(
-                  color: isDarkMode ? Colors.white70 : Colors.black54,
-                ),
-                prefixIcon: Icon(
-                  Icons.lock_outline,
-                  color: primaryColor,
-                ),
-                border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 16,
-                ),
-              ),
-            ),
+            ],
           ),
         );
       case ControlTypes.textArea:
         return Padding(
           padding: const EdgeInsets.only(bottom: 20.0),
-          child: Container(
-            decoration: BoxDecoration(
-              color: isDarkMode 
-                  ? Colors.white.withOpacity(0.1)
-                  : Colors.grey.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: TextFormField(
-              maxLines: 4,
-              style: TextStyle(
-                color: isDarkMode ? Colors.white : Colors.black87,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildLabel(),
+              const SizedBox(height: 4),
+              Container(
+                decoration: BoxDecoration(
+                  color: isDarkMode 
+                      ? Colors.white.withOpacity(0.1)
+                      : Colors.grey.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: TextFormField(
+                  maxLines: 4,
+                  style: TextStyle(
+                    color: isDarkMode ? Colors.white : Colors.black87,
+                  ),
+                  decoration: InputDecoration(
+                    labelStyle: TextStyle(
+                      color: isDarkMode ? Colors.white70 : Colors.black54,
+                    ),
+                    prefixIcon: Icon(
+                      Icons.text_fields,
+                      color: primaryColor,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 16,
+                    ),
+                  ),
+                ),
               ),
-              decoration: InputDecoration(
-                labelText: widget.control.name,
-                labelStyle: TextStyle(
-                  color: isDarkMode ? Colors.white70 : Colors.black54,
-                ),
-                prefixIcon: Icon(
-                  Icons.text_fields,
-                  color: primaryColor,
-                ),
-                border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 16,
-                ),
-              ),
-            ),
+            ],
           ),
         );
       case ControlTypes.toggleSwitch:
@@ -340,50 +387,48 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
 
   Widget _buildPopupSelector(BuildContext context, WidgetRef ref, Control control,
       bool isDarkMode, Color primaryColor) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 20.0),
-      child: InkWell(
-        onTap: () async {
-          final result = await showDialog(
-            context: context,
-            builder: (context) => DataPickerDialog(control: control, selectedValue: _selectedValue),
-          );
-          if (result != null) {
-            setState(() {
-              _selectedValue = result;
-            });
-          }
-        },
-        child: Container(
-          decoration: BoxDecoration(
-            color: isDarkMode
-                ? Colors.white.withOpacity(0.1)
-                : Colors.grey.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(15),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          child: Row(
-            children: [
-              Icon(
-                _getIconForControlType(control.controlTypeId),
-                color: primaryColor,
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Text(
-                  _selectedValue != null
-                      ? (_selectedValue is List
-                          ? (_selectedValue as List).map((e) => e['name']).join(', ')
-                          : _selectedValue['name'])
-                      : control.name,
-                  style: TextStyle(
-                    color: isDarkMode ? Colors.white : Colors.black87,
-                  ),
+    return InkWell(
+      onTap: () async {
+        final result = await showDialog(
+          context: context,
+          builder: (context) => DataPickerDialog(control: control, selectedValue: _selectedValue),
+        );
+        if (result != null) {
+          setState(() {
+            _selectedValue = result;
+          });
+          
+        }
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: isDarkMode
+              ? Colors.white.withOpacity(0.1)
+              : Colors.grey.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(15),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        child: Row(
+          children: [
+            Icon(
+              _getIconForControlType(control.controlTypeId),
+              color: primaryColor,
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                _selectedValue != null
+                    ? (_selectedValue is List
+                        ? (_selectedValue as List).map((e) => e['name']).join(', ')
+                        : _selectedValue['name'])
+                    : control.name,
+                style: TextStyle(
+                  color: isDarkMode ? Colors.white : Colors.black87,
                 ),
               ),
-              const Icon(Icons.arrow_drop_down),
-            ],
-          ),
+            ),
+            const Icon(Icons.arrow_drop_down),
+          ],
         ),
       ),
     );
@@ -430,5 +475,10 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
       default:
         return TextInputType.text;
     }
+  }
+
+  String? _validate(Control control, String? value) {
+    // Implement validation logic based on the control type
+    return null; // Placeholder return, actual implementation needed
   }
 } 
