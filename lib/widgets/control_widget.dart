@@ -552,17 +552,49 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
                   sideTitles: SideTitles(
                     showTitles: true,
                     reservedSize: 36,
+                    interval: 1000,
+                    getTitlesWidget: (value, meta) {
+                      if (value == 0) {
+                        return SideTitleWidget(
+                          axisSide: meta.axisSide,
+                          space: 8,
+                          child: const Text('0', style: TextStyle(fontSize: 12)),
+                        );
+                      } else if (value % 1000 == 0) {
+                        return SideTitleWidget(
+                          axisSide: meta.axisSide,
+                          space: 8,
+                          child: Text('${value ~/ 1000}K', style: const TextStyle(fontSize: 12)),
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    },
+                  ),
+                ),
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: 40,
                     interval: 1,
                     getTitlesWidget: (value, meta) {
-                      String text;
-                      if (value == 0) text = '0';
-                      else if (value >= 1000) text = '${(value ~/ 1000)}K';
-                      else text = value.toInt().toString();
-                      return SideTitleWidget(
-                        axisSide: meta.axisSide,
-                        space: 8,
-                        child: Text(text, style: const TextStyle(fontSize: 12)),
-                      );
+                      final idx = value.toInt();
+                      if (idx >= 0 && idx < data.length && (data[idx]['name']?.toString()?.isNotEmpty ?? false)) {
+                        return SideTitleWidget(
+                          axisSide: meta.axisSide,
+                          space: 8,
+                          child: SizedBox(
+                            width: 60,
+                            child: Text(
+                              data[idx]['name'].toString(),
+                              style: const TextStyle(fontSize: 12),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        );
+                      }
+                      return const SizedBox.shrink();
                     },
                   ),
                 ),
@@ -618,17 +650,22 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
                   sideTitles: SideTitles(
                     showTitles: true,
                     reservedSize: 36,
-                    interval: 1,
+                    interval: 1000,
                     getTitlesWidget: (value, meta) {
-                      String text;
-                      if (value == 0) text = '0';
-                      else if (value >= 1000) text = '${(value ~/ 1000)}K';
-                      else text = value.toInt().toString();
-                      return SideTitleWidget(
-                        axisSide: meta.axisSide,
-                        space: 8,
-                        child: Text(text, style: const TextStyle(fontSize: 12)),
-                      );
+                      if (value == 0) {
+                        return SideTitleWidget(
+                          axisSide: meta.axisSide,
+                          space: 8,
+                          child: const Text('0', style: TextStyle(fontSize: 12)),
+                        );
+                      } else if (value % 1000 == 0) {
+                        return SideTitleWidget(
+                          axisSide: meta.axisSide,
+                          space: 8,
+                          child: Text('${value ~/ 1000}K', style: const TextStyle(fontSize: 12)),
+                        );
+                      }
+                      return const SizedBox.shrink();
                     },
                   ),
                 ),
@@ -639,12 +676,23 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
                     interval: 1,
                     getTitlesWidget: (value, meta) {
                       final idx = value.toInt();
-                      String text = (idx >= 0 && idx < data.length) ? data[idx]['name'].toString() : '';
-                      return SideTitleWidget(
-                        axisSide: meta.axisSide,
-                        space: 8,
-                        child: Text(text, style: const TextStyle(fontSize: 12)),
-                      );
+                      if (idx >= 0 && idx < data.length && (data[idx]['name']?.toString()?.isNotEmpty ?? false)) {
+                        return SideTitleWidget(
+                          axisSide: meta.axisSide,
+                          space: 8,
+                          child: SizedBox(
+                            width: 60,
+                            child: Text(
+                              data[idx]['name'].toString(),
+                              style: const TextStyle(fontSize: 12),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        );
+                      }
+                      return const SizedBox.shrink();
                     },
                   ),
                 ),
