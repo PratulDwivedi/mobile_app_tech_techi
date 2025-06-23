@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
-import '../providers/theme_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/riverpod/theme_provider.dart';
 
-class ThemeSelector extends StatelessWidget {
+class ThemeSelector extends ConsumerWidget {
   const ThemeSelector({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
-    final isDarkMode = themeProvider.isDarkMode;
-    final primaryColor = themeProvider.primaryColor;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeState = ref.watch(themeProvider);
+    final isDarkMode = themeState.isDarkMode;
+    final primaryColor = ref.watch(primaryColorProvider);
+    final primaryColorIndex = themeState.primaryColorIndex;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -34,17 +35,17 @@ class ThemeSelector extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           // Theme Toggle
-          _buildThemeToggle(context, themeProvider, isDarkMode, primaryColor),
+          _buildThemeToggle(context, ref, isDarkMode, primaryColor),
           const SizedBox(height: 16),
           // Color Picker
-          _buildColorPicker(context, themeProvider, isDarkMode),
+          _buildColorPicker(context, ref, isDarkMode, primaryColorIndex),
           const SizedBox(height: 16),
         ],
       ),
     );
   }
 
-  Widget _buildThemeToggle(BuildContext context, ThemeProvider themeProvider,
+  Widget _buildThemeToggle(BuildContext context, WidgetRef ref,
       bool isDarkMode, Color primaryColor) {
     return Container(
       decoration: BoxDecoration(
@@ -56,22 +57,21 @@ class ThemeSelector extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           _buildThemeButton(
-              context, themeProvider, 'Light', Icons.light_mode, !isDarkMode),
+              context, ref, 'Light', Icons.light_mode, !isDarkMode),
           _buildThemeButton(
-              context, themeProvider, 'Dark', Icons.dark_mode, isDarkMode),
+              context, ref, 'Dark', Icons.dark_mode, isDarkMode),
         ],
       ),
     );
   }
 
-  Widget _buildThemeButton(BuildContext context, ThemeProvider themeProvider,
+  Widget _buildThemeButton(BuildContext context, WidgetRef ref,
       String text, IconData icon, bool isSelected) {
-    final primaryColor = themeProvider.primaryColor;
+    final primaryColor = ref.watch(primaryColorProvider);
     return GestureDetector(
       onTap: () {
-        if ((text == 'Dark' && !themeProvider.isDarkMode) ||
-            (text == 'Light' && themeProvider.isDarkMode)) {
-          themeProvider.toggleTheme();
+        if (!isSelected) {
+          ref.read(themeProvider.notifier).toggleTheme();
           HapticFeedback.lightImpact();
         }
       },
@@ -105,15 +105,21 @@ class ThemeSelector extends StatelessWidget {
   }
 
   Widget _buildColorPicker(
-      BuildContext context, ThemeProvider themeProvider, bool isDarkMode) {
+      BuildContext context, WidgetRef ref, bool isDarkMode, int selectedIndex) {
+    final themeNotifier = ref.read(themeProvider.notifier);
+    final colors = ThemeNotifier.primaryColors;
+    
     return Wrap(
       spacing: 16,
       runSpacing: 16,
-      children: themeProvider.colorOptions.map((color) {
-        bool isSelected = color == themeProvider.primaryColor;
+      children: colors.asMap().entries.map((entry) {
+        final index = entry.key;
+        final color = entry.value;
+        bool isSelected = index == selectedIndex;
+        
         return GestureDetector(
           onTap: () {
-            themeProvider.setColor(color);
+            themeNotifier.setPrimaryColor(index);
             HapticFeedback.lightImpact();
           },
           child: AnimatedContainer(

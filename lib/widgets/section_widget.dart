@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_app_tech_techi/models/page_schema.dart';
 import 'package:mobile_app_tech_techi/config/app_constants.dart';
-import 'package:provider/provider.dart';
-import '../providers/theme_provider.dart';
+import '../providers/riverpod/theme_provider.dart';
 import 'control_widget.dart';
 
-class SectionWidget extends StatelessWidget {
+class SectionWidget extends ConsumerWidget {
   final Section section;
   final GlobalKey<FormState> formKey;
 
@@ -16,10 +16,10 @@ class SectionWidget extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
-    final isDarkMode = themeProvider.isDarkMode;
-    final primaryColor = themeProvider.primaryColor;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeState = ref.watch(themeProvider);
+    final isDarkMode = themeState.isDarkMode;
+    final primaryColor = ref.watch(primaryColorProvider);
 
     switch (section.childDisplayModeId) {
       case ChildDiaplayModes.dataTable:

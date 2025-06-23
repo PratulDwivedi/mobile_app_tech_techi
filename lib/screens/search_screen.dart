@@ -1,22 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_app_tech_techi/models/page_item.dart';
-import 'package:mobile_app_tech_techi/services/dynamic_page/dynamic_page_service.dart';
 import 'package:mobile_app_tech_techi/services/navigation_service.dart';
-import 'package:provider/provider.dart';
-import '../providers/theme_provider.dart';
+import '../providers/riverpod/theme_provider.dart';
+import '../providers/riverpod/data_providers.dart';
 
-class SearchScreen extends StatefulWidget {
+class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key});
 
   @override
-  State<SearchScreen> createState() => _SearchScreenState();
+  ConsumerState<SearchScreen> createState() => _SearchScreenState();
 }
 
-class _SearchScreenState extends State<SearchScreen> {
-  final _dynamicPageService = DynamicPageService.instance;
+class _SearchScreenState extends ConsumerState<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
-  late Future<List<PageItem>> _userPagesFuture;
   List<PageItem> _allPages = [];
   List<PageItem> _filteredPages = [];
   bool _isSearching = false;
@@ -24,7 +22,6 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   void initState() {
     super.initState();
-    _userPagesFuture = _dynamicPageService.getUserPages();
     _searchController.addListener(_onSearchChanged);
   }
 
@@ -69,9 +66,10 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
-    final isDarkMode = themeProvider.isDarkMode;
-    final primaryColor = themeProvider.primaryColor;
+    final themeState = ref.watch(themeProvider);
+    final isDarkMode = themeState.isDarkMode;
+    final primaryColor = ref.watch(primaryColorProvider);
+    final userPagesAsync = ref.watch(userPagesProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -128,7 +126,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     fontSize: 16,
                   ),
                   decoration: InputDecoration(
-                    hintText: 'Search ...',
+                    hintText: 'Search for pages...',
                     hintStyle: TextStyle(
                       color: isDarkMode ? Colors.white70 : Colors.black54,
                     ),
@@ -159,100 +157,11 @@ class _SearchScreenState extends State<SearchScreen> {
             
             // Search Results
             Expanded(
-              child: FutureBuilder<List<PageItem>>(
-                future: _userPagesFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(
-                      child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
-                      ),
-                    );
-                  }
-                  
-                  if (snapshot.hasError) {
-                    return Center(
-                      child: Container(
-                        padding: const EdgeInsets.all(24),
-                        decoration: BoxDecoration(
-                          color: isDarkMode
-                              ? Colors.white.withOpacity(0.1)
-                              : Colors.white.withOpacity(0.9),
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 20,
-                              offset: const Offset(0, 10),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.error_outline,
-                              size: 48,
-                              color: Colors.red,
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'Error: ${snapshot.error}',
-                              style: TextStyle(
-                                color: isDarkMode ? Colors.white : Colors.black87,
-                                fontSize: 16,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  }
-
-                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return Center(
-                      child: Container(
-                        padding: const EdgeInsets.all(24),
-                        decoration: BoxDecoration(
-                          color: isDarkMode
-                              ? Colors.white.withOpacity(0.1)
-                              : Colors.white.withOpacity(0.9),
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 20,
-                              offset: const Offset(0, 10),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.search_off,
-                              size: 48,
-                              color: primaryColor,
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'No pages found',
-                              style: TextStyle(
-                                color: isDarkMode ? Colors.white : Colors.black87,
-                                fontSize: 16,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  }
-
+              child: userPagesAsync.when(
+                data: (pages) {
                   // Initialize all pages if not done yet
                   if (_allPages.isEmpty) {
-                    _allPages = _getAllChildPages(snapshot.data!);
+                    _allPages = _getAllChildPages(pages);
                     _filteredPages = List<PageItem>.from(_allPages);
                   }
 
@@ -403,6 +312,48 @@ class _SearchScreenState extends State<SearchScreen> {
                     },
                   );
                 },
+                loading: () => Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
+                  ),
+                ),
+                error: (error, stack) => Center(
+                  child: Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: isDarkMode
+                          ? Colors.white.withOpacity(0.1)
+                          : Colors.white.withOpacity(0.9),
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          size: 48,
+                          color: Colors.red,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Error: $error',
+                          style: TextStyle(
+                            color: isDarkMode ? Colors.white : Colors.black87,
+                            fontSize: 16,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ),
           ],

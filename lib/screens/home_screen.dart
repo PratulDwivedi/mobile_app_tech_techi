@@ -1,29 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:mobile_app_tech_techi/models/page_item.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_app_tech_techi/screens/search_screen.dart';
 import 'package:mobile_app_tech_techi/widgets/app_bar_menu.dart';
 import 'package:mobile_app_tech_techi/widgets/app_drawer.dart';
 import 'package:mobile_app_tech_techi/widgets/bottom_navigation_bar.dart';
-import 'package:provider/provider.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import '../providers/theme_provider.dart';
-import '../services/auth/auth_service.dart';
-import '../services/dynamic_page/dynamic_page_service.dart';
+import '../providers/riverpod/theme_provider.dart';
+import '../providers/riverpod/data_providers.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
-  final _authService = AuthService.instance;
-  final _dynamicPageService = DynamicPageService.instance;
-  late Future<List<PageItem>> _userPagesFuture;
+class _HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -33,7 +27,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _userPagesFuture = _dynamicPageService.getUserPages();
     _loadUserProfile();
 
     _animationController = AnimationController(
@@ -84,9 +77,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
-    final isDark = themeProvider.isDarkMode;
-    final user = _authService.currentUser;
+    final themeState = ref.watch(themeProvider);
+    final isDark = themeState.isDarkMode;
+    final primaryColor = ref.watch(primaryColorProvider);
+    final userAsync = ref.watch(currentUserProvider);
+    final userPagesAsync = ref.watch(userPagesProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -97,27 +92,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           AppBarMenu(),
         ],
       ),
-      drawer: FutureBuilder<List<PageItem>>(
-        future: _userPagesFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Drawer(child: Center(child: CircularProgressIndicator()));
-          }
-          if (snapshot.hasError) {
-            return Drawer(
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text('Error: ${snapshot.error}'),
-                ),
-              ),
-            );
-          }
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Drawer(child: Center(child: Text('No menu items found.')));
-          }
-          return AppDrawer(pages: snapshot.data!, userProfile: _userProfile);
-        },
+      drawer: userPagesAsync.when(
+        data: (pages) => AppDrawer(pages: pages, userProfile: _userProfile),
+        loading: () => const Drawer(child: Center(child: CircularProgressIndicator())),
+        error: (error, stack) => Drawer(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text('Error: $error'),
+            ),
+          ),
+        ),
       ),
       body: Container(
         width: double.infinity,
@@ -133,8 +118,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     const Color(0xFF0f3460),
                   ]
                 : [
-                    themeProvider.primaryColor.withOpacity(0.1),
-                    themeProvider.primaryColor.withOpacity(0.05),
+                    primaryColor.withOpacity(0.1),
+                    primaryColor.withOpacity(0.05),
                     Colors.white,
                   ],
           ),
@@ -152,7 +137,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 10),
-                      if (user != null) _buildUserProfileCard(user, themeProvider),
+                      userAsync.when(
+                        data: (user) => user != null ? _buildUserProfileCard(user, primaryColor, isDark) : const SizedBox.shrink(),
+                        loading: () => const SizedBox.shrink(),
+                        error: (error, stack) => const SizedBox.shrink(),
+                      ),
                       const SizedBox(height: 24),
                       Text(
                         'App Features',
@@ -163,7 +152,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      _buildFeaturesGrid(themeProvider),
+                      _buildFeaturesGrid(primaryColor, isDark),
                       const SizedBox(height: 40),
                     ],
                   ),
@@ -181,32 +170,24 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             ),
           );
         },
-        backgroundColor: themeProvider.primaryColor,
+        backgroundColor: primaryColor,
         foregroundColor: Colors.white,
         elevation: 8,
         child: const Icon(LucideIcons.search),
       ),
-      bottomNavigationBar: FutureBuilder<List<PageItem>>(
-        future: _userPagesFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const SizedBox.shrink();
-          }
-          if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
-            return const SizedBox.shrink();
-          }
-          return CustomBottomNavigationBar(
-            pages: snapshot.data!,
-            currentIndex: _currentIndex,
-            onTap: _onBottomNavTap,
-          );
-        },
+      bottomNavigationBar: userPagesAsync.when(
+        data: (pages) => CustomBottomNavigationBar(
+          pages: pages,
+          currentIndex: _currentIndex,
+          onTap: _onBottomNavTap,
+        ),
+        loading: () => const SizedBox.shrink(),
+        error: (error, stack) => const SizedBox.shrink(),
       ),
     );
   }
 
-  Widget _buildUserProfileCard(User user, ThemeProvider themeProvider) {
-    final isDark = themeProvider.isDarkMode;
+  Widget _buildUserProfileCard(user, Color primaryColor, bool isDark) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -228,8 +209,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  themeProvider.primaryColor,
-                  themeProvider.primaryColor.withOpacity(0.7),
+                  primaryColor,
+                  primaryColor.withOpacity(0.7),
                 ],
               ),
               shape: BoxShape.circle,
@@ -257,7 +238,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildFeaturesGrid(ThemeProvider themeProvider) {
+  Widget _buildFeaturesGrid(Color primaryColor, bool isDark) {
     return GridView.count(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -267,20 +248,19 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       childAspectRatio: 1.2,
       children: [
         _buildFeatureCard('Authentication', 'Secure login with Supabase',
-            LucideIcons.shield, Colors.green, themeProvider),
+            LucideIcons.shield, Colors.green, isDark),
         _buildFeatureCard('User Management', 'Profile and account settings',
-            LucideIcons.users, Colors.blue, themeProvider),
+            LucideIcons.users, Colors.blue, isDark),
         _buildFeatureCard('Real-time Sync', 'Live data synchronization',
-            LucideIcons.refreshCw, Colors.orange, themeProvider),
+            LucideIcons.refreshCw, Colors.orange, isDark),
         _buildFeatureCard('Secure Storage', 'Encrypted data protection',
-            LucideIcons.lock, Colors.purple, themeProvider),
+            LucideIcons.lock, Colors.purple, isDark),
       ],
     );
   }
 
   Widget _buildFeatureCard(String title, String description, IconData icon,
-      Color color, ThemeProvider themeProvider) {
-    final isDark = themeProvider.isDarkMode;
+      Color color, bool isDark) {
     return Container(
       decoration: BoxDecoration(
         color: isDark ? Colors.white.withOpacity(0.1) : Colors.white,

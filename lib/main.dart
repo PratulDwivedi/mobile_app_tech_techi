@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'config/supabase_config.dart';
-import 'providers/theme_provider.dart';
+import 'providers/riverpod/theme_provider.dart';
+import 'providers/riverpod/data_providers.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
-import 'package:mobile_app_tech_techi/services/navigation_service.dart';
+import 'services/navigation_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,23 +18,30 @@ void main() async {
   );
   
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => ThemeProvider(),
-      child: const MyApp(),
+    const ProviderScope(
+      child: MyApp(),
     ),
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeState = ref.watch(themeProvider);
+    final isDarkMode = themeState.isDarkMode;
+    final primaryColor = ref.watch(primaryColorProvider);
+    
     return MaterialApp(
       title: 'Flutter Supabase Auth',
-      theme: themeProvider.getTheme(),
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: primaryColor,
+          brightness: isDarkMode ? Brightness.dark : Brightness.light,
+        ),
+      ),
       navigatorKey: NavigationService.navigatorKey,
       onGenerateRoute: NavigationService.onGenerateRoute,
       home: const AuthWrapper(),
@@ -42,22 +50,31 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class AuthWrapper extends StatelessWidget {
+class AuthWrapper extends ConsumerWidget {
   const AuthWrapper({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return StreamBuilder<AuthState>(
-      stream: Supabase.instance.client.auth.onAuthStateChange,
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          final session = snapshot.data!.session;
-          if (session != null) {
-            return const HomeScreen();
-          }
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authStateAsync = ref.watch(authStateProvider);
+    
+    return authStateAsync.when(
+      data: (authState) {
+        final session = authState.session;
+        if (session != null) {
+          return const HomeScreen();
         }
         return const LoginScreen();
       },
+      loading: () => const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      ),
+      error: (error, stack) => Scaffold(
+        body: Center(
+          child: Text('Error: $error'),
+        ),
+      ),
     );
   }
 }

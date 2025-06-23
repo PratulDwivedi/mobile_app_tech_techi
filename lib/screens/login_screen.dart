@@ -1,25 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import '../providers/theme_provider.dart';
-import '../services/auth/auth_service.dart';
+import '../providers/riverpod/theme_provider.dart';
+import '../providers/riverpod/service_providers.dart';
 import '../services/navigation_service.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen>
+class _LoginScreenState extends ConsumerState<LoginScreen>
     with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _authService = AuthService.instance;
   
   bool _isLoading = false;
   bool _isSignUp = false;
@@ -75,8 +74,10 @@ class _LoginScreenState extends State<LoginScreen>
     });
 
     try {
+      final authService = ref.read(authServiceProvider);
+      
       if (_isSignUp) {
-        await _authService.signUp(
+        await authService.signUp(
           email: _emailController.text.trim(),
           password: _passwordController.text,
         );
@@ -100,7 +101,7 @@ class _LoginScreenState extends State<LoginScreen>
         }
       } else {
         // Call signIn which now returns both auth response and profile
-        final result = await _authService.signIn(
+        final result = await authService.signIn(
           email: _emailController.text.trim(),
           password: _passwordController.text,
         );
@@ -162,9 +163,9 @@ class _LoginScreenState extends State<LoginScreen>
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
-    final isDarkMode = themeProvider.isDarkMode;
-    final primaryColor = themeProvider.primaryColor;
+    final themeState = ref.watch(themeProvider);
+    final isDarkMode = themeState.isDarkMode;
+    final primaryColor = ref.watch(primaryColorProvider);
     
     return Scaffold(
       body: Container(

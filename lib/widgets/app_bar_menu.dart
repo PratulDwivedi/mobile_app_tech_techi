@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:mobile_app_tech_techi/services/auth/auth_service.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_app_tech_techi/widgets/theme_selector.dart';
+import '../providers/riverpod/service_providers.dart';
 
-class AppBarMenu extends StatelessWidget {
+class AppBarMenu extends ConsumerWidget {
   const AppBarMenu({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return PopupMenuButton<_MenuOption>(
       icon: const Icon(LucideIcons.moreVertical),
       onSelected: (option) async {
         switch (option) {
           case _MenuOption.logout:
-            await AuthService.instance.signOut();
+            final authService = ref.read(authServiceProvider);
+            await authService.signOut();
             break;
           case _MenuOption.theme:
             showModalBottomSheet(

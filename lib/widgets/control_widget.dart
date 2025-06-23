@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_app_tech_techi/models/page_schema.dart';
 import 'package:mobile_app_tech_techi/config/app_constants.dart';
-import 'package:provider/provider.dart';
-import '../providers/theme_provider.dart';
+import '../providers/riverpod/theme_provider.dart';
 
-class ControlWidget extends StatelessWidget {
+class ControlWidget extends ConsumerWidget {
   final Control control;
   final GlobalKey<FormState> formKey;
 
@@ -15,10 +15,10 @@ class ControlWidget extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
-    final isDarkMode = themeProvider.isDarkMode;
-    final primaryColor = themeProvider.primaryColor;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeState = ref.watch(themeProvider);
+    final isDarkMode = themeState.isDarkMode;
+    final primaryColor = ref.watch(primaryColorProvider);
 
     switch (control.controlTypeId) {
       case ControlTypes.alphaNumeric:
@@ -312,8 +312,11 @@ class ControlWidget extends StatelessWidget {
 
   IconData _getIconForControlType(int controlTypeId) {
     switch (controlTypeId) {
+      case ControlTypes.alphaNumeric:
+      case ControlTypes.alphaOnly:
+        return Icons.text_fields;
       case ControlTypes.email:
-        return Icons.email_outlined;
+        return Icons.email;
       case ControlTypes.url:
         return Icons.link;
       case ControlTypes.phoneNumber:
@@ -322,30 +325,25 @@ class ControlWidget extends StatelessWidget {
       case ControlTypes.decimal:
       case ControlTypes.currency:
         return Icons.numbers;
-      case ControlTypes.alphaOnly:
-        return Icons.text_fields;
-      case ControlTypes.alphaNumeric:
-        return Icons.text_format;
       default:
-        return Icons.edit;
+        return Icons.input;
     }
   }
 
   TextInputType _getKeyboardType(int controlTypeId) {
-    if (controlTypeId == ControlTypes.email) {
-      return TextInputType.emailAddress;
+    switch (controlTypeId) {
+      case ControlTypes.email:
+        return TextInputType.emailAddress;
+      case ControlTypes.url:
+        return TextInputType.url;
+      case ControlTypes.phoneNumber:
+        return TextInputType.phone;
+      case ControlTypes.integer:
+      case ControlTypes.decimal:
+      case ControlTypes.currency:
+        return TextInputType.number;
+      default:
+        return TextInputType.text;
     }
-    if (controlTypeId == ControlTypes.url) {
-      return TextInputType.url;
-    }
-    if (controlTypeId == ControlTypes.phoneNumber) {
-      return TextInputType.phone;
-    }
-    if (controlTypeId == ControlTypes.integer ||
-        controlTypeId == ControlTypes.decimal ||
-        controlTypeId == ControlTypes.currency) {
-      return const TextInputType.numberWithOptions(decimal: true);
-    }
-    return TextInputType.text;
   }
 } 
