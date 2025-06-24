@@ -12,11 +12,13 @@ import 'line_chart_widget.dart';
 class ControlWidget extends ConsumerStatefulWidget {
   final Control control;
   final GlobalKey<FormState> formKey;
+  final Function(String bindingName, dynamic value)? onValueChanged;
 
   const ControlWidget({
     super.key,
     required this.control,
     required this.formKey,
+    this.onValueChanged,
   });
 
   @override
@@ -25,6 +27,7 @@ class ControlWidget extends ConsumerStatefulWidget {
 
 class _ControlWidgetState extends ConsumerState<ControlWidget> {
   dynamic _selectedValue; // The full item (id, name, ...) or list of such maps for multi
+  final Map<String, TextEditingController> _textControllers = {};
 
   // Expose selected id(s) and name(s) for saving
   dynamic get selectedId {
@@ -38,6 +41,99 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
       return (_selectedValue as List).map((e) => e['name']).join(', ');
     }
     return _selectedValue?['name'];
+  }
+
+  // Get the current form value for this control
+  dynamic getFormValue() {
+    switch (widget.control.controlTypeId) {
+      case ControlTypes.dropdown:
+      case ControlTypes.dropdownMultiselect:
+      case ControlTypes.treeViewSingle:
+      case ControlTypes.treeViewMulti:
+        return selectedId;
+      case ControlTypes.alphaNumeric:
+      case ControlTypes.alphaOnly:
+      case ControlTypes.email:
+      case ControlTypes.url:
+      case ControlTypes.phoneNumber:
+      case ControlTypes.integer:
+      case ControlTypes.decimal:
+      case ControlTypes.currency:
+        final controller = _textControllers[widget.control.bindingName];
+        return controller?.text;
+      case ControlTypes.password:
+        return _textControllers[widget.control.bindingName]?.text;
+      case ControlTypes.textArea:
+        return _textControllers[widget.control.bindingName]?.text;
+      case ControlTypes.toggleSwitch:
+        return _selectedValue ?? false;
+      case ControlTypes.checkbox:
+        return _selectedValue ?? false;
+      case ControlTypes.submit:
+        return null; // Submit form
+      case ControlTypes.addTableRow:
+        return null; // Add table row
+      case ControlTypes.deleteTableRow:
+        return null; // Delete table row
+      case ControlTypes.barChart:
+      case ControlTypes.lineChart:
+      case ControlTypes.pieChart:
+        if (widget.control.bindingListRouteName == null) {
+          return null; // No data
+        }
+        final listData = ref.watch(bindingListProvider(widget.control.bindingListRouteName!));
+        return listData.when(
+          data: (data) => data.isEmpty ? null : data,
+          loading: () => null,
+          error: (error, stack) => null,
+        );
+      default:
+        return null; // Unsupported control type
+    }
+  }
+
+  // Validate the control value
+  String? validateControl() {
+    switch (widget.control.controlTypeId) {
+      case ControlTypes.dropdown:
+      case ControlTypes.dropdownMultiselect:
+      case ControlTypes.treeViewSingle:
+      case ControlTypes.treeViewMulti:
+        if (widget.control.displayModeId == ControlDisplayModes.require) {
+          if (_selectedValue == null || 
+              (widget.control.controlTypeId == ControlTypes.dropdownMultiselect || 
+               widget.control.controlTypeId == ControlTypes.treeViewMulti)) {
+            if (_selectedValue is List && (_selectedValue as List).isEmpty) {
+              return '${widget.control.name} is required';
+            }
+          }
+        }
+        break;
+      case ControlTypes.alphaNumeric:
+      case ControlTypes.alphaOnly:
+      case ControlTypes.email:
+      case ControlTypes.url:
+      case ControlTypes.phoneNumber:
+      case ControlTypes.integer:
+      case ControlTypes.decimal:
+      case ControlTypes.currency:
+      case ControlTypes.password:
+      case ControlTypes.textArea:
+        final controller = _textControllers[widget.control.bindingName];
+        return _validate(widget.control, controller?.text);
+    }
+    return null;
+  }
+
+  // Notify parent of value change
+  void _notifyValueChange(dynamic value) {
+    widget.onValueChanged?.call(widget.control.bindingName, value);
+  }
+
+  @override
+  void dispose() {
+    _textControllers.values.forEach((controller) => controller.dispose());
+    super.dispose();
   }
 
   @override
@@ -87,6 +183,11 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
       case ControlTypes.integer:
       case ControlTypes.decimal:
       case ControlTypes.currency:
+        // Initialize controller if not exists
+        if (!_textControllers.containsKey(widget.control.bindingName)) {
+          _textControllers[widget.control.bindingName] = TextEditingController();
+        }
+        
         return Padding(
           padding: const EdgeInsets.only(bottom: 20.0),
           child: Column(
@@ -102,6 +203,7 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
                   borderRadius: BorderRadius.circular(15),
                 ),
                 child: TextFormField(
+                  controller: _textControllers[widget.control.bindingName],
                   style: TextStyle(
                     color: isDarkMode ? Colors.white : Colors.black87,
                   ),
@@ -121,12 +223,18 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
                   ),
                   keyboardType: _getKeyboardType(widget.control.controlTypeId),
                   validator: (value) => _validate(widget.control, value),
+                  onChanged: (value) => _notifyValueChange(value),
                 ),
               ),
             ],
           ),
         );
       case ControlTypes.password:
+        // Initialize controller if not exists
+        if (!_textControllers.containsKey(widget.control.bindingName)) {
+          _textControllers[widget.control.bindingName] = TextEditingController();
+        }
+        
         return Padding(
           padding: const EdgeInsets.only(bottom: 20.0),
           child: Column(
@@ -142,6 +250,7 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
                   borderRadius: BorderRadius.circular(15),
                 ),
                 child: TextFormField(
+                  controller: _textControllers[widget.control.bindingName],
                   obscureText: true,
                   style: TextStyle(
                     color: isDarkMode ? Colors.white : Colors.black87,
@@ -161,12 +270,18 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
                     ),
                   ),
                   validator: (value) => _validate(widget.control, value),
+                  onChanged: (value) => _notifyValueChange(value),
                 ),
               ),
             ],
           ),
         );
       case ControlTypes.textArea:
+        // Initialize controller if not exists
+        if (!_textControllers.containsKey(widget.control.bindingName)) {
+          _textControllers[widget.control.bindingName] = TextEditingController();
+        }
+        
         return Padding(
           padding: const EdgeInsets.only(bottom: 20.0),
           child: Column(
@@ -182,6 +297,7 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
                   borderRadius: BorderRadius.circular(15),
                 ),
                 child: TextFormField(
+                  controller: _textControllers[widget.control.bindingName],
                   maxLines: 4,
                   style: TextStyle(
                     color: isDarkMode ? Colors.white : Colors.black87,
@@ -200,6 +316,8 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
                       vertical: 16,
                     ),
                   ),
+                  validator: (value) => _validate(widget.control, value),
+                  onChanged: (value) => _notifyValueChange(value),
                 ),
               ),
             ],
@@ -236,9 +354,12 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
                 ),
               ),
               Switch(
-                value: false, // Need to manage state
+                value: _selectedValue ?? false,
                 onChanged: (bool value) {
-                  // Need to manage state
+                  setState(() {
+                    _selectedValue = value;
+                  });
+                  _notifyValueChange(value);
                 },
                 activeColor: primaryColor,
               ),
@@ -438,7 +559,7 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
           setState(() {
             _selectedValue = result;
           });
-          
+          _notifyValueChange(selectedId);
         }
       },
       child: Container(
@@ -519,7 +640,56 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
   }
 
   String? _validate(Control control, String? value) {
-    // Implement validation logic based on the control type
-    return null; // Placeholder return, actual implementation needed
+    // Check if field is required
+    if (control.displayModeId == ControlDisplayModes.require) {
+      if (value == null || value.trim().isEmpty) {
+        return '${control.name} is required';
+      }
+    }
+
+    // If value is empty and not required, it's valid
+    if (value == null || value.trim().isEmpty) {
+      return null;
+    }
+
+    // Type-specific validation
+    switch (control.controlTypeId) {
+      case ControlTypes.email:
+        final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+        if (!emailRegex.hasMatch(value)) {
+          return 'Please enter a valid email address';
+        }
+        break;
+      case ControlTypes.url:
+        final urlRegex = RegExp(r'^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$');
+        if (!urlRegex.hasMatch(value)) {
+          return 'Please enter a valid URL';
+        }
+        break;
+      case ControlTypes.phoneNumber:
+        final phoneRegex = RegExp(r'^[\+]?[1-9][\d]{0,15}$');
+        if (!phoneRegex.hasMatch(value.replaceAll(RegExp(r'[\s\-\(\)]'), ''))) {
+          return 'Please enter a valid phone number';
+        }
+        break;
+      case ControlTypes.integer:
+        if (int.tryParse(value) == null) {
+          return 'Please enter a valid integer';
+        }
+        break;
+      case ControlTypes.decimal:
+      case ControlTypes.currency:
+        if (double.tryParse(value) == null) {
+          return 'Please enter a valid number';
+        }
+        break;
+      case ControlTypes.alphaOnly:
+        if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(value)) {
+          return 'Please enter only letters';
+        }
+        break;
+    }
+
+    return null;
   }
 } 

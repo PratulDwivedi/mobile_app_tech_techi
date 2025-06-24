@@ -9,4 +9,5 @@ abstract class DynamicPageService {
   Future<PageSchema> getPageSchema(String routeName);
   Future<List<PageItem>> getUserPages();
   Future<List<dynamic>> getBindingListData(String functionName);
+  Future<Map<String, dynamic>> postFormData(String functionName, Map<String, dynamic> formData);
 } 

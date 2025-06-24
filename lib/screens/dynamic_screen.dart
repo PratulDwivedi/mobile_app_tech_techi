@@ -3,12 +3,14 @@ import 'package:mobile_app_tech_techi/config/app_constants.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_app_tech_techi/widgets/app_bar_menu.dart';
 import 'package:mobile_app_tech_techi/widgets/bottom_navigation_bar.dart';
-import 'package:mobile_app_tech_techi/widgets/section_widget.dart';
+import 'package:mobile_app_tech_techi/widgets/form_data_collector.dart';
 import '../providers/riverpod/theme_provider.dart';
 import '../providers/riverpod/data_providers.dart';
+import '../providers/riverpod/service_providers.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/app_button.dart';
 import '../screens/search_screen.dart';
+import 'package:mobile_app_tech_techi/models/page_schema.dart';
 
 class DynamicScreen extends ConsumerStatefulWidget {
   final String routeName;
@@ -23,12 +25,211 @@ class DynamicScreen extends ConsumerStatefulWidget {
 
 class _DynamicScreenState extends ConsumerState<DynamicScreen> {
   final _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormDataCollectorState> _formDataCollectorKey = GlobalKey<FormDataCollectorState>();
   int _currentIndex = 1; // Start at 1 since 0 is home
+  bool _isSaving = false;
 
   void _onBottomNavTap(int index) {
     setState(() {
       _currentIndex = index;
     });
+  }
+
+  Future<void> _saveForm(PageSchema pageSchema) async {
+    if (_formKey.currentState == null || !_formKey.currentState!.validate()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please fix validation errors before saving.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    if (pageSchema.bindingNamePost == null || pageSchema.bindingNamePost!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No save function configured for this form.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _isSaving = true;
+    });
+
+    try {
+      final formData = _formDataCollectorKey.currentState?.getFormData() ?? {};
+      
+      // Add the record ID if editing
+      if (widget.id != null && widget.id!.isNotEmpty) {
+        formData['id'] = widget.id;
+      }
+
+      // ignore: avoid_print
+      print('Saving form data: $formData');
+
+      final dynamicPageService = ref.read(dynamicPageServiceProvider);
+      final result = await dynamicPageService.postFormData(
+        pageSchema.bindingNamePost!,
+        formData,
+      );
+
+      // ignore: avoid_print
+      print('Save result: $result');
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result['message'] ?? 'Form saved successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        // Clear form data after successful save
+        _formDataCollectorKey.currentState?.clearFormData();
+      }
+    } catch (e) {
+      // ignore: avoid_print
+      print('Error saving form: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error saving form: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSaving = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _searchData(PageSchema pageSchema) async {
+    if (pageSchema.bindingNameGet == null || pageSchema.bindingNameGet!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No search function configured for this report.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    try {
+      final formData = _formDataCollectorKey.currentState?.getFormData() ?? {};
+      
+      // ignore: avoid_print
+      print('Searching with data: $formData');
+
+      final dynamicPageService = ref.read(dynamicPageServiceProvider);
+      final result = await dynamicPageService.postFormData(
+        pageSchema.bindingNameGet!,
+        formData,
+      );
+
+      // ignore: avoid_print
+      print('Search result: $result');
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result['message'] ?? 'Search completed!'),
+            backgroundColor: Colors.blue,
+          ),
+        );
+      }
+    } catch (e) {
+      // ignore: avoid_print
+      print('Error searching data: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error searching data: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _deleteRecord(PageSchema pageSchema) async {
+    if (pageSchema.bindingNameDelete == null || pageSchema.bindingNameDelete!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No delete function configured for this record.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // Show confirmation dialog
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirm Delete'),
+        content: const Text('Are you sure you want to delete this record? This action cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    try {
+      final formData = {'id': widget.id};
+
+      // ignore: avoid_print
+      print('Deleting record: $formData');
+
+      final dynamicPageService = ref.read(dynamicPageServiceProvider);
+      final result = await dynamicPageService.postFormData(
+        pageSchema.bindingNameDelete!,
+        formData,
+      );
+
+      // ignore: avoid_print
+      print('Delete result: $result');
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result['message'] ?? 'Record deleted successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        // Navigate back after successful delete
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      // ignore: avoid_print
+      print('Error deleting record: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error deleting record: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -139,11 +340,11 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
             padding: const EdgeInsets.all(24.0),
             child: Form(
               key: _formKey,
-              child: Column(
-                children: pageSchema.sections
-                    .map((section) =>
-                        SectionWidget(section: section, formKey: _formKey))
-                    .toList(),
+              child: FormDataCollector(
+                key: _formDataCollectorKey,
+                pageSchema: pageSchema,
+                formKey: _formKey,
+                child: const SizedBox.shrink(), // Not used in this implementation
               ),
             ),
           ),
@@ -239,14 +440,11 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
               children: [
                 if (showSave)
                   AppButton(
-                    label: 'Save',
-                    icon: Icons.save,
+                    label: _isSaving ? 'Saving...' : 'Save',
+                    icon: _isSaving ? Icons.hourglass_empty : Icons.save,
                     color: primaryColor,
-                    onPressed: () {
-                      if (_formKey.currentState != null &&
-                          _formKey.currentState!.validate()) {
-                        // Save form
-                      }
+                    onPressed: _isSaving ? null : () {
+                      _saveForm(pageSchema);
                     },
                   ),
                 if (showSearch)
@@ -254,8 +452,8 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
                     label: 'Search',
                     icon: Icons.search,
                     color: primaryColor,
-                    onPressed: () {
-                      // Search/view logic
+                    onPressed: _isSaving ? null : () {
+                      _searchData(pageSchema);
                     },
                   ),
                 if (showDelete)
@@ -263,8 +461,8 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
                     label: 'Delete',
                     icon: Icons.delete,
                     color: Colors.red,
-                    onPressed: () {
-                      // Delete logic
+                    onPressed: _isSaving ? null : () {
+                      _deleteRecord(pageSchema);
                     },
                   ),
               ],

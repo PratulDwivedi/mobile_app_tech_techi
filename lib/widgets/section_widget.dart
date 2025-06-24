@@ -8,11 +8,13 @@ import 'control_widget.dart';
 class SectionWidget extends ConsumerWidget {
   final Section section;
   final GlobalKey<FormState> formKey;
+  final Function(String bindingName, dynamic value)? onValueChanged;
 
   const SectionWidget({
     super.key,
     required this.section,
     required this.formKey,
+    this.onValueChanged,
   });
 
   Widget SectionTitle(primaryColor, Section section) {
@@ -129,7 +131,11 @@ class SectionWidget extends ConsumerWidget {
             children: [
               // SectionTitle(primaryColor, section),
               ...section.controls.map((control) =>
-                  ControlWidget(control: control, formKey: formKey)),
+                  ControlWidget(
+                    control: control, 
+                    formKey: formKey,
+                    onValueChanged: onValueChanged,
+                  )),
             ],
           ),
         );
