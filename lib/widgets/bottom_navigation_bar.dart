@@ -4,6 +4,7 @@ import 'package:mobile_app_tech_techi/config/app_constants.dart';
 import 'package:mobile_app_tech_techi/models/page_item.dart';
 import 'package:mobile_app_tech_techi/services/navigation_service.dart';
 import '../providers/riverpod/theme_provider.dart';
+import '../models/screen_args_model.dart';
 
 class CustomBottomNavigationBar extends ConsumerWidget {
   final List<PageItem> pages;
@@ -67,7 +68,10 @@ class CustomBottomNavigationBar extends ConsumerWidget {
                   isSelected: currentIndex == index,
                   onTap: () {
                     onTap(index);
-                    NavigationService.navigateTo(page.routeName, arguments: {'isHome': false});
+                    NavigationService.navigateTo(
+                      page.routeName,
+                      arguments: ScreenArgsModel(routeName: page.routeName, isHome: false),
+                    );
                   },
                 );
               }),

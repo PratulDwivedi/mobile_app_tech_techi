@@ -31,6 +31,13 @@ class FormDataCollectorState extends State<FormDataCollector> {
     return Map.from(_formData);
   }
 
+  void setFormData(Map<String, dynamic> data) {
+    setState(() {
+      _formData.clear();
+      _formData.addAll(data);
+    });
+  }
+
   void clearFormData() {
     setState(() {
       _formData.clear();

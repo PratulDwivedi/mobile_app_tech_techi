@@ -52,7 +52,7 @@ class SupabaseDynamicPageService implements DynamicPageService {
   }
 
   @override
-  Future<Map<String, dynamic>> postFormData(String functionName, Map<String, dynamic> formData) async {
+  Future<dynamic> postFormData(String functionName, Map<String, dynamic> formData) async {
     try {
       // Prefix each key with 'p_'
       final Map<String, dynamic> prefixedParams = {
@@ -61,7 +61,7 @@ class SupabaseDynamicPageService implements DynamicPageService {
       // ignore: avoid_print
       print('Posting form data to $functionName: $prefixedParams');
       final response = await _supabase.rpc(functionName, params: prefixedParams);
-      return response as Map<String, dynamic>;
+      return response;
     } catch (e) {
       // ignore: avoid_print
       print('Error posting form data to $functionName: $e');

@@ -3,6 +3,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:mobile_app_tech_techi/config/app_constants.dart';
 import 'package:mobile_app_tech_techi/services/navigation_service.dart';
 import '../models/page_item.dart';
+import '../models/screen_args_model.dart';
 
 class AppDrawer extends StatelessWidget {
   final List<PageItem> pages;
@@ -121,7 +122,10 @@ class AppDrawer extends StatelessWidget {
         title: Text(page.name),
         onTap: () {
           Navigator.of(context).pop();
-          NavigationService.navigateTo(page.routeName, arguments: {'isHome': false});
+          NavigationService.navigateTo(
+            page.routeName,
+            arguments: ScreenArgsModel(routeName: page.routeName, isHome: false),
+          );
         },
       );
     } else {

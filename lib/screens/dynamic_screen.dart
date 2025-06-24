@@ -197,15 +197,14 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
     if (confirmed != true) return;
 
     try {
-      final formData = {'id': widget.args.data['id']};
-
+    
       // ignore: avoid_print
-      print('Deleting record: $formData');
+      print('Deleting record: $widget.args.data');
 
       final dynamicPageService = ref.read(dynamicPageServiceProvider);
       final result = await dynamicPageService.postFormData(
         pageSchema.bindingNameDelete!,
-        formData,
+        widget.args.data,
       );
 
       // ignore: avoid_print
@@ -340,18 +339,68 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
           ),
         ),
         child: pageSchemaAsync.when(
-          data: (pageSchema) => SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
-            child: Form(
-              key: _formKey,
-              child: FormDataCollector(
-                key: _formDataCollectorKey,
-                pageSchema: pageSchema,
-                formKey: _formKey,
-                child: const SizedBox.shrink(),
+          data: (pageSchema) {
+            // Prefill logic
+            if (widget.args.data.isNotEmpty && pageSchema.bindingNameGet != null && pageSchema.bindingNameGet!.isNotEmpty) {
+              // Need to fetch data from API
+              return FutureBuilder<dynamic>(
+                future: ref.read(dynamicPageServiceProvider).postFormData(
+                  pageSchema.bindingNameGet!,
+                  widget.args.data,
+                ),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (snapshot.hasError) {
+                    return Center(child: Text('Error loading data: \\${snapshot.error}'));
+                  }
+                  final result = snapshot.data;
+                  Map<String, dynamic> apiData = {};
+                  if (result is List && result.isNotEmpty && result.first is Map<String, dynamic>) {
+                    apiData = result.first as Map<String, dynamic>;
+                  } else if (result is Map<String, dynamic>) {
+                    apiData = result;
+                  } else if (result is List && result.isEmpty) {
+                    return const Center(child: Text('No data found to prefill.'));
+                  }
+                  // Set form data
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    _formDataCollectorKey.currentState?.setFormData(apiData);
+                  });
+                  return SingleChildScrollView(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Form(
+                      key: _formKey,
+                      child: FormDataCollector(
+                        key: _formDataCollectorKey,
+                        pageSchema: pageSchema,
+                        formKey: _formKey,
+                        child: const SizedBox.shrink(),
+                      ),
+                    ),
+                  );
+                },
+              );
+            } else if (widget.args.data.isNotEmpty) {
+              // Just prefill with args.data
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                _formDataCollectorKey.currentState?.setFormData(widget.args.data);
+              });
+            }
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(24.0),
+              child: Form(
+                key: _formKey,
+                child: FormDataCollector(
+                  key: _formDataCollectorKey,
+                  pageSchema: pageSchema,
+                  formKey: _formKey,
+                  child: const SizedBox.shrink(),
+                ),
               ),
-            ),
-          ),
+            );
+          },
           loading: () => Center(
             child: CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(primaryColor),

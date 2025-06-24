@@ -5,6 +5,7 @@ import 'package:mobile_app_tech_techi/models/page_item.dart';
 import 'package:mobile_app_tech_techi/services/navigation_service.dart';
 import '../providers/riverpod/theme_provider.dart';
 import '../providers/riverpod/data_providers.dart';
+import '../models/screen_args_model.dart';
 
 class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key});
@@ -305,7 +306,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                           ),
                           onTap: () {
                             Navigator.of(context).pop();
-                            NavigationService.navigateTo(page.routeName, arguments: {'isHome': false});
+                            NavigationService.navigateTo(
+                              page.routeName,
+                              arguments: ScreenArgsModel(routeName: page.routeName, isHome: false),
+                            );
                           },
                         ),
                       );
