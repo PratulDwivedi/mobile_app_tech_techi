@@ -20,8 +20,6 @@ class FormDataCollector extends StatefulWidget {
 
 class FormDataCollectorState extends State<FormDataCollector> {
   final Map<String, dynamic> _formData = {};
-  final Map<String, Function(String, dynamic)> _controlCallbacks = {};
-  final Map<String, GlobalKey> _controlKeys = {};
 
   void _onValueChanged(String bindingName, dynamic value) {
     setState(() {

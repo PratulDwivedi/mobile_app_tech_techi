@@ -57,7 +57,8 @@ class SectionWidget extends ConsumerWidget {
         );
       case ChildDiaplayModes.dataTableReport:
       case ChildDiaplayModes.dataTableReportAdvance:
-        return ReadOnlyCardSection(section: section);
+        //return ReadOnlyCardSection(section: section);
+        return Container();
       case ChildDiaplayModes.googleMap:
         // Placeholder for Google Map rendering
         return Container(

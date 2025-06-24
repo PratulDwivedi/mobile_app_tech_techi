@@ -11,6 +11,7 @@ import '../widgets/app_drawer.dart';
 import '../widgets/app_button.dart';
 import '../screens/search_screen.dart';
 import 'package:mobile_app_tech_techi/models/page_schema.dart';
+import '../widgets/data_table_report_dialog.dart';
 
 class DynamicScreen extends ConsumerStatefulWidget {
   final String routeName;
@@ -431,8 +432,13 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
               widget.id!.isNotEmpty &&
               pageSchema.bindingNameDelete!.isNotEmpty;
 
+          // Check if any section is a report/advance
+          final hasDataTableReport = pageSchema.sections.any((s) =>
+            s.childDisplayModeId == ChildDiaplayModes.dataTableReport ||
+            s.childDisplayModeId == ChildDiaplayModes.dataTableReportAdvance);
+
           // If no button is visible, return SizedBox.shrink()
-          if (!showSave && !showSearch && !showDelete) {
+          if (!showSave && !showSearch && !showDelete && !hasDataTableReport) {
             return const SizedBox.shrink();
           }
 
@@ -442,32 +448,69 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                if (showSave)
-                  AppButton(
-                    label: _isSaving ? 'Saving...' : 'Save',
-                    icon: _isSaving ? Icons.hourglass_empty : Icons.save,
-                    color: primaryColor,
-                    onPressed: _isSaving ? null : () {
-                      _saveForm(pageSchema);
+                if (hasDataTableReport)
+                  IconButton(
+                    icon: const Icon(Icons.search),
+                    tooltip: 'Show Report',
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => Dialog(
+                          insetPadding: const EdgeInsets.all(16),
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: DataTableReportDialog(
+                              sections: pageSchema.sections.where((s) =>
+                                s.childDisplayModeId == ChildDiaplayModes.dataTableReport ||
+                                s.childDisplayModeId == ChildDiaplayModes.dataTableReportAdvance
+                              ).toList(),
+                            ),
+                          ),
+                        ),
+                      );
                     },
+                  ),
+                if (showSave)
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                      child: AppButton(
+                        label: _isSaving ? 'Saving...' : 'Save',
+                        icon: _isSaving ? Icons.hourglass_empty : Icons.save,
+                        color: primaryColor,
+                        onPressed: _isSaving ? null : () {
+                          _saveForm(pageSchema);
+                        },
+                      ),
+                    ),
                   ),
                 if (showSearch)
-                  AppButton(
-                    label: 'Search',
-                    icon: Icons.search,
-                    color: primaryColor,
-                    onPressed: _isSaving ? null : () {
-                      _searchData(pageSchema);
-                    },
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                      child: AppButton(
+                        label: 'Search',
+                        icon: Icons.search,
+                        color: primaryColor,
+                        onPressed: _isSaving ? null : () {
+                          _searchData(pageSchema);
+                        },
+                      ),
+                    ),
                   ),
                 if (showDelete)
-                  AppButton(
-                    label: 'Delete',
-                    icon: Icons.delete,
-                    color: Colors.red,
-                    onPressed: _isSaving ? null : () {
-                      _deleteRecord(pageSchema);
-                    },
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                      child: AppButton(
+                        label: 'Delete',
+                        icon: Icons.delete,
+                        color: Colors.red,
+                        onPressed: _isSaving ? null : () {
+                          _deleteRecord(pageSchema);
+                        },
+                      ),
+                    ),
                   ),
               ],
             ),
