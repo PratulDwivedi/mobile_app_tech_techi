@@ -449,26 +449,32 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 if (hasDataTableReport)
-                  IconButton(
-                    icon: const Icon(Icons.search),
-                    tooltip: 'Show Report',
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => Dialog(
-                          insetPadding: const EdgeInsets.all(16),
-                          child: SizedBox(
-                            width: double.infinity,
-                            child: DataTableReportDialog(
-                              sections: pageSchema.sections.where((s) =>
-                                s.childDisplayModeId == ChildDiaplayModes.dataTableReport ||
-                                s.childDisplayModeId == ChildDiaplayModes.dataTableReportAdvance
-                              ).toList(),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                      child: AppButton(
+                        label: 'Search',
+                        icon: Icons.search,
+                        color: Theme.of(context).colorScheme.secondary,
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => Dialog(
+                              insetPadding: const EdgeInsets.all(16),
+                              child: SizedBox(
+                                width: double.infinity,
+                                child: DataTableReportDialog(
+                                  sections: pageSchema.sections.where((s) =>
+                                    s.childDisplayModeId == ChildDiaplayModes.dataTableReport ||
+                                    s.childDisplayModeId == ChildDiaplayModes.dataTableReportAdvance
+                                  ).toList(),
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                      );
-                    },
+                          );
+                        },
+                      ),
+                    ),
                   ),
                 if (showSave)
                   Expanded(
