@@ -13,12 +13,14 @@ class ControlWidget extends ConsumerStatefulWidget {
   final Control control;
   final GlobalKey<FormState> formKey;
   final Function(String bindingName, dynamic value)? onValueChanged;
+  final dynamic value;
 
   const ControlWidget({
     super.key,
     required this.control,
     required this.formKey,
     this.onValueChanged,
+    this.value,
   });
 
   @override
@@ -28,6 +30,68 @@ class ControlWidget extends ConsumerStatefulWidget {
 class _ControlWidgetState extends ConsumerState<ControlWidget> {
   dynamic _selectedValue; // The full item (id, name, ...) or list of such maps for multi
   final Map<String, TextEditingController> _textControllers = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeValue();
+  }
+
+  @override
+  void didUpdateWidget(covariant ControlWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.value != oldWidget.value) {
+      _initializeValue();
+    }
+  }
+
+  void _initializeValue() {
+    switch (widget.control.controlTypeId) {
+      case ControlTypes.dropdown:
+      case ControlTypes.treeViewSingle:
+        // Accept int, String, or Map for single select
+        dynamic val = widget.value;
+        if (val != null && val is! Map) {
+          val = {'id': val, 'name': val.toString()};
+        }
+        _selectedValue = val;
+        break;
+      case ControlTypes.dropdownMultiselect:
+      case ControlTypes.treeViewMulti:
+        // Accept List<int>, List<String>, List<Map>
+        dynamic val = widget.value;
+        if (val is List) {
+          val = val.map((e) => e is Map ? e : {'id': e, 'name': e.toString()}).toList();
+        } else if (val != null) {
+          val = [{'id': val, 'name': val.toString()}];
+        }
+        _selectedValue = val;
+        break;
+      case ControlTypes.alphaNumeric:
+      case ControlTypes.alphaOnly:
+      case ControlTypes.email:
+      case ControlTypes.url:
+      case ControlTypes.phoneNumber:
+      case ControlTypes.integer:
+      case ControlTypes.decimal:
+      case ControlTypes.currency:
+      case ControlTypes.password:
+      case ControlTypes.textArea:
+        if (!_textControllers.containsKey(widget.control.bindingName)) {
+          _textControllers[widget.control.bindingName] = TextEditingController();
+        }
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _textControllers[widget.control.bindingName]?.text = widget.value?.toString() ?? '';
+        });
+        break;
+      case ControlTypes.toggleSwitch:
+      case ControlTypes.checkbox:
+        _selectedValue = widget.value ?? false;
+        break;
+      default:
+        break;
+    }
+  }
 
   // Expose selected id(s) and name(s) for saving
   dynamic get selectedId {

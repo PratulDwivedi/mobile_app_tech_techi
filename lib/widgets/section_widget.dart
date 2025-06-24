@@ -11,12 +11,14 @@ class SectionWidget extends ConsumerWidget {
   final Section section;
   final GlobalKey<FormState> formKey;
   final Function(String bindingName, dynamic value)? onValueChanged;
+  final Map<String, dynamic> formData;
 
   const SectionWidget({
     super.key,
     required this.section,
     required this.formKey,
     this.onValueChanged,
+    this.formData = const {},
   });
 
   Widget SectionTitle(primaryColor, Section section) {
@@ -116,6 +118,7 @@ class SectionWidget extends ConsumerWidget {
                     control: control, 
                     formKey: formKey,
                     onValueChanged: onValueChanged,
+                    value: formData[control.bindingName],
                   )),
             ],
           ),

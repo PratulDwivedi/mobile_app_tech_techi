@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mobile_app_tech_techi/models/screen_args_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../providers/riverpod/theme_provider.dart';
@@ -121,7 +122,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
             if (routeNameMobile != null && routeNameMobile.isNotEmpty) {
               // Navigate to the mobile route as home
-              NavigationService.navigateTo(routeNameMobile, arguments: {'isHome': true});
+              NavigationService.navigateTo(routeNameMobile, arguments: ScreenArgsModel(routeName: routeNameMobile, isHome: true));
             } else {
               // Fallback to a default dynamic screen if no mobile route specified
               NavigationService.navigateTo('default', arguments: {'isHome': true});

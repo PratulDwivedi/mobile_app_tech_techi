@@ -67,6 +67,7 @@ class FormDataCollectorState extends State<FormDataCollector> {
                 section: section,
                 formKey: widget.formKey,
                 onValueChanged: _onValueChanged,
+                formData: _formData,
               ))
           .toList(),
     );
