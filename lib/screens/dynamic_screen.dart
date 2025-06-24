@@ -25,7 +25,7 @@ class DynamicScreen extends ConsumerStatefulWidget {
 
 class _DynamicScreenState extends ConsumerState<DynamicScreen> {
   final _formKey = GlobalKey<FormState>();
-  final GlobalKey<FormDataCollectorState> _formDataCollectorKey = GlobalKey<FormDataCollectorState>();
+  GlobalKey<FormDataCollectorState> _formDataCollectorKey = GlobalKey<FormDataCollectorState>();
   int _currentIndex = 1; // Start at 1 since 0 is home
   bool _isSaving = false;
 
@@ -90,6 +90,10 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
 
         // Clear form data after successful save
         _formDataCollectorKey.currentState?.clearFormData();
+        _formKey.currentState?.reset();
+        setState(() {
+          _formDataCollectorKey = GlobalKey<FormDataCollectorState>();
+        });
       }
     } catch (e) {
       // ignore: avoid_print
@@ -344,7 +348,7 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
                 key: _formDataCollectorKey,
                 pageSchema: pageSchema,
                 formKey: _formKey,
-                child: const SizedBox.shrink(), // Not used in this implementation
+                child: const SizedBox.shrink(),
               ),
             ),
           ),
