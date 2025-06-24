@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app_tech_techi/screens/chat_screen.dart';
 import 'package:mobile_app_tech_techi/screens/dynamic_screen.dart';
+import '../models/screen_args_model.dart';
 
 class NavigationService {
   static final GlobalKey<NavigatorState> navigatorKey =
@@ -15,16 +16,16 @@ class NavigationService {
     if (_routes.containsKey(routeName)) {
       navigatorKey.currentState?.pushNamed(routeName, arguments: arguments);
     } else {
-      // Always navigate to DynamicScreen for dynamic routes
-      bool isHome = false;
-      if (arguments is Map && arguments['isHome'] == true) {
-        isHome = true;
+      ScreenArgsModel args;
+      if (arguments is ScreenArgsModel) {
+        args = arguments;
+      } else if (arguments is Map<String, dynamic>) {
+        args = ScreenArgsModel(routeName: routeName, data: arguments);
+      } else {
+        args = ScreenArgsModel(routeName: routeName);
       }
       navigatorKey.currentState?.push(MaterialPageRoute(
-        builder: (context) => DynamicScreen(
-          routeName: routeName,
-          isHome: isHome,
-        ),
+        builder: (context) => DynamicScreen(args: args),
       ));
     }
   }

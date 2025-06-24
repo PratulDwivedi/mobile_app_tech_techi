@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_app_tech_techi/widgets/app_bar_menu.dart';
 import 'package:mobile_app_tech_techi/widgets/bottom_navigation_bar.dart';
 import 'package:mobile_app_tech_techi/widgets/form_data_collector.dart';
+import '../models/screen_args_model.dart';
 import '../providers/riverpod/theme_provider.dart';
 import '../providers/riverpod/data_providers.dart';
 import '../providers/riverpod/service_providers.dart';
@@ -13,12 +14,10 @@ import '../screens/search_screen.dart';
 import 'package:mobile_app_tech_techi/models/page_schema.dart';
 import '../widgets/data_table_report_dialog.dart';
 
+
 class DynamicScreen extends ConsumerStatefulWidget {
-  final String routeName;
-  final bool isHome;
-  final String? id;
-  const DynamicScreen(
-      {super.key, required this.routeName, this.isHome = false, this.id});
+  final ScreenArgsModel args;
+  const DynamicScreen({super.key, required this.args});
 
   @override
   ConsumerState<DynamicScreen> createState() => _DynamicScreenState();
@@ -65,8 +64,8 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
       final formData = _formDataCollectorKey.currentState?.getFormData() ?? {};
       
       // Add the record ID if editing
-      if (widget.id != null && widget.id!.isNotEmpty) {
-        formData['id'] = widget.id;
+      if (widget.args.data['id'] != null && widget.args.data['id']!.isNotEmpty) {
+        formData['id'] = widget.args.data['id'];
       }
 
       // ignore: avoid_print
@@ -198,7 +197,7 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
     if (confirmed != true) return;
 
     try {
-      final formData = {'id': widget.id};
+      final formData = {'id': widget.args.data['id']};
 
       // ignore: avoid_print
       print('Deleting record: $formData');
@@ -242,7 +241,7 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
     final themeState = ref.watch(themeProvider);
     final isDarkMode = themeState.isDarkMode;
     final primaryColor = ref.watch(primaryColorProvider);
-    final pageSchemaAsync = ref.watch(pageSchemaProvider(widget.routeName));
+    final pageSchemaAsync = ref.watch(pageSchemaProvider(widget.args.routeName));
     final userPagesAsync = ref.watch(userPagesProvider);
     final userProfileAsync = ref.watch(userProfileProvider);
 
@@ -270,7 +269,7 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
           },
           loading: () => AppBar(
             title: Text(
-              widget.routeName.replaceAll('_', ' ').toUpperCase(),
+              widget.args.routeName.replaceAll('_', ' ').toUpperCase(),
               style: TextStyle(
                 color: isDarkMode ? Colors.white : Colors.black87,
                 fontWeight: FontWeight.bold,
@@ -285,7 +284,7 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
           ),
           error: (error, stack) => AppBar(
             title: Text(
-              widget.routeName.replaceAll('_', ' ').toUpperCase(),
+              widget.args.routeName.replaceAll('_', ' ').toUpperCase(),
               style: TextStyle(
                 color: isDarkMode ? Colors.white : Colors.black87,
                 fontWeight: FontWeight.bold,
@@ -300,7 +299,7 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
           ),
         ),
       ),
-      drawer: widget.isHome
+      drawer: widget.args.isHome
           ? userPagesAsync.when(
               data: (pages) => userProfileAsync.when(
                 data: (profile) => AppDrawer(pages: pages, userProfile: profile),
@@ -397,7 +396,7 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: widget.isHome
+      bottomNavigationBar: widget.args.isHome
           ? userPagesAsync.when(
               data: (pages) => CustomBottomNavigationBar(
                 pages: pages,
@@ -408,7 +407,7 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
               error: (error, stack) => const SizedBox.shrink(),
             )
           : null,
-      floatingActionButton: widget.isHome
+      floatingActionButton: widget.args.isHome
           ? FloatingActionButton(
               onPressed: () {
                 Navigator.of(context).push(
@@ -428,8 +427,8 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
           final pageTypeId = pageSchema.pageTypeId;
           final showSave = pageTypeId == PageTypes.form;
           final showSearch = pageTypeId == PageTypes.report && (pageSchema.bindingNameGet?.isNotEmpty ?? false);
-          final showDelete = widget.id != null &&
-              widget.id!.isNotEmpty &&
+          final showDelete = widget.args.data['id'] != null &&
+              widget.args.data['id']!.isNotEmpty &&
               pageSchema.bindingNameDelete!.isNotEmpty;
 
           // Check if any section is a report/advance

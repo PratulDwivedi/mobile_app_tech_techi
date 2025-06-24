@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'config/supabase_config.dart';
+import 'models/screen_args_model.dart';
 import 'providers/riverpod/theme_provider.dart';
 import 'providers/riverpod/data_providers.dart';
 import 'screens/login_screen.dart';
@@ -62,7 +63,7 @@ class AuthWrapper extends ConsumerWidget {
         final session = authState.session;
         if (session != null) {
           // Use a default route or fetch from user profile if needed
-          return const DynamicScreen(routeName: 'dashboard', isHome: true);
+          return DynamicScreen(args: ScreenArgsModel(routeName: 'dashboard', isHome: true));
         }
         return const LoginScreen();
       },
