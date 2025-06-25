@@ -68,13 +68,33 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
         formData['id'] = widget.args.data['id'];
       }
 
+      // Filter formData to only include allowed binding names (exclude _name fields and buttons)
+      final allowedBindingNames = <String>{};
+      for (final section in pageSchema.sections) {
+        for (final control in section.controls) {
+          // Exclude button controls (adjust controlTypeId as needed)
+          if (control.controlTypeId == ControlTypes.submit ||
+              control.controlTypeId == ControlTypes.addTableRow ||
+              control.controlTypeId == ControlTypes.deleteTableRow) continue;
+          // Exclude _name fields (display only)
+          if (control.bindingName.endsWith('_name')) continue;
+          allowedBindingNames.add(control.bindingName);
+        }
+      }
+      final filteredFormData = <String, dynamic>{};
+      formData.forEach((key, value) {
+        if (allowedBindingNames.contains(key)) {
+          filteredFormData[key] = value;
+        }
+      });
+
       // ignore: avoid_print
-      print('Saving form data: $formData');
+      print('Saving filtered form data: $filteredFormData');
 
       final dynamicPageService = ref.read(dynamicPageServiceProvider);
       final result = await dynamicPageService.postFormData(
         pageSchema.bindingNamePost!,
-        formData,
+        filteredFormData,
       );
 
       // ignore: avoid_print
