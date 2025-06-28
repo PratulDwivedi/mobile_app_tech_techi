@@ -80,6 +80,21 @@ class _DataTableCardListWidgetState extends State<DataTableCardListWidget> {
         control.controlTypeId == ControlTypes.hyperlinkRow;
   }
 
+  // Helper to get nested value from a map using dot notation
+  Object? getNestedValue(Map<String, dynamic> map, String? path) {
+    if (map.isEmpty || path == null || path.isEmpty) return null;
+    var keys = path.split('.');
+    dynamic value = map;
+    for (final key in keys) {
+      if (value is Map<String, dynamic> && value.containsKey(key)) {
+        value = value[key];
+      } else {
+        return null;
+      }
+    }
+    return value;
+  }
+
   @override
   Widget build(BuildContext context) {
     final filteredData = _filteredData;
@@ -152,7 +167,8 @@ class _DataTableCardListWidgetState extends State<DataTableCardListWidget> {
                                     ControlDisplayModes.noneHidden &&
                                 !isActionControl(control))
                             .map((control) {
-                          final value = record[control.bindingName];
+                          final value =
+                              getNestedValue(record, control.bindingName);
                           if (value == null || value.toString().isEmpty)
                             return const SizedBox.shrink();
                           return Padding(
