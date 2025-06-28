@@ -19,7 +19,7 @@ class SkeletonCardWidget extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Shimmer.fromColors(
           baseColor: Colors.grey[300]!,
-          highlightColor: Colors.grey[100]!,
+          highlightColor: Colors.white,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

@@ -11,11 +11,16 @@ class DataTableCardListWidget extends StatefulWidget {
   final Section section;
   final List<dynamic> data;
   final int pageSize;
-  const DataTableCardListWidget(
-      {super.key,
-      required this.section,
-      required this.data,
-      this.pageSize = 20});
+  final bool shrinkWrap;
+  final ScrollPhysics? physics;
+  const DataTableCardListWidget({
+    super.key,
+    required this.section,
+    required this.data,
+    this.pageSize = 20,
+    this.shrinkWrap = false,
+    this.physics,
+  });
 
   @override
   State<DataTableCardListWidget> createState() =>
@@ -147,6 +152,8 @@ class _DataTableCardListWidgetState extends State<DataTableCardListWidget> {
             child: ListView.builder(
               controller: _scrollController,
               itemCount: end,
+              shrinkWrap: widget.shrinkWrap,
+              physics: widget.physics,
               itemBuilder: (context, index) {
                 final record = filteredData[index];
                 final visibleFieldControls = widget.section.controls
@@ -158,12 +165,20 @@ class _DataTableCardListWidgetState extends State<DataTableCardListWidget> {
                   final value = getNestedValue(record, control.bindingName);
                   return value != null && value.toString().isNotEmpty;
                 }).toList();
+                final isEven = index % 2 == 0;
+                final baseColor = Theme.of(context).cardColor;
+                final cardColor = isEven
+                    ? baseColor
+                    : (Theme.of(context).brightness == Brightness.dark
+                        ? Colors.grey[900]
+                        : Colors.grey[100]);
                 return Card(
                   margin:
                       const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
                   elevation: 2,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16)),
+                  color: cardColor,
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
