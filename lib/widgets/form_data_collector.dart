@@ -35,6 +35,23 @@ class FormDataCollectorState extends State<FormDataCollector> {
     setState(() {
       _formData.clear();
       _formData.addAll(data);
+      // Ensure for dropdown/treeview controls, both id and _name are set
+      for (final section in widget.pageSchema.sections) {
+        for (final control in section.controls) {
+          final bindingName = control.bindingName;
+          final isDropdownOrTree = control.controlTypeId == 12 || // dropdown
+                                   control.controlTypeId == 17 || // treeview
+                                   control.controlTypeId == 14 || // dropdownMulti
+                                   control.controlTypeId == 18;   // treeviewMulti
+          if (isDropdownOrTree) {
+            final id = data[bindingName];
+            final name = data['${bindingName}_name'];
+            if (id != null && name == null) {
+              _formData['${bindingName}_name'] = '';
+            }
+          }
+        }
+      }
     });
   }
 

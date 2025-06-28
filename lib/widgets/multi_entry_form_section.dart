@@ -6,12 +6,14 @@ class MultiEntryFormSection extends StatefulWidget {
   final Section section;
   final GlobalKey<FormState> formKey;
   final Function(String bindingName, dynamic value)? onValueChanged;
+  final Map<String, dynamic> formData;
 
   const MultiEntryFormSection({
     super.key,
     required this.section,
     required this.formKey,
     this.onValueChanged,
+    required this.formData,
   });
 
   @override
@@ -20,7 +22,13 @@ class MultiEntryFormSection extends StatefulWidget {
 
 class _MultiEntryFormSectionState extends State<MultiEntryFormSection> {
   final List<Map<String, dynamic>> _entries = [];
-  final Map<String, dynamic> _currentEntry = {};
+  late Map<String, dynamic> _currentEntry;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentEntry = Map<String, dynamic>.from(widget.formData);
+  }
 
   void _onControlChanged(String bindingName, dynamic value) {
     setState(() {
@@ -64,6 +72,7 @@ class _MultiEntryFormSectionState extends State<MultiEntryFormSection> {
               control: control,
               formKey: widget.formKey,
               onValueChanged: _onControlChanged,
+              formData: _currentEntry,
             )),
         Align(
           alignment: Alignment.centerRight,

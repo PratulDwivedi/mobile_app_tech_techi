@@ -13,14 +13,14 @@ class ControlWidget extends ConsumerStatefulWidget {
   final Control control;
   final GlobalKey<FormState> formKey;
   final Function(String bindingName, dynamic value)? onValueChanged;
-  final dynamic value;
+  final Map<String, dynamic> formData;
 
   const ControlWidget({
     super.key,
     required this.control,
     required this.formKey,
     this.onValueChanged,
-    this.value,
+    required this.formData,
   });
 
   @override
@@ -40,7 +40,7 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
   @override
   void didUpdateWidget(covariant ControlWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.value != oldWidget.value) {
+    if (widget.formData != oldWidget.formData) {
       _initializeValue();
     }
   }
@@ -49,23 +49,33 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
     switch (widget.control.controlTypeId) {
       case ControlTypes.dropdown:
       case ControlTypes.treeViewSingle:
-        // Accept int, String, or Map for single select
-        dynamic val = widget.value;
-        if (val != null && val is! Map) {
-          val = {'id': val, 'name': val.toString()};
+        // Use id and _name from formData
+        final bindingName = widget.control.bindingName;
+        final id = widget.formData[bindingName];
+        final name = widget.formData['${bindingName}_name'];
+        if (id != null) {
+          _selectedValue = {'id': id, 'name': name ?? id.toString()};
+        } else {
+          _selectedValue = null;
         }
-        _selectedValue = val;
         break;
       case ControlTypes.dropdownMultiselect:
       case ControlTypes.treeViewMulti:
-        // Accept List<int>, List<String>, List<Map>
-        dynamic val = widget.value;
-        if (val is List) {
-          val = val.map((e) => e is Map ? e : {'id': e, 'name': e.toString()}).toList();
-        } else if (val != null) {
-          val = [{'id': val, 'name': val.toString()}];
+        // Use list of ids and names from formData
+        final bindingName = widget.control.bindingName;
+        final ids = widget.formData[bindingName];
+        final names = widget.formData['${bindingName}_name'];
+        List<Map<String, dynamic>> result = [];
+        if (ids is List) {
+          for (var i = 0; i < ids.length; i++) {
+            final id = ids[i];
+            final name = (names is List && names.length > i) ? names[i] : id.toString();
+            result.add({'id': id, 'name': name});
+          }
+        } else if (ids != null) {
+          result.add({'id': ids, 'name': (names is List && names.isNotEmpty) ? names[0] : ids.toString()});
         }
-        _selectedValue = val;
+        _selectedValue = result;
         break;
       case ControlTypes.alphaNumeric:
       case ControlTypes.alphaOnly:
@@ -81,12 +91,12 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
           _textControllers[widget.control.bindingName] = TextEditingController();
         }
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          _textControllers[widget.control.bindingName]?.text = widget.value?.toString() ?? '';
+          _textControllers[widget.control.bindingName]?.text = widget.formData[widget.control.bindingName]?.toString() ?? '';
         });
         break;
       case ControlTypes.toggleSwitch:
       case ControlTypes.checkbox:
-        _selectedValue = widget.value ?? false;
+        _selectedValue = widget.formData[widget.control.bindingName] ?? false;
         break;
       default:
         break;
@@ -191,7 +201,27 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
 
   // Notify parent of value change
   void _notifyValueChange(dynamic value) {
-    widget.onValueChanged?.call(widget.control.bindingName, value);
+    // For dropdown/tree controls, set both id and name
+    if (widget.control.controlTypeId == ControlTypes.dropdown ||
+        widget.control.controlTypeId == ControlTypes.treeViewSingle ||
+        widget.control.controlTypeId == ControlTypes.dropdownMultiselect ||
+        widget.control.controlTypeId == ControlTypes.treeViewMulti) {
+      if (value == null) {
+        widget.onValueChanged?.call(widget.control.bindingName, null);
+        widget.onValueChanged?.call('${widget.control.bindingName}_name', null);
+      } else if (value is List) {
+        // Multi-select: list of maps
+        final ids = value.map((e) => e['id']).toList();
+        final names = value.map((e) => e['name']).toList();
+        widget.onValueChanged?.call(widget.control.bindingName, ids);
+        widget.onValueChanged?.call('${widget.control.bindingName}_name', names);
+      } else if (value is Map) {
+        widget.onValueChanged?.call(widget.control.bindingName, value['id']);
+        widget.onValueChanged?.call('${widget.control.bindingName}_name', value['name']);
+      }
+    } else {
+      widget.onValueChanged?.call(widget.control.bindingName, value);
+    }
   }
 
   @override
@@ -623,7 +653,7 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
           setState(() {
             _selectedValue = result;
           });
-          _notifyValueChange(selectedId);
+          _notifyValueChange(_selectedValue); // Pass the full map or list of maps
         }
       },
       child: Container(

@@ -56,6 +56,7 @@ class SectionWidget extends ConsumerWidget {
           section: section,
           formKey: formKey,
           onValueChanged: onValueChanged,
+          formData: formData,
         );
       case ChildDiaplayModes.dataTableReport:
       case ChildDiaplayModes.dataTableReportAdvance:
@@ -118,7 +119,7 @@ class SectionWidget extends ConsumerWidget {
                     control: control, 
                     formKey: formKey,
                     onValueChanged: onValueChanged,
-                    value: formData[control.bindingName],
+                    formData: formData,
                   )),
             ],
           ),
