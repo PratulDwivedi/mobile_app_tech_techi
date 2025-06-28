@@ -11,13 +11,13 @@ import 'services/navigation_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Initialize Supabase
   await Supabase.initialize(
     url: SupabaseConfig.supabaseUrl,
     anonKey: SupabaseConfig.supabaseAnonKey,
   );
-  
+
   runApp(
     const ProviderScope(
       child: MyApp(),
@@ -33,9 +33,9 @@ class MyApp extends ConsumerWidget {
     final themeState = ref.watch(themeProvider);
     final isDarkMode = themeState.isDarkMode;
     final primaryColor = ref.watch(primaryColorProvider);
-    
+
     return MaterialApp(
-      title: 'Flutter Supabase Auth',
+      title: 'Tech Techi',
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
@@ -57,13 +57,14 @@ class AuthWrapper extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authStateAsync = ref.watch(authStateProvider);
-    
+
     return authStateAsync.when(
       data: (authState) {
         final session = authState.session;
         if (session != null) {
           // Use a default route or fetch from user profile if needed
-          return DynamicScreen(args: ScreenArgsModel(routeName: 'dashboard', isHome: true));
+          return DynamicScreen(
+              args: ScreenArgsModel(routeName: 'dashboard', isHome: true));
         }
         return const LoginScreen();
       },

@@ -1,3 +1,6 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+
 class ParseRouteResult {
   final String routeName;
   final Map<String, dynamic> args;
@@ -22,4 +25,26 @@ ParseRouteResult parseRouteAndArgs(
     }
   });
   return ParseRouteResult(routeName: route, args: args);
+}
+
+Future<T?> showPlatformSheet<T>({
+  required BuildContext context,
+  required WidgetBuilder builder,
+  bool isScrollControlled = true,
+  bool useRootNavigator = true,
+}) {
+  if (kIsWeb) {
+    return showDialog<T>(
+      context: context,
+      builder: builder,
+      useRootNavigator: useRootNavigator,
+    );
+  } else {
+    return showModalBottomSheet<T>(
+      context: context,
+      builder: builder,
+      isScrollControlled: isScrollControlled,
+      useRootNavigator: useRootNavigator,
+    );
+  }
 }
