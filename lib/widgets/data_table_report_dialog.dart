@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app_tech_techi/models/page_schema.dart';
-import 'read_only_card_section.dart';
+import 'data_table_report_section_widget.dart';
 
 class DataTableReportDialog extends StatelessWidget {
   final List<Section> sections;
