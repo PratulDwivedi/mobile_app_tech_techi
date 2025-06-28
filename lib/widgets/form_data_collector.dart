@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app_tech_techi/models/page_schema.dart';
 import 'package:mobile_app_tech_techi/widgets/section_widget.dart';
 
+import '../config/app_constants.dart';
+
 class FormDataCollector extends StatefulWidget {
   final PageSchema pageSchema;
   final GlobalKey<FormState> formKey;
@@ -39,10 +41,14 @@ class FormDataCollectorState extends State<FormDataCollector> {
       for (final section in widget.pageSchema.sections) {
         for (final control in section.controls) {
           final bindingName = control.bindingName;
-          final isDropdownOrTree = control.controlTypeId == 12 || // dropdown
-                                   control.controlTypeId == 17 || // treeview
-                                   control.controlTypeId == 14 || // dropdownMulti
-                                   control.controlTypeId == 18;   // treeviewMulti
+          final isDropdownOrTree =
+              control.controlTypeId == ControlTypes.dropdown || // dropdown
+                  control.controlTypeId ==
+                      ControlTypes.treeViewSingle || // treeview
+                  control.controlTypeId ==
+                      ControlTypes.dropdownMultiselect || // dropdownMulti
+                  control.controlTypeId ==
+                      ControlTypes.treeViewMulti; // treeviewMulti
           if (isDropdownOrTree) {
             final id = data[bindingName];
             final name = data['${bindingName}_name'];
@@ -64,15 +70,15 @@ class FormDataCollectorState extends State<FormDataCollector> {
   // Validate all controls in the form
   bool validateForm() {
     bool isValid = true;
-    
+
     // Validate text form fields using the form key
     if (widget.formKey.currentState != null) {
       isValid = widget.formKey.currentState!.validate();
     }
-    
+
     // Additional validation for dropdown controls can be added here
     // by accessing the control keys and calling their validate methods
-    
+
     return isValid;
   }
 
@@ -89,4 +95,4 @@ class FormDataCollectorState extends State<FormDataCollector> {
           .toList(),
     );
   }
-} 
+}

@@ -1,6 +1,11 @@
-import 'package:flutter/foundation.dart';
+class ParseRouteResult {
+  final String routeName;
+  final Map<String, dynamic> args;
 
-Map<String, dynamic> parseRouteAndArgs(
+  ParseRouteResult({required this.routeName, required this.args});
+}
+
+ParseRouteResult parseRouteAndArgs(
     String defaultValue, Map<String, dynamic> record) {
   final uri =
       Uri.parse(defaultValue.startsWith('/') ? defaultValue : '/$defaultValue');
@@ -16,5 +21,5 @@ Map<String, dynamic> parseRouteAndArgs(
       args[key] = value;
     }
   });
-  return {'route': route, 'args': args};
+  return ParseRouteResult(routeName: route, args: args);
 }

@@ -34,9 +34,10 @@ class _DataTableCardListWidgetState extends State<DataTableCardListWidget> {
 
   void _navigate(
       BuildContext context, String defaultValue, Map<String, dynamic> record) {
-    final parsed = parseRouteAndArgs(defaultValue, record);
+    final parseRouteResult = parseRouteAndArgs(defaultValue, record);
     Navigator.of(context).pop();
-    NavigationService.navigateTo(parsed['route'], arguments: parsed['args']);
+    NavigationService.navigateTo(parseRouteResult.routeName,
+        arguments: parseRouteResult.args);
   }
 
   @override
@@ -153,7 +154,7 @@ class _DataTableCardListWidgetState extends State<DataTableCardListWidget> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    control.name + ': ',
+                                    '${control.name}: ',
                                     style: TextStyle(
                                       fontWeight: control.controlTypeId ==
                                               ControlTypes.hyperlink
@@ -190,7 +191,7 @@ class _DataTableCardListWidgetState extends State<DataTableCardListWidget> {
                 ),
               ),
             );
-          }).toList(),
+          }),
       ],
     );
   }

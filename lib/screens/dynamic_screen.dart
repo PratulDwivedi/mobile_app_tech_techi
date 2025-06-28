@@ -8,12 +8,12 @@ import '../models/screen_args_model.dart';
 import '../providers/riverpod/theme_provider.dart';
 import '../providers/riverpod/data_providers.dart';
 import '../providers/riverpod/service_providers.dart';
+import '../utils/navigation_utils.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/app_button.dart';
 import '../screens/search_screen.dart';
 import 'package:mobile_app_tech_techi/models/page_schema.dart';
 import '../widgets/data_table_report_dialog.dart';
-
 
 class DynamicScreen extends ConsumerStatefulWidget {
   final ScreenArgsModel args;
@@ -25,7 +25,8 @@ class DynamicScreen extends ConsumerStatefulWidget {
 
 class _DynamicScreenState extends ConsumerState<DynamicScreen> {
   final _formKey = GlobalKey<FormState>();
-  GlobalKey<FormDataCollectorState> _formDataCollectorKey = GlobalKey<FormDataCollectorState>();
+  GlobalKey<FormDataCollectorState> _formDataCollectorKey =
+      GlobalKey<FormDataCollectorState>();
   int _currentIndex = 1; // Start at 1 since 0 is home
   bool _isSaving = false;
 
@@ -46,7 +47,8 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
       return;
     }
 
-    if (pageSchema.bindingNamePost == null || pageSchema.bindingNamePost!.isEmpty) {
+    if (pageSchema.bindingNamePost == null ||
+        pageSchema.bindingNamePost!.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('No save function configured for this form.'),
@@ -62,10 +64,15 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
 
     try {
       final formData = _formDataCollectorKey.currentState?.getFormData() ?? {};
-      
+
+      final parseRouteResult =
+          parseRouteAndArgs(widget.args.routeName, widget.args.data);
+
       // Add the record ID if editing
-      if (widget.args.data['id'] != null && widget.args.data['id']!.isNotEmpty) {
-        formData['id'] = widget.args.data['id'];
+      if (parseRouteResult.args.isNotEmpty) {
+        parseRouteResult.args.forEach((key, value) {
+          formData[key] = value;
+        });
       }
 
       // Filter formData to only include allowed binding names (exclude _name fields and buttons)
@@ -136,7 +143,8 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
   }
 
   Future<void> _searchData(PageSchema pageSchema) async {
-    if (pageSchema.bindingNameGet == null || pageSchema.bindingNameGet!.isEmpty) {
+    if (pageSchema.bindingNameGet == null ||
+        pageSchema.bindingNameGet!.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('No search function configured for this report.'),
@@ -148,7 +156,7 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
 
     try {
       final formData = _formDataCollectorKey.currentState?.getFormData() ?? {};
-      
+
       // ignore: avoid_print
       print('Searching with data: $formData');
 
@@ -184,7 +192,8 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
   }
 
   Future<void> _deleteRecord(PageSchema pageSchema) async {
-    if (pageSchema.bindingNameDelete == null || pageSchema.bindingNameDelete!.isEmpty) {
+    if (pageSchema.bindingNameDelete == null ||
+        pageSchema.bindingNameDelete!.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('No delete function configured for this record.'),
@@ -199,7 +208,8 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Confirm Delete'),
-        content: const Text('Are you sure you want to delete this record? This action cannot be undone.'),
+        content: const Text(
+            'Are you sure you want to delete this record? This action cannot be undone.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -217,7 +227,6 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
     if (confirmed != true) return;
 
     try {
-    
       // ignore: avoid_print
       print('Deleting record: $widget.args.data');
 
@@ -260,7 +269,8 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
     final themeState = ref.watch(themeProvider);
     final isDarkMode = themeState.isDarkMode;
     final primaryColor = ref.watch(primaryColorProvider);
-    final pageSchemaAsync = ref.watch(pageSchemaProvider(widget.args.routeName));
+    final pageSchemaAsync =
+        ref.watch(pageSchemaProvider(widget.args.routeName));
     final userPagesAsync = ref.watch(userPagesProvider);
     final userProfileAsync = ref.watch(userProfileProvider);
 
@@ -321,13 +331,16 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
       drawer: widget.args.isHome
           ? userPagesAsync.when(
               data: (pages) => userProfileAsync.when(
-                data: (profile) => AppDrawer(pages: pages, userProfile: profile),
-                loading: () => const Drawer(child: Center(child: CircularProgressIndicator())),
+                data: (profile) =>
+                    AppDrawer(pages: pages, userProfile: profile),
+                loading: () => const Drawer(
+                    child: Center(child: CircularProgressIndicator())),
                 error: (error, stack) => Drawer(
                   child: Center(child: Text('Error: $error')),
                 ),
               ),
-              loading: () => const Drawer(child: Center(child: CircularProgressIndicator())),
+              loading: () => const Drawer(
+                  child: Center(child: CircularProgressIndicator())),
               error: (error, stack) => Drawer(
                 child: Center(
                   child: Padding(
@@ -361,28 +374,34 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
         child: pageSchemaAsync.when(
           data: (pageSchema) {
             // Prefill logic
-            if (widget.args.data.isNotEmpty && pageSchema.bindingNameGet != null && pageSchema.bindingNameGet!.isNotEmpty) {
+            if (widget.args.data.isNotEmpty &&
+                pageSchema.bindingNameGet != null &&
+                pageSchema.bindingNameGet!.isNotEmpty) {
               // Need to fetch data from API
               return FutureBuilder<dynamic>(
                 future: ref.read(dynamicPageServiceProvider).postFormData(
-                  pageSchema.bindingNameGet!,
-                  widget.args.data,
-                ),
+                      pageSchema.bindingNameGet!,
+                      widget.args.data,
+                    ),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
                   }
                   if (snapshot.hasError) {
-                    return Center(child: Text('Error loading data: \\${snapshot.error}'));
+                    return Center(
+                        child: Text('Error loading data: \\${snapshot.error}'));
                   }
                   final result = snapshot.data;
                   Map<String, dynamic> apiData = {};
-                  if (result is List && result.isNotEmpty && result.first is Map<String, dynamic>) {
+                  if (result is List &&
+                      result.isNotEmpty &&
+                      result.first is Map<String, dynamic>) {
                     apiData = result.first as Map<String, dynamic>;
                   } else if (result is Map<String, dynamic>) {
                     apiData = result;
                   } else if (result is List && result.isEmpty) {
-                    return const Center(child: Text('No data found to prefill.'));
+                    return const Center(
+                        child: Text('No data found to prefill.'));
                   }
                   // Set form data
                   WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -405,7 +424,8 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
             } else if (widget.args.data.isNotEmpty) {
               // Just prefill with args.data
               WidgetsBinding.instance.addPostFrameCallback((_) {
-                _formDataCollectorKey.currentState?.setFormData(widget.args.data);
+                _formDataCollectorKey.currentState
+                    ?.setFormData(widget.args.data);
               });
             }
             return SingleChildScrollView(
@@ -495,15 +515,23 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
         data: (pageSchema) {
           final pageTypeId = pageSchema.pageTypeId;
           final showSave = pageTypeId == PageTypes.form;
-          final showSearch = pageTypeId == PageTypes.report && (pageSchema.bindingNameGet?.isNotEmpty ?? false);
-          final showDelete = widget.args.data['id'] != null &&
-              widget.args.data['id']!.isNotEmpty &&
+          final showSearch = pageTypeId == PageTypes.report &&
+              (pageSchema.bindingNameGet?.isNotEmpty ?? false);
+
+          // check for delete button
+          final showDelete = widget.args.data.isNotEmpty &&
               pageSchema.bindingNameDelete!.isNotEmpty;
 
           // Check if any section is a report/advance
-          final hasDataTableReport = pageSchema.sections.any((s) =>
-            s.childDisplayModeId == ChildDiaplayModes.dataTableReport ||
-            s.childDisplayModeId == ChildDiaplayModes.dataTableReportAdvance);
+          var hasDataTableReport = false;
+
+          if (pageSchema.pageTypeId == PageTypes.form &&
+              widget.args.data.isEmpty) {
+            hasDataTableReport = pageSchema.sections.any((s) =>
+                s.childDisplayModeId == ChildDiaplayModes.dataTableReport ||
+                s.childDisplayModeId ==
+                    ChildDiaplayModes.dataTableReportAdvance);
+          }
 
           // If no button is visible, return SizedBox.shrink()
           if (!showSave && !showSearch && !showDelete && !hasDataTableReport) {
@@ -532,10 +560,15 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
                               child: SizedBox(
                                 width: double.infinity,
                                 child: DataTableReportDialog(
-                                  sections: pageSchema.sections.where((s) =>
-                                    s.childDisplayModeId == ChildDiaplayModes.dataTableReport ||
-                                    s.childDisplayModeId == ChildDiaplayModes.dataTableReportAdvance
-                                  ).toList(),
+                                  sections: pageSchema.sections
+                                      .where((s) =>
+                                          s.childDisplayModeId ==
+                                              ChildDiaplayModes
+                                                  .dataTableReport ||
+                                          s.childDisplayModeId ==
+                                              ChildDiaplayModes
+                                                  .dataTableReportAdvance)
+                                      .toList(),
                                 ),
                               ),
                             ),
@@ -552,9 +585,11 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
                         label: _isSaving ? 'Saving...' : 'Save',
                         icon: _isSaving ? Icons.hourglass_empty : Icons.save,
                         color: primaryColor,
-                        onPressed: _isSaving ? null : () {
-                          _saveForm(pageSchema);
-                        },
+                        onPressed: _isSaving
+                            ? null
+                            : () {
+                                _saveForm(pageSchema);
+                              },
                       ),
                     ),
                   ),
@@ -566,9 +601,11 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
                         label: 'Search',
                         icon: Icons.search,
                         color: primaryColor,
-                        onPressed: _isSaving ? null : () {
-                          _searchData(pageSchema);
-                        },
+                        onPressed: _isSaving
+                            ? null
+                            : () {
+                                _searchData(pageSchema);
+                              },
                       ),
                     ),
                   ),
@@ -580,9 +617,11 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
                         label: 'Delete',
                         icon: Icons.delete,
                         color: Colors.red,
-                        onPressed: _isSaving ? null : () {
-                          _deleteRecord(pageSchema);
-                        },
+                        onPressed: _isSaving
+                            ? null
+                            : () {
+                                _deleteRecord(pageSchema);
+                              },
                       ),
                     ),
                   ),
