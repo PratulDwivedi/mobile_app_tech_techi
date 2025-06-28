@@ -15,6 +15,7 @@ import '../screens/search_screen.dart';
 import 'package:mobile_app_tech_techi/models/page_schema.dart';
 import '../widgets/data_table_report_dialog.dart';
 import '../widgets/report_page.dart';
+import '../widgets/data_table_report_section_widget.dart';
 
 class DynamicScreen extends ConsumerStatefulWidget {
   final ScreenArgsModel args;
@@ -259,6 +260,46 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
           SnackBar(
             content: Text('Error deleting record: $e'),
             backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  void openDataTableReportSection(
+      BuildContext context, List<Section> sections) async {
+    if (sections.isEmpty) return;
+
+    if (sections.length == 1) {
+      final section = sections.first;
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => Scaffold(
+            appBar: AppBar(title: Text(section.name)),
+            body: DataTableReportSectionWidget(section: section),
+          ),
+        ),
+      );
+    } else {
+      final selected = await showModalBottomSheet<Section>(
+        context: context,
+        builder: (context) => ListView(
+          shrinkWrap: true,
+          children: sections
+              .map((section) => ListTile(
+                    title: Text(section.name),
+                    onTap: () => Navigator.of(context).pop(section),
+                  ))
+              .toList(),
+        ),
+      );
+      if (selected != null) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => Scaffold(
+              appBar: AppBar(title: Text(selected.name)),
+              body: DataTableReportSectionWidget(section: selected),
+            ),
           ),
         );
       }
@@ -560,26 +601,14 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
                         icon: Icons.search,
                         color: Theme.of(context).colorScheme.secondary,
                         onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) => Dialog(
-                              insetPadding: const EdgeInsets.all(16),
-                              child: SizedBox(
-                                width: double.infinity,
-                                child: DataTableReportDialog(
-                                  sections: pageSchema.sections
-                                      .where((s) =>
-                                          s.childDisplayModeId ==
-                                              ChildDiaplayModes
-                                                  .dataTableReport ||
-                                          s.childDisplayModeId ==
-                                              ChildDiaplayModes
-                                                  .dataTableReportAdvance)
-                                      .toList(),
-                                ),
-                              ),
-                            ),
-                          );
+                          final reportSections = pageSchema.sections
+                              .where((s) =>
+                                  s.childDisplayModeId ==
+                                      ChildDiaplayModes.dataTableReport ||
+                                  s.childDisplayModeId ==
+                                      ChildDiaplayModes.dataTableReportAdvance)
+                              .toList();
+                          openDataTableReportSection(context, reportSections);
                         },
                       ),
                     ),

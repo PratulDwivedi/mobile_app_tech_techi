@@ -47,12 +47,35 @@ class SupabaseDynamicPageService implements DynamicPageService {
     } catch (e) {
       // ignore: avoid_print
       print('Error fetching binding list data from $functionName: $e');
-      throw Exception('Failed to load binding list data');
+
+      // Provide more specific error messages
+      if (e.toString().contains('network') ||
+          e.toString().contains('connection')) {
+        throw Exception(
+            'Network error: Unable to connect to the server. Please check your internet connection.');
+      } else if (e.toString().contains('timeout')) {
+        throw Exception(
+            'Request timeout: The server took too long to respond. Please try again.');
+      } else if (e.toString().contains('unauthorized') ||
+          e.toString().contains('401')) {
+        throw Exception(
+            'Unauthorized: You are not authorized to access this data. Please log in again.');
+      } else if (e.toString().contains('not found') ||
+          e.toString().contains('404')) {
+        throw Exception('Data not found: The requested data is not available.');
+      } else if (e.toString().contains('function') ||
+          e.toString().contains('procedure')) {
+        throw Exception(
+            'Server error: The data function is not available or has an error.');
+      } else {
+        throw Exception('Failed to load data. Please try again later.');
+      }
     }
   }
 
   @override
-  Future<dynamic> postFormData(String functionName, Map<String, dynamic> formData) async {
+  Future<dynamic> postFormData(
+      String functionName, Map<String, dynamic> formData) async {
     try {
       // Prefix each key with 'p_'
       final Map<String, dynamic> prefixedParams = {
@@ -60,7 +83,8 @@ class SupabaseDynamicPageService implements DynamicPageService {
       };
       // ignore: avoid_print
       print('Posting form data to $functionName: $prefixedParams');
-      final response = await _supabase.rpc(functionName, params: prefixedParams);
+      final response =
+          await _supabase.rpc(functionName, params: prefixedParams);
       return response;
     } catch (e) {
       // ignore: avoid_print
@@ -68,4 +92,4 @@ class SupabaseDynamicPageService implements DynamicPageService {
       throw Exception('Failed to post form data: $e');
     }
   }
-} 
+}

@@ -5,6 +5,7 @@ import 'package:mobile_app_tech_techi/config/app_constants.dart';
 import '../utils/icon_utils.dart';
 import '../utils/navigation_utils.dart';
 import 'dart:math';
+import 'action_button_with_feedback.dart';
 
 class DataTableCardListWidget extends StatefulWidget {
   final Section section;
@@ -69,7 +70,6 @@ class _DataTableCardListWidgetState extends State<DataTableCardListWidget> {
   void _navigate(
       BuildContext context, String defaultValue, Map<String, dynamic> record) {
     final parseRouteResult = parseRouteAndArgs(defaultValue, record);
-    Navigator.of(context).pop();
     NavigationService.navigateTo(parseRouteResult.routeName,
         arguments: parseRouteResult.args);
   }
@@ -212,14 +212,10 @@ class _DataTableCardListWidgetState extends State<DataTableCardListWidget> {
                                   getIconFromString(control.data?['item_icon']);
                               final iconColor =
                                   hexToColor(control.data?['item_color']);
-                              return TextButton.icon(
-                                icon: Icon(iconData, color: iconColor),
-                                label: Text(control.name),
-                                style: TextButton.styleFrom(
-                                  foregroundColor: iconColor,
-                                  textStyle: const TextStyle(
-                                      fontWeight: FontWeight.bold),
-                                ),
+                              return ActionButtonWithFeedback(
+                                iconData: iconData ?? Icons.remove_red_eye,
+                                iconColor: iconColor,
+                                label: control.name,
                                 onPressed: () =>
                                     _navigate(context, routeTemplate, record),
                               );
