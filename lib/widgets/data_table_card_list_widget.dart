@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app_tech_techi/models/page_schema.dart';
 import '../services/navigation_service.dart';
 import 'package:mobile_app_tech_techi/config/app_constants.dart';
+import '../utils/icon_utils.dart';
 import '../utils/navigation_utils.dart';
+import 'dart:math';
 
 class DataTableCardListWidget extends StatefulWidget {
   final Section section;
@@ -75,16 +77,17 @@ class _DataTableCardListWidgetState extends State<DataTableCardListWidget> {
   bool isActionControl(Control control) {
     // Add all action controlTypeIds here (hyperlink, transfer, etc.)
     return control.controlTypeId == ControlTypes.hyperlink ||
-        control.controlTypeId == ControlTypes.hyperlinkRow ||
-        control.controlTypeId == 33; // 33 for transfer, add more as needed
+        control.controlTypeId == ControlTypes.hyperlinkRow;
   }
 
   @override
   Widget build(BuildContext context) {
     final filteredData = _filteredData;
     final totalCount = filteredData.length;
-    final end = _currentMax.clamp(0, totalCount);
-    final start = totalCount == 0 ? 0 : 1;
+    final pageSize = widget.pageSize;
+    final currentPage = (_currentMax / pageSize).ceil();
+    final start = totalCount == 0 ? 0 : ((currentPage - 1) * pageSize + 1);
+    final end = min(_currentMax, totalCount);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -142,35 +145,36 @@ class _DataTableCardListWidgetState extends State<DataTableCardListWidget> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Render all non-hidden, non-action controls as label-value rows
+                        // Render all non-hidden, non-action controls as label-value rows, only if value is not empty
                         ...widget.section.controls
                             .where((control) =>
                                 control.displayModeId !=
                                     ControlDisplayModes.noneHidden &&
                                 !isActionControl(control))
-                            .map((control) => Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 2.0),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        '${control.name}: ',
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      Expanded(
-                                        child: Text(
-                                          (record[control.bindingName]
-                                                  ?.toString() ??
-                                              ''),
-                                        ),
-                                      ),
-                                    ],
+                            .map((control) {
+                          final value = record[control.bindingName];
+                          if (value == null || value.toString().isEmpty)
+                            return const SizedBox.shrink();
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 2.0),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '${control.name}: ',
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    value.toString(),
                                   ),
-                                )),
-                        // Render all action controls as icons/buttons at the end
+                                ),
+                              ],
+                            ),
+                          );
+                        }),
+                        // Render all action controls as icon+label buttons at the end
                         if (widget.section.controls
                             .any((c) => isActionControl(c)))
                           Row(
@@ -183,18 +187,18 @@ class _DataTableCardListWidgetState extends State<DataTableCardListWidget> {
                               final routeTemplate =
                                   control.data?['default_value']?.toString() ??
                                       '';
-                              final iconData = control.data?['icon'] != null
-                                  ? IconData(control.data!['icon'],
-                                      fontFamily: 'MaterialIcons')
-                                  : Icons.remove_red_eye;
-                              final iconColor = control.data?['color'] != null
-                                  ? Color(int.tryParse(
-                                          control.data!['color'].toString()) ??
-                                      0xFF2196F3)
-                                  : null;
-                              return IconButton(
+                              final iconData =
+                                  getIconFromString(control.data?['item_icon']);
+                              final iconColor =
+                                  hexToColor(control.data?['item_color']);
+                              return TextButton.icon(
                                 icon: Icon(iconData, color: iconColor),
-                                tooltip: control.name,
+                                label: Text(control.name),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: iconColor,
+                                  textStyle: const TextStyle(
+                                      fontWeight: FontWeight.bold),
+                                ),
                                 onPressed: () =>
                                     _navigate(context, routeTemplate, record),
                               );

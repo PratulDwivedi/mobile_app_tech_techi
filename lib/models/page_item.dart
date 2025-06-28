@@ -1,6 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
-
 class PageItem {
   final int id;
   final String name;
@@ -46,53 +43,3 @@ class PageItem {
     );
   }
 }
-
-IconData getIconFromString(String? iconName) {
-  if (iconName == null) return LucideIcons.circle;
-  switch (iconName) {
-    case 'LayoutDashboard':
-      return LucideIcons.layoutDashboard;
-    case 'MessageSquare':
-      return LucideIcons.messageSquare;
-    case 'Home':
-      return LucideIcons.home;
-    case 'FileText':
-      return LucideIcons.fileText;
-    case 'DollarSign':
-      return LucideIcons.dollarSign;
-    case 'Bot':
-      return LucideIcons.bot;
-    case 'Key':
-      return LucideIcons.key;
-    case 'BookOpen':
-      return LucideIcons.bookOpen;
-    case 'Building':
-      return LucideIcons.building;
-    case 'HelpCircle':
-      return LucideIcons.helpCircle;
-    case 'Coins':
-      return LucideIcons.coins;
-    case 'Shield':
-      return LucideIcons.shield;
-    case 'User':
-      return LucideIcons.user;
-    case 'Users':
-      return LucideIcons.users;
-    case 'UserPlus':
-      return LucideIcons.userPlus;
-    case 'Package':
-      return LucideIcons.package;
-    case 'Clock':
-      return LucideIcons.clock;
-    case 'Calendar':
-      return LucideIcons.calendar;
-    case 'Settings':
-      return LucideIcons.settings;
-    case 'Globe':
-      return LucideIcons.globe;
-    case 'QrCode':
-      return LucideIcons.qrCode;
-    default:
-      return LucideIcons.circle;
-  }
-} 

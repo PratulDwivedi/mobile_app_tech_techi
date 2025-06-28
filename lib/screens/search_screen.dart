@@ -6,6 +6,7 @@ import 'package:mobile_app_tech_techi/services/navigation_service.dart';
 import '../providers/riverpod/theme_provider.dart';
 import '../providers/riverpod/data_providers.dart';
 import '../models/screen_args_model.dart';
+import '../utils/icon_utils.dart';
 
 class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key});
@@ -44,7 +45,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         _isSearching = true;
         _filteredPages = _allPages.where((page) {
           return page.name.toLowerCase().contains(query) ||
-                 (page.descr?.toLowerCase().contains(query) ?? false);
+              (page.descr?.toLowerCase().contains(query) ?? false);
         }).toList();
       });
     }
@@ -52,7 +53,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
   List<PageItem> _getAllChildPages(List<PageItem> pages) {
     List<PageItem> allPages = [];
-    
+
     for (final page in pages) {
       if (page.children.isNotEmpty) {
         allPages.addAll(_getAllChildPages(page.children));
@@ -61,7 +62,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         allPages.add(page);
       }
     }
-    
+
     return allPages;
   }
 
@@ -108,7 +109,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               padding: const EdgeInsets.all(24.0),
               child: Container(
                 decoration: BoxDecoration(
-                  color: isDarkMode 
+                  color: isDarkMode
                       ? Colors.white.withOpacity(0.1)
                       : Colors.white.withOpacity(0.9),
                   borderRadius: BorderRadius.circular(20),
@@ -139,7 +140,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                         ? IconButton(
                             icon: Icon(
                               LucideIcons.x,
-                              color: isDarkMode ? Colors.white70 : Colors.black54,
+                              color:
+                                  isDarkMode ? Colors.white70 : Colors.black54,
                             ),
                             onPressed: () {
                               _searchController.clear();
@@ -155,7 +157,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 ),
               ),
             ),
-            
+
             // Search Results
             Expanded(
               child: userPagesAsync.when(
@@ -199,7 +201,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                               Text(
                                 'No results found for "${_searchController.text}"',
                                 style: TextStyle(
-                                  color: isDarkMode ? Colors.white : Colors.black87,
+                                  color: isDarkMode
+                                      ? Colors.white
+                                      : Colors.black87,
                                   fontSize: 16,
                                 ),
                                 textAlign: TextAlign.center,
@@ -237,7 +241,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                               Text(
                                 'No pages found',
                                 style: TextStyle(
-                                  color: isDarkMode ? Colors.white : Colors.black87,
+                                  color: isDarkMode
+                                      ? Colors.white
+                                      : Colors.black87,
                                   fontSize: 16,
                                 ),
                                 textAlign: TextAlign.center,
@@ -294,7 +300,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                               ? Text(
                                   page.descr!,
                                   style: TextStyle(
-                                    color: isDarkMode ? Colors.white70 : Colors.black54,
+                                    color: isDarkMode
+                                        ? Colors.white70
+                                        : Colors.black54,
                                   ),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
@@ -308,7 +316,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                             Navigator.of(context).pop();
                             NavigationService.navigateTo(
                               page.routeName,
-                              arguments: ScreenArgsModel(routeName: page.routeName, isHome: false),
+                              arguments: ScreenArgsModel(
+                                  routeName: page.routeName, isHome: false),
                             );
                           },
                         ),
@@ -365,4 +374,4 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       ),
     );
   }
-} 
+}

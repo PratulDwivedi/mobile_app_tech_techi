@@ -1,0 +1,213 @@
+import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
+
+Color? hexToColor(String? hex) {
+  if (hex == null || hex.isEmpty) return null;
+  String hexColor = hex.toUpperCase().replaceAll("#", "");
+  if (hexColor.length == 6) {
+    hexColor = "FF$hexColor"; // add alpha if not present
+  }
+  if (hexColor.length == 8) {
+    return Color(int.parse("0x$hexColor"));
+  }
+  return null;
+}
+
+IconData getIconFromString(String? iconName) {
+  switch (iconName) {
+    case 'MessageSquare':
+      return LucideIcons.messageSquare;
+    case 'BookOpen':
+      return LucideIcons.bookOpen;
+    case 'LayoutDashboard':
+      return LucideIcons.layoutDashboard;
+    case 'Book':
+      return LucideIcons.book;
+    case 'User':
+      return LucideIcons.user;
+    case 'Search':
+      return LucideIcons.search;
+    case 'Folder':
+      return LucideIcons.folder;
+    case 'FileText':
+      return LucideIcons.fileText;
+    case 'Home':
+      return LucideIcons.home;
+    case 'Settings':
+      return LucideIcons.settings;
+    case 'Menu':
+      return LucideIcons.menu;
+    case 'Grid':
+      return LucideIcons.grid;
+    case 'List':
+      return LucideIcons.list;
+    case 'Calendar':
+      return LucideIcons.calendar;
+    case 'Clock':
+      return LucideIcons.clock;
+    case 'Building':
+      return LucideIcons.building;
+    case 'Users':
+      return LucideIcons.users;
+    case 'UserPlus':
+      return LucideIcons.userPlus;
+    case 'UserCheck':
+      return LucideIcons.userCheck;
+    case 'Shield':
+      return LucideIcons.shield;
+    case 'Key':
+      return LucideIcons.key;
+    case 'Lock':
+      return LucideIcons.lock;
+    case 'Unlock':
+      return LucideIcons.unlock;
+    case 'Package':
+      return LucideIcons.package;
+    case 'Truck':
+      return LucideIcons.truck;
+    case 'Warehouse':
+      return LucideIcons.warehouse;
+    case 'Tag':
+      return LucideIcons.tag;
+    // case 'Barcode': return LucideIcons.barcode; // Not available in lucide_icons
+    case 'Monitor':
+      return LucideIcons.monitor;
+    case 'HardDrive':
+      return LucideIcons.hardDrive;
+    case 'Mail':
+      return LucideIcons.mail;
+    case 'Phone':
+      return LucideIcons.phone;
+    case 'Headphones':
+      return LucideIcons.headphones;
+    case 'MessageCircle':
+      return LucideIcons.messageCircle;
+    case 'Bell':
+      return LucideIcons.bell;
+    case 'AlertTriangle':
+      return LucideIcons.alertTriangle;
+    case 'FileSpreadsheet':
+      return LucideIcons.fileSpreadsheet;
+    case 'FileImage':
+      return LucideIcons.fileImage;
+    case 'Download':
+      return LucideIcons.download;
+    case 'Upload':
+      return LucideIcons.upload;
+    case 'Printer':
+      return LucideIcons.printer;
+    case 'DollarSign':
+      return LucideIcons.dollarSign;
+    case 'CreditCard':
+      return LucideIcons.creditCard;
+    case 'Receipt':
+      return LucideIcons.receipt;
+    case 'TrendingUp':
+      return LucideIcons.trendingUp;
+    case 'BarChart3':
+      return LucideIcons.barChart3;
+    case 'PieChart':
+      return LucideIcons.pieChart;
+    case 'Bot':
+      return LucideIcons.bot;
+    case 'Layout':
+      return LucideIcons.layout;
+    case 'File':
+      return LucideIcons.file;
+    case 'BadgeCheck':
+      return LucideIcons.badgeCheck;
+    case 'Contact':
+      return LucideIcons.contact;
+    case 'UserMinus':
+      return LucideIcons.userMinus;
+    case 'Briefcase':
+      return LucideIcons.briefcase;
+    case 'Wallet':
+      return LucideIcons.wallet;
+    case 'Banknote':
+      return LucideIcons.banknote;
+    case 'Coins':
+      return LucideIcons.coins;
+    case 'ShoppingCart':
+      return LucideIcons.shoppingCart;
+    case 'Boxes':
+      return LucideIcons.boxes;
+    case 'ClipboardList':
+      return LucideIcons.clipboardList;
+    case 'Cpu':
+      return LucideIcons.cpu;
+    case 'Server':
+      return LucideIcons.server;
+    case 'Terminal':
+      return LucideIcons.terminal;
+    case 'Code2':
+      return LucideIcons.code2;
+    case 'Bug':
+      return LucideIcons.bug;
+    case 'Database':
+      return LucideIcons.database;
+    case 'LineChart':
+      return LucideIcons.lineChart;
+    // case 'GaugeCircle': return LucideIcons.gaugeCircle; // Not available in lucide_icons
+    case 'Activity':
+      return LucideIcons.activity;
+    case 'Sparkles':
+      return LucideIcons.sparkles;
+    case 'BrainCircuit':
+      return LucideIcons.brainCircuit;
+    case 'Rocket':
+      return LucideIcons.rocket;
+    case 'Wand2':
+      return LucideIcons.wand2;
+    case 'Flame':
+      return LucideIcons.flame;
+    case 'Camera':
+      return LucideIcons.camera;
+    case 'Image':
+      return LucideIcons.image;
+    case 'Eye':
+      return LucideIcons.eye;
+    case 'EyeOff':
+      return LucideIcons.eyeOff;
+    case 'Globe':
+      return LucideIcons.globe;
+    case 'MapPin':
+      return LucideIcons.mapPin;
+    case 'Compass':
+      return LucideIcons.compass;
+    case 'Star':
+      return LucideIcons.star;
+    case 'Trash':
+      return LucideIcons.trash;
+    case 'Edit':
+      return LucideIcons.edit;
+    case 'Plus':
+      return LucideIcons.plus;
+    case 'Minus':
+      return LucideIcons.minus;
+    case 'X':
+      return LucideIcons.x;
+    case 'Check':
+      return LucideIcons.check;
+    case 'ChevronDown':
+      return LucideIcons.chevronDown;
+    case 'ChevronUp':
+      return LucideIcons.chevronUp;
+    case 'ChevronLeft':
+      return LucideIcons.chevronLeft;
+    case 'ChevronRight':
+      return LucideIcons.chevronRight;
+    case 'Info':
+      return LucideIcons.info;
+    case 'HelpCircle':
+      return LucideIcons.helpCircle;
+    case 'ExternalLink':
+      return LucideIcons.externalLink;
+    case 'ClipboardCheck':
+      return LucideIcons.clipboardCheck;
+    case 'QrCode':
+      return LucideIcons.qrCode;
+    default:
+      return LucideIcons.circle;
+  }
+}

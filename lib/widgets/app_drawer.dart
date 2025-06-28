@@ -4,16 +4,20 @@ import 'package:mobile_app_tech_techi/config/app_constants.dart';
 import 'package:mobile_app_tech_techi/services/navigation_service.dart';
 import '../models/page_item.dart';
 import '../models/screen_args_model.dart';
+import '../utils/icon_utils.dart';
 
 class AppDrawer extends StatelessWidget {
   final List<PageItem> pages;
-  final Map<String, dynamic>? userProfile; // Should contain name, email, tenant_name
+  final Map<String, dynamic>?
+      userProfile; // Should contain name, email, tenant_name
   const AppDrawer({super.key, required this.pages, this.userProfile});
 
   @override
   Widget build(BuildContext context) {
     // Only show features (displayLocationId == sidebar), remove quick links
-    final features = pages.where((p) => p.displayLocationId == PageDisplayLocations.sidebar).toList();
+    final features = pages
+        .where((p) => p.displayLocationId == PageDisplayLocations.sidebar)
+        .toList();
 
     return Drawer(
       child: Stack(
@@ -63,7 +67,10 @@ class AppDrawer extends StatelessWidget {
               backgroundColor: Theme.of(context).colorScheme.primary,
               child: Text(
                 name.isNotEmpty ? name[0] : '?',
-                style: const TextStyle(fontSize: 28, color: Colors.white, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                    fontSize: 28,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold),
               ),
             ),
             const SizedBox(width: 16),
@@ -74,13 +81,17 @@ class AppDrawer extends StatelessWidget {
                 children: [
                   Text(
                     name,
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold),
                     overflow: TextOverflow.ellipsis,
                   ),
                   if (tenant.isNotEmpty)
                     Text(
                       tenant,
-                      style: const TextStyle(fontSize: 14, color: Colors.purple, fontWeight: FontWeight.w500),
+                      style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.purple,
+                          fontWeight: FontWeight.w500),
                       overflow: TextOverflow.ellipsis,
                     ),
                   if (email.isNotEmpty)
@@ -124,7 +135,8 @@ class AppDrawer extends StatelessWidget {
           Navigator.of(context).pop();
           NavigationService.navigateTo(
             page.routeName,
-            arguments: ScreenArgsModel(routeName: page.routeName, isHome: false),
+            arguments:
+                ScreenArgsModel(routeName: page.routeName, isHome: false),
           );
         },
       );
@@ -138,4 +150,4 @@ class AppDrawer extends StatelessWidget {
       );
     }
   }
-} 
+}

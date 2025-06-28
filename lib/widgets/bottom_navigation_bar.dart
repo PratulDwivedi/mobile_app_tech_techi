@@ -5,6 +5,7 @@ import 'package:mobile_app_tech_techi/models/page_item.dart';
 import 'package:mobile_app_tech_techi/services/navigation_service.dart';
 import '../providers/riverpod/theme_provider.dart';
 import '../models/screen_args_model.dart';
+import '../utils/icon_utils.dart';
 
 class CustomBottomNavigationBar extends ConsumerWidget {
   final List<PageItem> pages;
@@ -70,7 +71,8 @@ class CustomBottomNavigationBar extends ConsumerWidget {
                     onTap(index);
                     NavigationService.navigateTo(
                       page.routeName,
-                      arguments: ScreenArgsModel(routeName: page.routeName, isHome: false),
+                      arguments: ScreenArgsModel(
+                          routeName: page.routeName, isHome: false),
                     );
                   },
                 );
@@ -112,7 +114,8 @@ class CustomBottomNavigationBar extends ConsumerWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? primaryColor.withOpacity(0.2) : Colors.transparent,
+          color:
+              isSelected ? primaryColor.withOpacity(0.2) : Colors.transparent,
           borderRadius: BorderRadius.circular(15),
         ),
         child: Column(
@@ -141,4 +144,4 @@ class CustomBottomNavigationBar extends ConsumerWidget {
       ),
     );
   }
-} 
+}
