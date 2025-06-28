@@ -526,7 +526,8 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
 
           // check for delete button
           final showDelete = widget.args.data.isNotEmpty &&
-              pageSchema.bindingNameDelete!.isNotEmpty;
+              (pageSchema.bindingNameDelete != null &&
+                  pageSchema.bindingNameDelete!.isNotEmpty);
 
           // Check if any section is a report/advance
           var hasDataTableReport = false;
