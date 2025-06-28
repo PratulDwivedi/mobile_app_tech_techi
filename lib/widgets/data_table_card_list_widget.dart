@@ -99,13 +99,26 @@ class _DataTableCardListWidgetState extends State<DataTableCardListWidget> {
                     children: hyperlinkRowControls.map((control) {
                       final routeTemplate =
                           control.data?['default_value']?.toString() ?? '';
+                      final iconData = control.data?['icon'] != null
+                          ? IconData(control.data!['icon'],
+                              fontFamily: 'MaterialIcons')
+                          : Icons.remove_red_eye;
+                      final iconColor = control.data?['color'] != null
+                          ? Color(
+                              int.tryParse(control.data!['color'].toString()) ??
+                                  0xFF2196F3)
+                          : null;
                       return ListTile(
                         contentPadding: EdgeInsets.zero,
                         title: Text(control.name,
                             style:
                                 const TextStyle(fontWeight: FontWeight.bold)),
                         subtitle: Text(routeTemplate),
-                        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                        trailing: IconButton(
+                          icon: Icon(iconData, color: iconColor),
+                          onPressed: () =>
+                              _navigate(context, routeTemplate, record),
+                        ),
                         onTap: () => _navigate(context, routeTemplate, record),
                       );
                     }).toList(),
@@ -146,7 +159,10 @@ class _DataTableCardListWidgetState extends State<DataTableCardListWidget> {
                             control.controlTypeId !=
                                 ControlTypes.deleteTableRow &&
                             control.controlTypeId != ControlTypes.submit &&
-                            control.controlTypeId != ControlTypes.hyperlinkRow)
+                            control.controlTypeId !=
+                                ControlTypes.hyperlinkRow &&
+                            control.displayModeId !=
+                                ControlDisplayModes.noneHidden)
                         .map((control) => Padding(
                               padding:
                                   const EdgeInsets.symmetric(vertical: 4.0),
@@ -183,6 +199,20 @@ class _DataTableCardListWidgetState extends State<DataTableCardListWidget> {
                                       ),
                                     ),
                                   ),
+                                  if (control.controlTypeId ==
+                                      ControlTypes.hyperlink)
+                                    Icon(
+                                      control.data?['icon'] != null
+                                          ? IconData(control.data!['icon'],
+                                              fontFamily: 'MaterialIcons')
+                                          : Icons.remove_red_eye,
+                                      color: control.data?['color'] != null
+                                          ? Color(int.tryParse(control
+                                                  .data!['color']
+                                                  .toString()) ??
+                                              0xFF2196F3)
+                                          : null,
+                                    ),
                                 ],
                               ),
                             ))
