@@ -149,6 +149,15 @@ class _DataTableCardListWidgetState extends State<DataTableCardListWidget> {
               itemCount: end,
               itemBuilder: (context, index) {
                 final record = filteredData[index];
+                final visibleFieldControls = widget.section.controls
+                    .where((control) =>
+                        control.displayModeId !=
+                            ControlDisplayModes.noneHidden &&
+                        !isActionControl(control))
+                    .where((control) {
+                  final value = getNestedValue(record, control.bindingName);
+                  return value != null && value.toString().isNotEmpty;
+                }).toList();
                 return Card(
                   margin:
                       const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
@@ -160,36 +169,32 @@ class _DataTableCardListWidgetState extends State<DataTableCardListWidget> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Render all non-hidden, non-action controls as label-value rows, only if value is not empty
-                        ...widget.section.controls
-                            .where((control) =>
-                                control.displayModeId !=
-                                    ControlDisplayModes.noneHidden &&
-                                !isActionControl(control))
-                            .map((control) {
-                          final value =
-                              getNestedValue(record, control.bindingName);
-                          if (value == null || value.toString().isEmpty)
-                            return const SizedBox.shrink();
-                          return Padding(
+                        for (int i = 0;
+                            i < visibleFieldControls.length;
+                            i++) ...[
+                          Padding(
                             padding: const EdgeInsets.symmetric(vertical: 2.0),
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  '${control.name}: ',
+                                  '${visibleFieldControls[i].name}: ',
                                   style: const TextStyle(
                                       fontWeight: FontWeight.bold),
                                 ),
                                 Expanded(
                                   child: Text(
-                                    value.toString(),
+                                    getNestedValue(record,
+                                            visibleFieldControls[i].bindingName)
+                                        .toString(),
                                   ),
                                 ),
                               ],
                             ),
-                          );
-                        }),
+                          ),
+                          if (i < visibleFieldControls.length - 1)
+                            const Divider(height: 12),
+                        ],
                         // Render all action controls as icon+label buttons at the end
                         if (widget.section.controls
                             .any((c) => isActionControl(c)))
