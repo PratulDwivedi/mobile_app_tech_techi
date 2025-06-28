@@ -22,17 +22,18 @@ class DataTableReportDialog extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       ...sections.map((section) => Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            section.name,
-                            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 8),
-                          ReadOnlyCardSection(section: section),
-                          const SizedBox(height: 24),
-                        ],
-                      )),
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                section.name,
+                                style: const TextStyle(
+                                    fontSize: 20, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 8),
+                              DataTableReportSectionWidget(section: section),
+                              const SizedBox(height: 24),
+                            ],
+                          )),
                     ],
                   ),
                 ),
@@ -68,4 +69,4 @@ class DataTableReportDialog extends StatelessWidget {
       ],
     );
   }
-} 
+}
