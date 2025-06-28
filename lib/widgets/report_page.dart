@@ -47,7 +47,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
               if (section == null) {
                 return const Center(child: Text('No section defined.'));
               }
-              return SingleChildScrollView(
+              return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 child: DataTableCardListWidget(section: section, data: data),
               );
