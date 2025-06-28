@@ -14,6 +14,7 @@ import '../widgets/app_button.dart';
 import '../screens/search_screen.dart';
 import 'package:mobile_app_tech_techi/models/page_schema.dart';
 import '../widgets/data_table_report_dialog.dart';
+import '../widgets/report_page.dart';
 
 class DynamicScreen extends ConsumerStatefulWidget {
   final ScreenArgsModel args;
@@ -373,6 +374,9 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
         ),
         child: pageSchemaAsync.when(
           data: (pageSchema) {
+            if (pageSchema.pageTypeId == PageTypes.report) {
+              return ReportPage(pageSchema: pageSchema);
+            }
             // Prefill logic
             if (widget.args.data.isNotEmpty &&
                 pageSchema.bindingNameGet != null &&
@@ -514,7 +518,9 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
       bottomSheet: pageSchemaAsync.when(
         data: (pageSchema) {
           final pageTypeId = pageSchema.pageTypeId;
-          final showSave = pageTypeId == PageTypes.form;
+          final showSave = (pageTypeId == PageTypes.form) &&
+              (pageSchema.bindingNamePost != null &&
+                  pageSchema.bindingNamePost!.isNotEmpty);
           final showSearch = pageTypeId == PageTypes.report &&
               (pageSchema.bindingNameGet?.isNotEmpty ?? false);
 
