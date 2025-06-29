@@ -1,37 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../config/app_constants.dart';
 import '../providers/riverpod/service_providers.dart';
 import 'data_table_card_list_widget.dart';
 import '../models/page_schema.dart';
 
-class ReportPage extends ConsumerStatefulWidget {
-  final PageSchema pageSchema;
-  const ReportPage({super.key, required this.pageSchema});
+class DataTableReportWidget extends ConsumerStatefulWidget {
+  final String bindingName;
+  final Section? section;
+  const DataTableReportWidget(
+      {super.key, required this.bindingName, this.section});
 
   @override
-  ConsumerState<ReportPage> createState() => _ReportPageState();
+  ConsumerState<DataTableReportWidget> createState() =>
+      _DataTableReportWidgetState();
 }
 
-class _ReportPageState extends ConsumerState<ReportPage> {
+class _DataTableReportWidgetState extends ConsumerState<DataTableReportWidget> {
   @override
   Widget build(BuildContext context) {
     final dynamicPageService = ref.read(dynamicPageServiceProvider);
 
-    // Check if this is a report page and has a bindingNameGet
-    final isReport = widget.pageSchema.pageTypeId == PageTypes.report;
-    final bindingName = widget.pageSchema.bindingNameGet;
-
-    if (!isReport || bindingName == null || bindingName.isEmpty) {
+    if (widget.bindingName.isEmpty) {
       return const Center(child: Text('No data to display.'));
     }
-
+    if (widget.section == null) {
+      return const Center(child: Text('No section defined.'));
+    }
     // Show the data using DataTableCardListWidget
     return Column(
       children: [
         Expanded(
           child: FutureBuilder<List<dynamic>>(
-            future: dynamicPageService.getBindingListData(bindingName),
+            future: dynamicPageService.getBindingListData(widget.bindingName),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
@@ -40,16 +40,11 @@ class _ReportPageState extends ConsumerState<ReportPage> {
                 return Center(child: Text('Error: \\${snapshot.error}'));
               }
               final data = snapshot.data ?? [];
-              // Use the first section for columns/controls
-              final section = widget.pageSchema.sections.isNotEmpty
-                  ? widget.pageSchema.sections.first
-                  : null;
-              if (section == null) {
-                return const Center(child: Text('No section defined.'));
-              }
+
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                child: DataTableCardListWidget(section: section, data: data),
+                child: DataTableCardListWidget(
+                    section: widget.section!, data: data),
               );
             },
           ),

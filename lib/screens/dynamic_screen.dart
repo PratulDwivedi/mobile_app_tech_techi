@@ -13,7 +13,7 @@ import '../widgets/app_drawer.dart';
 import '../widgets/app_button.dart';
 import '../screens/search_screen.dart';
 import 'package:mobile_app_tech_techi/models/page_schema.dart';
-import '../widgets/report_page.dart';
+import '../widgets/data_table_report_widget.dart';
 import '../widgets/data_table_report_section_widget.dart';
 
 class DynamicScreen extends ConsumerStatefulWidget {
@@ -502,7 +502,13 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
         child: pageSchemaAsync.when(
           data: (pageSchema) {
             if (pageSchema.pageTypeId == PageTypes.report) {
-              return ReportPage(pageSchema: pageSchema);
+              // Use the first section for columns/controls
+              final section = pageSchema.sections.isNotEmpty
+                  ? pageSchema.sections.first
+                  : null;
+
+              return DataTableReportWidget(
+                  bindingName: pageSchema.bindingNameGet!, section: section);
             }
             // Prefill logic
             if (widget.args.data.isNotEmpty &&
