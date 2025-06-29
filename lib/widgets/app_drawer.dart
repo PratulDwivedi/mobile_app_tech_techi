@@ -135,8 +135,8 @@ class AppDrawer extends StatelessWidget {
           Navigator.of(context).pop();
           NavigationService.navigateTo(
             page.routeName,
-            arguments:
-                ScreenArgsModel(routeName: page.routeName, isHome: false),
+            arguments: ScreenArgsModel(
+                routeName: page.routeName, pageName: page.name, isHome: false),
           );
         },
       );

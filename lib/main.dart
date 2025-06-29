@@ -64,7 +64,8 @@ class AuthWrapper extends ConsumerWidget {
         if (session != null) {
           // Use a default route or fetch from user profile if needed
           return DynamicScreen(
-              args: ScreenArgsModel(routeName: 'dashboard', isHome: true));
+              args: ScreenArgsModel(
+                  routeName: 'dashboard', pageName: 'dashboard', isHome: true));
         }
         return const LoginScreen();
       },

@@ -20,7 +20,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  
+
   bool _isLoading = false;
   bool _isSignUp = false;
   bool _isPasswordVisible = false;
@@ -36,7 +36,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     );
-    
+
     _slideAnimation = Tween<double>(
       begin: 100.0,
       end: 0.0,
@@ -44,7 +44,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       parent: _animationController,
       curve: Curves.elasticOut,
     ));
-    
+
     _scaleAnimation = Tween<double>(
       begin: 0.8,
       end: 1.0,
@@ -52,10 +52,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       parent: _animationController,
       curve: Curves.elasticOut,
     ));
-    
+
     _animationController.forward();
-    
-    _emailController.text ="demo@gmail.com";
+
+    _emailController.text = "demo@gmail.com";
     _passwordController.text = "Demo@123";
   }
 
@@ -76,7 +76,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
     try {
       final authService = ref.read(authServiceProvider);
-      
+
       if (_isSignUp) {
         await authService.signUp(
           email: _emailController.text.trim(),
@@ -90,13 +90,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                   Icon(Icons.check_circle, color: Colors.white),
                   SizedBox(width: 8),
                   Expanded(
-                    child: Text('Account created! Please check your email to verify.'),
+                    child: Text(
+                        'Account created! Please check your email to verify.'),
                   ),
                 ],
               ),
               backgroundColor: Colors.green,
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
             ),
           );
         }
@@ -118,18 +120,25 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             await prefs.setString('user_profile', json.encode(profile));
 
             final profileData = profile['data'] as Map<String, dynamic>?;
-            final routeNameMobile = profileData?['route_name_mobile'] as String?;
+            final routeNameMobile =
+                profileData?['route_name_mobile'] as String?;
 
             if (routeNameMobile != null && routeNameMobile.isNotEmpty) {
               // Navigate to the mobile route as home
-              NavigationService.navigateTo(routeNameMobile, arguments: ScreenArgsModel(routeName: routeNameMobile, isHome: true));
+              NavigationService.navigateTo(routeNameMobile,
+                  arguments: ScreenArgsModel(
+                      routeName: routeNameMobile,
+                      pageName: routeNameMobile,
+                      isHome: true));
             } else {
               // Fallback to a default dynamic screen if no mobile route specified
-              NavigationService.navigateTo('default', arguments: {'isHome': true});
+              NavigationService.navigateTo('default',
+                  arguments: {'isHome': true});
             }
           } else {
             // Fallback to a default dynamic screen if profile fetch failed
-            NavigationService.navigateTo('default', arguments: {'isHome': true});
+            NavigationService.navigateTo('default',
+                arguments: {'isHome': true});
           }
         } else {
           // Fallback to a default dynamic screen if auth failed
@@ -149,7 +158,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             ),
             backgroundColor: Colors.red,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           ),
         );
       }
@@ -167,7 +177,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     final themeState = ref.watch(themeProvider);
     final isDarkMode = themeState.isDarkMode;
     final primaryColor = ref.watch(primaryColorProvider);
-    
+
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -195,7 +205,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             child: Column(
               children: [
                 const SizedBox(height: 40),
-                
+
                 // Main Login Form
                 AnimatedBuilder(
                   animation: _slideAnimation,
@@ -244,42 +254,48 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                     ],
                                   ),
                                   child: Icon(
-                                    _isSignUp ? Icons.person_add : Icons.lock_open,
+                                    _isSignUp
+                                        ? Icons.person_add
+                                        : Icons.lock_open,
                                     size: 40,
                                     color: Colors.white,
                                   ),
                                 ),
-                                
+
                                 const SizedBox(height: 24),
-                                
+
                                 // Title
                                 Text(
                                   _isSignUp ? 'Create Account' : 'Welcome Back',
                                   style: TextStyle(
                                     fontSize: 28,
                                     fontWeight: FontWeight.bold,
-                                    color: isDarkMode ? Colors.white : Colors.black87,
+                                    color: isDarkMode
+                                        ? Colors.white
+                                        : Colors.black87,
                                   ),
                                 ),
-                                
+
                                 const SizedBox(height: 8),
-                                
+
                                 Text(
-                                  _isSignUp 
+                                  _isSignUp
                                       ? 'Join us and start your journey'
                                       : 'Sign in to continue your journey',
                                   style: TextStyle(
                                     fontSize: 16,
-                                    color: isDarkMode ? Colors.white70 : Colors.black54,
+                                    color: isDarkMode
+                                        ? Colors.white70
+                                        : Colors.black54,
                                   ),
                                 ),
-                                
+
                                 const SizedBox(height: 32),
-                                
+
                                 // Email Field
                                 Container(
                                   decoration: BoxDecoration(
-                                    color: isDarkMode 
+                                    color: isDarkMode
                                         ? Colors.white.withOpacity(0.1)
                                         : Colors.grey.withOpacity(0.1),
                                     borderRadius: BorderRadius.circular(15),
@@ -288,19 +304,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                     controller: _emailController,
                                     keyboardType: TextInputType.emailAddress,
                                     style: TextStyle(
-                                      color: isDarkMode ? Colors.white : Colors.black87,
+                                      color: isDarkMode
+                                          ? Colors.white
+                                          : Colors.black87,
                                     ),
                                     decoration: InputDecoration(
                                       labelText: 'Email',
                                       labelStyle: TextStyle(
-                                        color: isDarkMode ? Colors.white70 : Colors.black54,
+                                        color: isDarkMode
+                                            ? Colors.white70
+                                            : Colors.black54,
                                       ),
                                       prefixIcon: Icon(
                                         Icons.email_outlined,
                                         color: primaryColor,
                                       ),
                                       border: InputBorder.none,
-                                      contentPadding: const EdgeInsets.symmetric(
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
                                         horizontal: 20,
                                         vertical: 16,
                                       ),
@@ -309,20 +330,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                       if (value == null || value.isEmpty) {
                                         return 'Please enter your email';
                                       }
-                                      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                                      if (!RegExp(
+                                              r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                                          .hasMatch(value)) {
                                         return 'Please enter a valid email';
                                       }
                                       return null;
                                     },
                                   ),
                                 ),
-                                
+
                                 const SizedBox(height: 20),
-                                
+
                                 // Password Field
                                 Container(
                                   decoration: BoxDecoration(
-                                    color: isDarkMode 
+                                    color: isDarkMode
                                         ? Colors.white.withOpacity(0.1)
                                         : Colors.grey.withOpacity(0.1),
                                     borderRadius: BorderRadius.circular(15),
@@ -331,12 +354,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                     controller: _passwordController,
                                     obscureText: !_isPasswordVisible,
                                     style: TextStyle(
-                                      color: isDarkMode ? Colors.white : Colors.black87,
+                                      color: isDarkMode
+                                          ? Colors.white
+                                          : Colors.black87,
                                     ),
                                     decoration: InputDecoration(
                                       labelText: 'Password',
                                       labelStyle: TextStyle(
-                                        color: isDarkMode ? Colors.white70 : Colors.black54,
+                                        color: isDarkMode
+                                            ? Colors.white70
+                                            : Colors.black54,
                                       ),
                                       prefixIcon: Icon(
                                         Icons.lock_outline,
@@ -344,20 +371,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                       ),
                                       suffixIcon: IconButton(
                                         icon: Icon(
-                                          _isPasswordVisible 
+                                          _isPasswordVisible
                                               ? Icons.visibility_off
                                               : Icons.visibility,
                                           color: primaryColor,
                                         ),
                                         onPressed: () {
                                           setState(() {
-                                            _isPasswordVisible = !_isPasswordVisible;
+                                            _isPasswordVisible =
+                                                !_isPasswordVisible;
                                           });
                                           HapticFeedback.lightImpact();
                                         },
                                       ),
                                       border: InputBorder.none,
-                                      contentPadding: const EdgeInsets.symmetric(
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
                                         horizontal: 20,
                                         vertical: 16,
                                       ),
@@ -373,9 +402,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                     },
                                   ),
                                 ),
-                                
+
                                 const SizedBox(height: 32),
-                                
+
                                 // Login/Signup Button
                                 SizedBox(
                                   width: double.infinity,
@@ -386,7 +415,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                       backgroundColor: primaryColor,
                                       foregroundColor: Colors.white,
                                       elevation: 8,
-                                      shadowColor: primaryColor.withOpacity(0.3),
+                                      shadowColor:
+                                          primaryColor.withOpacity(0.3),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(15),
                                       ),
@@ -397,11 +427,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                             height: 24,
                                             child: CircularProgressIndicator(
                                               strokeWidth: 2,
-                                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                              valueColor:
+                                                  AlwaysStoppedAnimation<Color>(
+                                                      Colors.white),
                                             ),
                                           )
                                         : Text(
-                                            _isSignUp ? 'Create Account' : 'Sign In',
+                                            _isSignUp
+                                                ? 'Create Account'
+                                                : 'Sign In',
                                             style: const TextStyle(
                                               fontSize: 18,
                                               fontWeight: FontWeight.bold,
@@ -409,9 +443,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                           ),
                                   ),
                                 ),
-                                
+
                                 const SizedBox(height: 24),
-                                
+
                                 // Toggle between Login/Signup
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -421,7 +455,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                           ? 'Already have an account? '
                                           : 'Don\'t have an account? ',
                                       style: TextStyle(
-                                        color: isDarkMode ? Colors.white70 : Colors.black54,
+                                        color: isDarkMode
+                                            ? Colors.white70
+                                            : Colors.black54,
                                       ),
                                     ),
                                     GestureDetector(
@@ -457,4 +493,4 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       ),
     );
   }
-} 
+}

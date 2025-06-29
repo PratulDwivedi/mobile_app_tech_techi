@@ -317,7 +317,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                             NavigationService.navigateTo(
                               page.routeName,
                               arguments: ScreenArgsModel(
-                                  routeName: page.routeName, isHome: false),
+                                  routeName: page.routeName,
+                                  pageName: page.name,
+                                  isHome: false),
                             );
                           },
                         ),

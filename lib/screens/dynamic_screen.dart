@@ -334,12 +334,65 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
               iconTheme: IconThemeData(
                 color: isDarkMode ? Colors.white : Colors.black87,
               ),
-              actions: const [AppBarMenu()],
+              actions: [
+                if (pageSchema.pageTypeId == PageTypes.form &&
+                    widget.args.data.isEmpty &&
+                    pageSchema.sections.any((s) =>
+                        s.childDisplayModeId ==
+                            ChildDiaplayModes.dataTableReport ||
+                        s.childDisplayModeId ==
+                            ChildDiaplayModes.dataTableReportAdvance))
+                  IconButton(
+                    onPressed: () {
+                      final reportSections = pageSchema.sections
+                          .where((s) =>
+                              s.childDisplayModeId ==
+                                  ChildDiaplayModes.dataTableReport ||
+                              s.childDisplayModeId ==
+                                  ChildDiaplayModes.dataTableReportAdvance)
+                          .toList();
+                      openDataTableReportSection(context, reportSections);
+                    },
+                    icon: Icon(
+                      Icons.search_off_outlined,
+                      color: isDarkMode ? Colors.white : Colors.black87,
+                    ),
+                    tooltip: 'Section Data',
+                  ),
+                if (pageSchema.pageTypeId == PageTypes.report &&
+                    (pageSchema.bindingNameGet?.isNotEmpty ?? false))
+                  IconButton(
+                    onPressed: () {
+                      _searchData(pageSchema);
+                    },
+                    icon: Icon(
+                      Icons.filter_list,
+                      color: isDarkMode ? Colors.white : Colors.black87,
+                    ),
+                    tooltip: 'Filter Report',
+                  ),
+                if (widget.args.isHome)
+                  IconButton(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const SearchScreen(),
+                        ),
+                      );
+                    },
+                    icon: Icon(
+                      Icons.pageview_sharp,
+                      color: isDarkMode ? Colors.white : Colors.black87,
+                    ),
+                    tooltip: 'Search Page',
+                  ),
+                const AppBarMenu(),
+              ],
             );
           },
           loading: () => AppBar(
             title: Text(
-              widget.args.routeName.replaceAll('_', ' ').toUpperCase(),
+              widget.args.pageName,
               style: TextStyle(
                 color: isDarkMode ? Colors.white : Colors.black87,
                 fontWeight: FontWeight.bold,
@@ -350,11 +403,28 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
             iconTheme: IconThemeData(
               color: isDarkMode ? Colors.white : Colors.black87,
             ),
-            actions: const [AppBarMenu()],
+            actions: [
+              if (widget.args.isHome)
+                IconButton(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const SearchScreen(),
+                      ),
+                    );
+                  },
+                  icon: Icon(
+                    Icons.search,
+                    color: isDarkMode ? Colors.white : Colors.black87,
+                  ),
+                  tooltip: 'Search',
+                ),
+              const AppBarMenu(),
+            ],
           ),
           error: (error, stack) => AppBar(
             title: Text(
-              widget.args.routeName.replaceAll('_', ' ').toUpperCase(),
+              widget.args.pageName,
               style: TextStyle(
                 color: isDarkMode ? Colors.white : Colors.black87,
                 fontWeight: FontWeight.bold,
@@ -365,7 +435,24 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
             iconTheme: IconThemeData(
               color: isDarkMode ? Colors.white : Colors.black87,
             ),
-            actions: const [AppBarMenu()],
+            actions: [
+              if (widget.args.isHome)
+                IconButton(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const SearchScreen(),
+                      ),
+                    );
+                  },
+                  icon: Icon(
+                    Icons.search,
+                    color: isDarkMode ? Colors.white : Colors.black87,
+                  ),
+                  tooltip: 'Search',
+                ),
+              const AppBarMenu(),
+            ],
           ),
         ),
       ),
@@ -540,48 +627,20 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
               error: (error, stack) => const SizedBox.shrink(),
             )
           : null,
-      floatingActionButton: widget.args.isHome
-          ? FloatingActionButton(
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const SearchScreen(),
-                  ),
-                );
-              },
-              backgroundColor: primaryColor,
-              foregroundColor: Colors.white,
-              elevation: 8,
-              child: const Icon(Icons.search),
-            )
-          : null,
       bottomSheet: pageSchemaAsync.when(
         data: (pageSchema) {
           final pageTypeId = pageSchema.pageTypeId;
           final showSave = (pageTypeId == PageTypes.form) &&
               (pageSchema.bindingNamePost != null &&
                   pageSchema.bindingNamePost!.isNotEmpty);
-          final showSearch = pageTypeId == PageTypes.report &&
-              (pageSchema.bindingNameGet?.isNotEmpty ?? false);
 
           // check for delete button
           final showDelete = widget.args.data.isNotEmpty &&
               (pageSchema.bindingNameDelete != null &&
                   pageSchema.bindingNameDelete!.isNotEmpty);
 
-          // Check if any section is a report/advance
-          var hasDataTableReport = false;
-
-          if (pageSchema.pageTypeId == PageTypes.form &&
-              widget.args.data.isEmpty) {
-            hasDataTableReport = pageSchema.sections.any((s) =>
-                s.childDisplayModeId == ChildDiaplayModes.dataTableReport ||
-                s.childDisplayModeId ==
-                    ChildDiaplayModes.dataTableReportAdvance);
-          }
-
           // If no button is visible, return SizedBox.shrink()
-          if (!showSave && !showSearch && !showDelete && !hasDataTableReport) {
+          if (!showSave && !showDelete) {
             return const SizedBox.shrink();
           }
 
@@ -591,27 +650,6 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                if (hasDataTableReport)
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                      child: AppButton(
-                        label: 'Search',
-                        icon: Icons.search,
-                        color: Theme.of(context).colorScheme.secondary,
-                        onPressed: () {
-                          final reportSections = pageSchema.sections
-                              .where((s) =>
-                                  s.childDisplayModeId ==
-                                      ChildDiaplayModes.dataTableReport ||
-                                  s.childDisplayModeId ==
-                                      ChildDiaplayModes.dataTableReportAdvance)
-                              .toList();
-                          openDataTableReportSection(context, reportSections);
-                        },
-                      ),
-                    ),
-                  ),
                 if (showSave)
                   Expanded(
                     child: Padding(
@@ -624,22 +662,6 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
                             ? null
                             : () {
                                 _saveForm(pageSchema);
-                              },
-                      ),
-                    ),
-                  ),
-                if (showSearch)
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                      child: AppButton(
-                        label: 'Search',
-                        icon: Icons.search,
-                        color: primaryColor,
-                        onPressed: _isSaving
-                            ? null
-                            : () {
-                                _searchData(pageSchema);
                               },
                       ),
                     ),

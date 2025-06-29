@@ -54,19 +54,6 @@ class _ReportPageState extends ConsumerState<ReportPage> {
             },
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              icon: const Icon(Icons.search),
-              label: const Text('Search'),
-              onPressed: () {
-                // Implement search logic or open search dialog if needed
-              },
-            ),
-          ),
-        ),
       ],
     );
   }

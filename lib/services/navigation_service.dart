@@ -20,9 +20,10 @@ class NavigationService {
       if (arguments is ScreenArgsModel) {
         args = arguments;
       } else if (arguments is Map<String, dynamic>) {
-        args = ScreenArgsModel(routeName: routeName, data: arguments);
+        args = ScreenArgsModel(
+            routeName: routeName, pageName: routeName, data: arguments);
       } else {
-        args = ScreenArgsModel(routeName: routeName);
+        args = ScreenArgsModel(routeName: routeName, pageName: routeName);
       }
       navigatorKey.currentState?.push(MaterialPageRoute(
         builder: (context) => DynamicScreen(args: args),
@@ -41,4 +42,4 @@ class NavigationService {
     // If route is not in map, it might be a dynamic route handled by navigateTo
     return null;
   }
-} 
+}

@@ -72,7 +72,9 @@ class CustomBottomNavigationBar extends ConsumerWidget {
                     NavigationService.navigateTo(
                       page.routeName,
                       arguments: ScreenArgsModel(
-                          routeName: page.routeName, isHome: false),
+                          routeName: page.routeName,
+                          pageName: page.name,
+                          isHome: false),
                     );
                   },
                 );
