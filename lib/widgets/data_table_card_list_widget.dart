@@ -228,7 +228,7 @@ class _DataTableCardListWidgetState extends State<DataTableCardListWidget> {
                               final iconColor =
                                   hexToColor(control.data?['item_color']);
                               return ActionButtonWithFeedback(
-                                iconData: iconData ?? Icons.remove_red_eye,
+                                iconData: iconData,
                                 iconColor: iconColor,
                                 label: control.name,
                                 onPressed: () =>
