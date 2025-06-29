@@ -15,6 +15,8 @@ import '../screens/search_screen.dart';
 import 'package:mobile_app_tech_techi/models/page_schema.dart';
 import '../widgets/data_table_report_widget.dart';
 import '../widgets/data_table_report_section_widget.dart';
+import '../widgets/custom_error_widget.dart';
+import '../widgets/screen_decoration_widget.dart';
 
 class DynamicScreen extends ConsumerStatefulWidget {
   final ScreenArgsModel args;
@@ -305,6 +307,66 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
     }
   }
 
+  Widget _buildBottomSheet(PageSchema pageSchema) {
+    final primaryColor = ref.watch(primaryColorProvider);
+
+    final showSave = (pageSchema.pageTypeId == PageTypes.form) &&
+        (pageSchema.bindingNamePost != null &&
+            pageSchema.bindingNamePost!.isNotEmpty);
+
+    // check for delete button
+    final showDelete = widget.args.data.isNotEmpty &&
+        (pageSchema.bindingNameDelete != null &&
+            pageSchema.bindingNameDelete!.isNotEmpty);
+
+    // If no button is visible, return SizedBox.shrink()
+    if (!showSave && !showDelete) {
+      return const SizedBox.shrink();
+    }
+
+    return Container(
+      color: Colors.transparent,
+      padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          if (showSave)
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                child: AppButton(
+                  label: _isSaving ? 'Saving...' : 'Save',
+                  icon: _isSaving ? Icons.hourglass_empty : Icons.save,
+                  color: primaryColor,
+                  onPressed: _isSaving
+                      ? null
+                      : () {
+                          _saveForm(pageSchema);
+                        },
+                ),
+              ),
+            ),
+          if (showDelete)
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                child: AppButton(
+                  label: 'Delete',
+                  icon: Icons.delete,
+                  color: Colors.red,
+                  onPressed: _isSaving
+                      ? null
+                      : () {
+                          _deleteRecord(pageSchema);
+                        },
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final themeState = ref.watch(themeProvider);
@@ -479,26 +541,9 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
               ),
             )
           : null,
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: isDarkMode
-                ? [
-                    const Color(0xFF1a1a2e),
-                    const Color(0xFF16213e),
-                    const Color(0xFF0f3460),
-                  ]
-                : [
-                    primaryColor.withOpacity(0.1),
-                    primaryColor.withOpacity(0.05),
-                    Colors.white,
-                  ],
-          ),
-        ),
+      body: ScreenDecorationWidget(
+        isDarkMode: isDarkMode,
+        primaryColor: primaryColor,
         child: pageSchemaAsync.when(
           data: (pageSchema) {
             if (pageSchema.pageTypeId == PageTypes.report) {
@@ -583,43 +628,8 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
               valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
             ),
           ),
-          error: (error, stack) => Center(
-            child: Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: isDarkMode
-                    ? Colors.white.withOpacity(0.1)
-                    : Colors.white.withOpacity(0.9),
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
-                  ),
-                ],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.error_outline,
-                    size: 48,
-                    color: Colors.red,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Error: $error',
-                    style: TextStyle(
-                      color: isDarkMode ? Colors.white : Colors.black87,
-                      fontSize: 16,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
-          ),
+          error: (error, stack) =>
+              CustomErrorWidget(error: error, isDarkMode: isDarkMode),
         ),
       ),
       bottomNavigationBar: widget.args.isHome
@@ -635,62 +645,7 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
           : null,
       bottomSheet: pageSchemaAsync.when(
         data: (pageSchema) {
-          final pageTypeId = pageSchema.pageTypeId;
-          final showSave = (pageTypeId == PageTypes.form) &&
-              (pageSchema.bindingNamePost != null &&
-                  pageSchema.bindingNamePost!.isNotEmpty);
-
-          // check for delete button
-          final showDelete = widget.args.data.isNotEmpty &&
-              (pageSchema.bindingNameDelete != null &&
-                  pageSchema.bindingNameDelete!.isNotEmpty);
-
-          // If no button is visible, return SizedBox.shrink()
-          if (!showSave && !showDelete) {
-            return const SizedBox.shrink();
-          }
-
-          return Container(
-            color: Colors.transparent,
-            padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                if (showSave)
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                      child: AppButton(
-                        label: _isSaving ? 'Saving...' : 'Save',
-                        icon: _isSaving ? Icons.hourglass_empty : Icons.save,
-                        color: primaryColor,
-                        onPressed: _isSaving
-                            ? null
-                            : () {
-                                _saveForm(pageSchema);
-                              },
-                      ),
-                    ),
-                  ),
-                if (showDelete)
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                      child: AppButton(
-                        label: 'Delete',
-                        icon: Icons.delete,
-                        color: Colors.red,
-                        onPressed: _isSaving
-                            ? null
-                            : () {
-                                _deleteRecord(pageSchema);
-                              },
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          );
+          return _buildBottomSheet(pageSchema);
         },
         loading: () => const SizedBox.shrink(),
         error: (error, stack) => const SizedBox.shrink(),
