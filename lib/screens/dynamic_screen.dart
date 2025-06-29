@@ -16,6 +16,7 @@ import 'package:mobile_app_tech_techi/models/page_schema.dart';
 import '../widgets/data_table_report_widget.dart';
 import '../widgets/custom_error_widget.dart';
 import '../widgets/screen_decoration_widget.dart';
+import '../screens/data_table_report_screen.dart';
 
 class DynamicScreen extends ConsumerStatefulWidget {
   final ScreenArgsModel args;
@@ -274,11 +275,7 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
       final section = sections.first;
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (context) => Scaffold(
-            appBar: AppBar(title: Text(section.name)),
-            body: DataTableReportWidget(
-                bindingName: section.bindingName!, section: section),
-          ),
+          builder: (context) => DataTableReportScreen(section: section),
         ),
       );
     } else {
@@ -297,11 +294,7 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
       if (selected != null) {
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => Scaffold(
-              appBar: AppBar(title: Text(selected.name)),
-              body: DataTableReportWidget(
-                  bindingName: selected.bindingName!, section: selected),
-            ),
+            builder: (context) => DataTableReportScreen(section: selected),
           ),
         );
       }
