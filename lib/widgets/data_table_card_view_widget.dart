@@ -7,13 +7,13 @@ import '../utils/navigation_utils.dart';
 import 'dart:math';
 import 'action_button_with_feedback.dart';
 
-class DataTableCardListWidget extends StatefulWidget {
+class DataTableCardViewWidget extends StatefulWidget {
   final Section section;
   final List<dynamic> data;
   final int pageSize;
   final bool shrinkWrap;
   final ScrollPhysics? physics;
-  const DataTableCardListWidget({
+  const DataTableCardViewWidget({
     super.key,
     required this.section,
     required this.data,
@@ -23,11 +23,11 @@ class DataTableCardListWidget extends StatefulWidget {
   });
 
   @override
-  State<DataTableCardListWidget> createState() =>
-      _DataTableCardListWidgetState();
+  State<DataTableCardViewWidget> createState() =>
+      _DataTableCardViewWidgetState();
 }
 
-class _DataTableCardListWidgetState extends State<DataTableCardListWidget> {
+class _DataTableCardViewWidgetState extends State<DataTableCardViewWidget> {
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   String _searchQuery = '';

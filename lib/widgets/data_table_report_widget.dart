@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/riverpod/service_providers.dart';
-import 'data_table_card_list_widget.dart';
+import 'data_table_card_view_widget.dart';
 import '../models/page_schema.dart';
 
 class DataTableReportWidget extends ConsumerStatefulWidget {
@@ -43,7 +43,7 @@ class _DataTableReportWidgetState extends ConsumerState<DataTableReportWidget> {
 
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                child: DataTableCardListWidget(
+                child: DataTableCardViewWidget(
                     section: widget.section!, data: data),
               );
             },

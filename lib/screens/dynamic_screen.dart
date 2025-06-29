@@ -14,7 +14,6 @@ import '../widgets/app_button.dart';
 import '../screens/search_screen.dart';
 import 'package:mobile_app_tech_techi/models/page_schema.dart';
 import '../widgets/data_table_report_widget.dart';
-import '../widgets/data_table_report_section_widget.dart';
 import '../widgets/custom_error_widget.dart';
 import '../widgets/screen_decoration_widget.dart';
 
@@ -277,7 +276,8 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
         MaterialPageRoute(
           builder: (context) => Scaffold(
             appBar: AppBar(title: Text(section.name)),
-            body: DataTableReportSectionWidget(section: section),
+            body: DataTableReportWidget(
+                bindingName: section.bindingName!, section: section),
           ),
         ),
       );
@@ -299,7 +299,8 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
           MaterialPageRoute(
             builder: (context) => Scaffold(
               appBar: AppBar(title: Text(selected.name)),
-              body: DataTableReportSectionWidget(section: selected),
+              body: DataTableReportWidget(
+                  bindingName: selected.bindingName!, section: selected),
             ),
           ),
         );
