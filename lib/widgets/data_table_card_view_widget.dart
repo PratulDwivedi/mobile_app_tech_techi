@@ -244,7 +244,7 @@ class _DataTableCardViewWidgetState extends State<DataTableCardViewWidget> {
             ),
           ),
         Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.only(bottom: 50.0),
           child: Text('Showing $start to $end of $totalCount entries'),
         ),
       ],

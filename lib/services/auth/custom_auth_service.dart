@@ -1,5 +1,4 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../config/app_constants.dart';
 import 'auth_service.dart';
 import '../dynamic_page/api_helper.dart';
 

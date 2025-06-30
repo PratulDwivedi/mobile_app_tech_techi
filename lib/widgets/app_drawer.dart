@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:mobile_app_tech_techi/config/app_constants.dart';
 import 'package:mobile_app_tech_techi/services/navigation_service.dart';
+import '../config/app_config.dart';
 import '../models/page_item.dart';
 import '../models/screen_args_model.dart';
 import '../utils/icon_utils.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AppDrawer extends StatelessWidget {
   final List<PageItem> pages;
@@ -20,30 +22,25 @@ class AppDrawer extends StatelessWidget {
         .toList();
 
     return Drawer(
-      child: Stack(
-        children: [
-          ListView(
-            padding: EdgeInsets.zero,
-            children: [
-              _buildDrawerHeader(context),
-              if (features.isNotEmpty) ...[
-                _buildSectionHeader('FEATURES'),
-                ...features.map((page) => _buildDrawerItem(context, page)),
-              ],
-              const SizedBox(height: 80), // Space for version info at bottom
+      child: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.only(bottom: 16),
+          children: [
+            _buildDrawerHeader(context),
+            if (features.isNotEmpty) ...[
+              _buildSectionHeader('FEATURES'),
+              ...features.map((page) => _buildDrawerItem(context, page)),
             ],
-          ),
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: ListTile(
+            const SizedBox(height: 16),
+            ListTile(
               leading: const Icon(LucideIcons.info),
-              title: const Text('v0.0.1'),
-              onTap: () {},
+              title: Text('${appConfig.appName} ${appConfig.appVersion}'),
+              onTap: () {
+                launchUrl(Uri.parse(appConfig.webSiteUrl));
+              },
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

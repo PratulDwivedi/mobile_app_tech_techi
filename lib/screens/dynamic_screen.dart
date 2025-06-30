@@ -666,7 +666,11 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
           : null,
       bottomSheet: pageSchemaAsync.when(
         data: (pageSchema) {
-          return _buildBottomSheet(pageSchema);
+          return SafeArea(
+              child: Padding(
+            padding: const EdgeInsets.only(bottom: 40),
+            child: _buildBottomSheet(pageSchema),
+          ));
         },
         loading: () => const SizedBox.shrink(),
         error: (error, stack) => const SizedBox.shrink(),
