@@ -6,17 +6,20 @@ class LineChartWidget extends StatelessWidget {
   final String title;
 
   const LineChartWidget({
-    Key? key,
+    super.key,
     required this.data,
     required this.title,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-         Padding(padding: const EdgeInsets.all(10), child: Text(title, style: const TextStyle( fontSize: 14)),),
+        Padding(
+          padding: const EdgeInsets.all(10),
+          child: Text(title, style: const TextStyle(fontSize: 14)),
+        ),
         SizedBox(
           height: 200,
           child: LineChart(
@@ -25,7 +28,8 @@ class LineChartWidget extends StatelessWidget {
                 LineChartBarData(
                   spots: [
                     for (int i = 0; i < data.length; i++)
-                      FlSpot(i.toDouble(), (data[i]['value'] as num).toDouble()),
+                      FlSpot(
+                          i.toDouble(), (data[i]['value'] as num).toDouble()),
                   ],
                   isCurved: true,
                   color: Colors.green,
@@ -44,13 +48,15 @@ class LineChartWidget extends StatelessWidget {
                         return SideTitleWidget(
                           axisSide: meta.axisSide,
                           space: 8,
-                          child: const Text('0', style: TextStyle(fontSize: 12)),
+                          child:
+                              const Text('0', style: TextStyle(fontSize: 12)),
                         );
                       } else if (value % 1000 == 0) {
                         return SideTitleWidget(
                           axisSide: meta.axisSide,
                           space: 8,
-                          child: Text('${value ~/ 1000}K', style: const TextStyle(fontSize: 12)),
+                          child: Text('${value ~/ 1000}K',
+                              style: const TextStyle(fontSize: 12)),
                         );
                       }
                       return const SizedBox.shrink();
@@ -64,7 +70,9 @@ class LineChartWidget extends StatelessWidget {
                     interval: 1,
                     getTitlesWidget: (value, meta) {
                       final idx = value.toInt();
-                      if (idx >= 0 && idx < data.length && (data[idx]['name']?.toString().isNotEmpty ?? false)) {
+                      if (idx >= 0 &&
+                          idx < data.length &&
+                          (data[idx]['name']?.toString().isNotEmpty ?? false)) {
                         return SideTitleWidget(
                           axisSide: meta.axisSide,
                           space: 8,
@@ -96,4 +104,4 @@ class LineChartWidget extends StatelessWidget {
       ],
     );
   }
-} 
+}

@@ -45,12 +45,13 @@ class ThemeSelector extends ConsumerWidget {
     );
   }
 
-  Widget _buildThemeToggle(BuildContext context, WidgetRef ref,
-      bool isDarkMode, Color primaryColor) {
+  Widget _buildThemeToggle(BuildContext context, WidgetRef ref, bool isDarkMode,
+      Color primaryColor) {
     return Container(
       decoration: BoxDecoration(
-        color:
-            isDarkMode ? Colors.white.withOpacity(0.2) : Colors.grey.withOpacity(0.2),
+        color: isDarkMode
+            ? Colors.white.withOpacity(0.2)
+            : Colors.grey.withOpacity(0.2),
         borderRadius: BorderRadius.circular(25),
       ),
       child: Row(
@@ -58,15 +59,14 @@ class ThemeSelector extends ConsumerWidget {
         children: [
           _buildThemeButton(
               context, ref, 'Light', Icons.light_mode, !isDarkMode),
-          _buildThemeButton(
-              context, ref, 'Dark', Icons.dark_mode, isDarkMode),
+          _buildThemeButton(context, ref, 'Dark', Icons.dark_mode, isDarkMode),
         ],
       ),
     );
   }
 
-  Widget _buildThemeButton(BuildContext context, WidgetRef ref,
-      String text, IconData icon, bool isSelected) {
+  Widget _buildThemeButton(BuildContext context, WidgetRef ref, String text,
+      IconData icon, bool isSelected) {
     final primaryColor = ref.watch(primaryColorProvider);
     return GestureDetector(
       onTap: () {
@@ -107,8 +107,8 @@ class ThemeSelector extends ConsumerWidget {
   Widget _buildColorPicker(
       BuildContext context, WidgetRef ref, bool isDarkMode, int selectedIndex) {
     final themeNotifier = ref.read(themeProvider.notifier);
-    final colors = ThemeNotifier.primaryColors;
-    
+    const colors = ThemeNotifier.primaryColors;
+
     return Wrap(
       spacing: 16,
       runSpacing: 16,
@@ -116,7 +116,7 @@ class ThemeSelector extends ConsumerWidget {
         final index = entry.key;
         final color = entry.value;
         bool isSelected = index == selectedIndex;
-        
+
         return GestureDetector(
           onTap: () {
             themeNotifier.setPrimaryColor(index);
@@ -130,7 +130,9 @@ class ThemeSelector extends ConsumerWidget {
               color: color,
               shape: BoxShape.circle,
               border: Border.all(
-                color: isSelected ? (isDarkMode ? Colors.white : Colors.black) : Colors.transparent,
+                color: isSelected
+                    ? (isDarkMode ? Colors.white : Colors.black)
+                    : Colors.transparent,
                 width: 3,
               ),
               boxShadow: isSelected
@@ -151,4 +153,4 @@ class ThemeSelector extends ConsumerWidget {
       }).toList(),
     );
   }
-} 
+}

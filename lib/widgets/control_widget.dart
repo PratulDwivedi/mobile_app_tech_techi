@@ -28,7 +28,8 @@ class ControlWidget extends ConsumerStatefulWidget {
 }
 
 class _ControlWidgetState extends ConsumerState<ControlWidget> {
-  dynamic _selectedValue; // The full item (id, name, ...) or list of such maps for multi
+  dynamic
+      _selectedValue; // The full item (id, name, ...) or list of such maps for multi
   final Map<String, TextEditingController> _textControllers = {};
 
   @override
@@ -69,11 +70,16 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
         if (ids is List) {
           for (var i = 0; i < ids.length; i++) {
             final id = ids[i];
-            final name = (names is List && names.length > i) ? names[i] : id.toString();
+            final name =
+                (names is List && names.length > i) ? names[i] : id.toString();
             result.add({'id': id, 'name': name});
           }
         } else if (ids != null) {
-          result.add({'id': ids, 'name': (names is List && names.isNotEmpty) ? names[0] : ids.toString()});
+          result.add({
+            'id': ids,
+            'name':
+                (names is List && names.isNotEmpty) ? names[0] : ids.toString()
+          });
         }
         _selectedValue = result;
         break;
@@ -88,10 +94,12 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
       case ControlTypes.password:
       case ControlTypes.textArea:
         if (!_textControllers.containsKey(widget.control.bindingName)) {
-          _textControllers[widget.control.bindingName] = TextEditingController();
+          _textControllers[widget.control.bindingName] =
+              TextEditingController();
         }
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          _textControllers[widget.control.bindingName]?.text = widget.formData[widget.control.bindingName]?.toString() ?? '';
+          _textControllers[widget.control.bindingName]?.text =
+              widget.formData[widget.control.bindingName]?.toString() ?? '';
         });
         break;
       case ControlTypes.toggleSwitch:
@@ -110,6 +118,7 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
     }
     return _selectedValue?['id'];
   }
+
   String? get selectedName {
     if (_selectedValue is List) {
       return (_selectedValue as List).map((e) => e['name']).join(', ');
@@ -155,7 +164,8 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
         if (widget.control.bindingListRouteName == null) {
           return null; // No data
         }
-        final listData = ref.watch(bindingListProvider(widget.control.bindingListRouteName!));
+        final listData = ref
+            .watch(bindingListProvider(widget.control.bindingListRouteName!));
         return listData.when(
           data: (data) => data.isEmpty ? null : data,
           loading: () => null,
@@ -174,9 +184,10 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
       case ControlTypes.treeViewSingle:
       case ControlTypes.treeViewMulti:
         if (widget.control.displayModeId == ControlDisplayModes.require) {
-          if (_selectedValue == null || 
-              (widget.control.controlTypeId == ControlTypes.dropdownMultiselect || 
-               widget.control.controlTypeId == ControlTypes.treeViewMulti)) {
+          if (_selectedValue == null ||
+              (widget.control.controlTypeId ==
+                      ControlTypes.dropdownMultiselect ||
+                  widget.control.controlTypeId == ControlTypes.treeViewMulti)) {
             if (_selectedValue is List && (_selectedValue as List).isEmpty) {
               return '${widget.control.name} is required';
             }
@@ -214,10 +225,12 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
         final ids = value.map((e) => e['id']).toList();
         final names = value.map((e) => e['name']).toList();
         widget.onValueChanged?.call(widget.control.bindingName, ids);
-        widget.onValueChanged?.call('${widget.control.bindingName}_name', names);
+        widget.onValueChanged
+            ?.call('${widget.control.bindingName}_name', names);
       } else if (value is Map) {
         widget.onValueChanged?.call(widget.control.bindingName, value['id']);
-        widget.onValueChanged?.call('${widget.control.bindingName}_name', value['name']);
+        widget.onValueChanged
+            ?.call('${widget.control.bindingName}_name', value['name']);
       }
     } else {
       widget.onValueChanged?.call(widget.control.bindingName, value);
@@ -226,7 +239,9 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
 
   @override
   void dispose() {
-    _textControllers.values.forEach((controller) => controller.dispose());
+    for (var controller in _textControllers.values) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
@@ -242,9 +257,8 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
           Text(
             widget.control.name,
             style: TextStyle(
-              color: isDarkMode ? Colors.white70 : Colors.black54,
-              fontSize: 14
-            ),
+                color: isDarkMode ? Colors.white70 : Colors.black54,
+                fontSize: 14),
           ),
           if (widget.control.displayModeId == ControlDisplayModes.require)
             const Text(' *', style: TextStyle(color: Colors.red, fontSize: 14)),
@@ -265,7 +279,7 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
               buildLabel(),
               const SizedBox(height: 4),
               _buildPopupSelector(
-                context, ref, widget.control, isDarkMode, primaryColor),
+                  context, ref, widget.control, isDarkMode, primaryColor),
             ],
           ),
         );
@@ -279,9 +293,10 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
       case ControlTypes.currency:
         // Initialize controller if not exists
         if (!_textControllers.containsKey(widget.control.bindingName)) {
-          _textControllers[widget.control.bindingName] = TextEditingController();
+          _textControllers[widget.control.bindingName] =
+              TextEditingController();
         }
-        
+
         return Padding(
           padding: const EdgeInsets.only(bottom: 20.0),
           child: Column(
@@ -291,7 +306,7 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
               const SizedBox(height: 4),
               Container(
                 decoration: BoxDecoration(
-                  color: isDarkMode 
+                  color: isDarkMode
                       ? Colors.white.withOpacity(0.1)
                       : Colors.grey.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(15),
@@ -326,9 +341,10 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
       case ControlTypes.password:
         // Initialize controller if not exists
         if (!_textControllers.containsKey(widget.control.bindingName)) {
-          _textControllers[widget.control.bindingName] = TextEditingController();
+          _textControllers[widget.control.bindingName] =
+              TextEditingController();
         }
-        
+
         return Padding(
           padding: const EdgeInsets.only(bottom: 20.0),
           child: Column(
@@ -338,7 +354,7 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
               const SizedBox(height: 4),
               Container(
                 decoration: BoxDecoration(
-                  color: isDarkMode 
+                  color: isDarkMode
                       ? Colors.white.withOpacity(0.1)
                       : Colors.grey.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(15),
@@ -373,9 +389,10 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
       case ControlTypes.textArea:
         // Initialize controller if not exists
         if (!_textControllers.containsKey(widget.control.bindingName)) {
-          _textControllers[widget.control.bindingName] = TextEditingController();
+          _textControllers[widget.control.bindingName] =
+              TextEditingController();
         }
-        
+
         return Padding(
           padding: const EdgeInsets.only(bottom: 20.0),
           child: Column(
@@ -385,7 +402,7 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
               const SizedBox(height: 4),
               Container(
                 decoration: BoxDecoration(
-                  color: isDarkMode 
+                  color: isDarkMode
                       ? Colors.white.withOpacity(0.1)
                       : Colors.grey.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(15),
@@ -422,12 +439,14 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
           margin: const EdgeInsets.only(bottom: 16.0),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: isDarkMode 
+            color: isDarkMode
                 ? Colors.white.withOpacity(0.05)
                 : Colors.grey.withOpacity(0.05),
             borderRadius: BorderRadius.circular(15),
             border: Border.all(
-              color: isDarkMode ? Colors.white.withOpacity(0.1) : Colors.grey.withOpacity(0.2),
+              color: isDarkMode
+                  ? Colors.white.withOpacity(0.1)
+                  : Colors.grey.withOpacity(0.2),
             ),
           ),
           child: Row(
@@ -465,12 +484,14 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
           margin: const EdgeInsets.only(bottom: 16.0),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: isDarkMode 
+            color: isDarkMode
                 ? Colors.white.withOpacity(0.05)
                 : Colors.grey.withOpacity(0.05),
             borderRadius: BorderRadius.circular(15),
             border: Border.all(
-              color: isDarkMode ? Colors.white.withOpacity(0.1) : Colors.grey.withOpacity(0.2),
+              color: isDarkMode
+                  ? Colors.white.withOpacity(0.1)
+                  : Colors.grey.withOpacity(0.2),
             ),
           ),
           child: Row(
@@ -571,7 +592,8 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
         if (widget.control.bindingListRouteName == null) {
           return const Text('No data');
         }
-        final listData = ref.watch(bindingListProvider(widget.control.bindingListRouteName!));
+        final listData = ref
+            .watch(bindingListProvider(widget.control.bindingListRouteName!));
         return Padding(
           padding: const EdgeInsets.only(bottom: 20.0),
           child: listData.when(
@@ -582,9 +604,11 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
               Widget chart;
               if (widget.control.controlTypeId == ControlTypes.barChart) {
                 chart = BarChartWidget(data: data, title: widget.control.name);
-              } else if (widget.control.controlTypeId == ControlTypes.lineChart) {
+              } else if (widget.control.controlTypeId ==
+                  ControlTypes.lineChart) {
                 chart = LineChartWidget(data: data, title: widget.control.name);
-              } else if (widget.control.controlTypeId == ControlTypes.pieChart) {
+              } else if (widget.control.controlTypeId ==
+                  ControlTypes.pieChart) {
                 chart = PieChartWidget(data: data, title: widget.control.name);
               } else {
                 chart = const Text('Unsupported chart type');
@@ -608,12 +632,14 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
           margin: const EdgeInsets.only(bottom: 16.0),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: isDarkMode 
+            color: isDarkMode
                 ? Colors.white.withOpacity(0.05)
                 : Colors.grey.withOpacity(0.05),
             borderRadius: BorderRadius.circular(15),
             border: Border.all(
-              color: isDarkMode ? Colors.white.withOpacity(0.1) : Colors.grey.withOpacity(0.2),
+              color: isDarkMode
+                  ? Colors.white.withOpacity(0.1)
+                  : Colors.grey.withOpacity(0.2),
             ),
           ),
           child: Column(
@@ -641,19 +667,21 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
     }
   }
 
-  Widget _buildPopupSelector(BuildContext context, WidgetRef ref, Control control,
-      bool isDarkMode, Color primaryColor) {
+  Widget _buildPopupSelector(BuildContext context, WidgetRef ref,
+      Control control, bool isDarkMode, Color primaryColor) {
     return InkWell(
       onTap: () async {
         final result = await showDialog(
           context: context,
-          builder: (context) => DataPickerDialog(control: control, selectedValue: _selectedValue),
+          builder: (context) =>
+              DataPickerDialog(control: control, selectedValue: _selectedValue),
         );
         if (result != null) {
           setState(() {
             _selectedValue = result;
           });
-          _notifyValueChange(_selectedValue); // Pass the full map or list of maps
+          _notifyValueChange(
+              _selectedValue); // Pass the full map or list of maps
         }
       },
       child: Container(
@@ -675,7 +703,9 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
               child: Text(
                 _selectedValue != null
                     ? (_selectedValue is List
-                        ? (_selectedValue as List).map((e) => e['name']).join(', ')
+                        ? (_selectedValue as List)
+                            .map((e) => e['name'])
+                            .join(', ')
                         : _selectedValue['name'])
                     : "",
                 style: TextStyle(
@@ -755,7 +785,8 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
         }
         break;
       case ControlTypes.url:
-        final urlRegex = RegExp(r'^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$');
+        final urlRegex = RegExp(
+            r'^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$');
         if (!urlRegex.hasMatch(value)) {
           return 'Please enter a valid URL';
         }
@@ -786,4 +817,4 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
 
     return null;
   }
-} 
+}

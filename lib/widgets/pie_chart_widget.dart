@@ -7,22 +7,34 @@ class PieChartWidget extends StatelessWidget {
   final List<Color>? pieColors;
 
   const PieChartWidget({
-    Key? key,
+    super.key,
     required this.data,
     required this.title,
     this.pieColors,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
-    final colors = pieColors ?? [
-      Colors.pink, Colors.red, Colors.blue, Colors.orange, Colors.green, Colors.purple, Colors.teal, Colors.amber
-    ];
-    final total = data.fold<num>(0, (sum, item) => sum + (item['value'] as num));
+    final colors = pieColors ??
+        [
+          Colors.pink,
+          Colors.red,
+          Colors.blue,
+          Colors.orange,
+          Colors.green,
+          Colors.purple,
+          Colors.teal,
+          Colors.amber
+        ];
+    final total =
+        data.fold<num>(0, (sum, item) => sum + (item['value'] as num));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-         Padding(padding: const EdgeInsets.all(10), child: Text(title, style: const TextStyle( fontSize: 14)),),
+        Padding(
+          padding: const EdgeInsets.all(10),
+          child: Text(title, style: const TextStyle(fontSize: 14)),
+        ),
         SizedBox(
           height: 180,
           child: PieChart(
@@ -34,7 +46,10 @@ class PieChartWidget extends StatelessWidget {
                     color: colors[i % colors.length],
                     title: '',
                     radius: 60,
-                    titleStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+                    titleStyle: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white),
                   ),
               ],
               sectionsSpace: 2,
@@ -50,7 +65,8 @@ class PieChartWidget extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(width: 12, height: 12, color: colors[i % colors.length]),
+                  Container(
+                      width: 12, height: 12, color: colors[i % colors.length]),
                   const SizedBox(width: 4),
                   Text(
                     '${data[i]['name']} (${((data[i]['value'] as num) / total * 100).toStringAsFixed(1)}%)',
@@ -63,4 +79,4 @@ class PieChartWidget extends StatelessWidget {
       ],
     );
   }
-} 
+}

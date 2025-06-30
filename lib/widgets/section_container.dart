@@ -7,12 +7,12 @@ class SectionContainer extends StatelessWidget {
   final Color? color;
 
   const SectionContainer({
-    Key? key,
+    super.key,
     required this.child,
     this.padding,
     this.margin,
     this.color,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

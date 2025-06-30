@@ -19,13 +19,13 @@ class AppBarMenu extends ConsumerWidget {
             await authService.signOut();
             try {
               Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (context) => const LoginScreen()),
-              (route) => false,
-            );
+                MaterialPageRoute(builder: (context) => const LoginScreen()),
+                (route) => false,
+              );
             } catch (e) {
               // Handle error if needed
             }
-           
+
             break;
           case _MenuOption.theme:
             showModalBottomSheet(
@@ -37,23 +37,23 @@ class AppBarMenu extends ConsumerWidget {
         }
       },
       itemBuilder: (context) => [
-        PopupMenuItem(
+        const PopupMenuItem(
           value: _MenuOption.logout,
           child: Row(
             children: [
               Icon(LucideIcons.logOut, color: Colors.red, size: 20),
-              const SizedBox(width: 10),
-              const Text('Exit'),
+              SizedBox(width: 10),
+              Text('Exit'),
             ],
           ),
         ),
-        PopupMenuItem(
+        const PopupMenuItem(
           value: _MenuOption.theme,
           child: Row(
             children: [
               Icon(LucideIcons.sunMoon, color: Colors.amber, size: 20),
-              const SizedBox(width: 10),
-              const Text('Theme Picker'),
+              SizedBox(width: 10),
+              Text('Theme Picker'),
             ],
           ),
         ),
@@ -62,4 +62,4 @@ class AppBarMenu extends ConsumerWidget {
   }
 }
 
-enum _MenuOption { logout, theme } 
+enum _MenuOption { logout, theme }

@@ -7,21 +7,31 @@ class BarChartWidget extends StatelessWidget {
   final List<Color>? barColors;
 
   const BarChartWidget({
-    Key? key,
+    super.key,
     required this.data,
     required this.title,
     this.barColors,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
-    final colors = barColors ?? [
-      Colors.blue, Colors.orange, Colors.green, Colors.purple, Colors.red, Colors.teal, Colors.amber
-    ];
+    final colors = barColors ??
+        [
+          Colors.blue,
+          Colors.orange,
+          Colors.green,
+          Colors.purple,
+          Colors.red,
+          Colors.teal,
+          Colors.amber
+        ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(padding: const EdgeInsets.all(10), child: Text(title, style: const TextStyle( fontSize: 14)),),
+        Padding(
+          padding: const EdgeInsets.all(10),
+          child: Text(title, style: const TextStyle(fontSize: 14)),
+        ),
         SizedBox(
           height: 200,
           child: BarChart(
@@ -51,13 +61,15 @@ class BarChartWidget extends StatelessWidget {
                         return SideTitleWidget(
                           axisSide: meta.axisSide,
                           space: 8,
-                          child: const Text('0', style: TextStyle(fontSize: 12)),
+                          child:
+                              const Text('0', style: TextStyle(fontSize: 12)),
                         );
                       } else if (value % 1000 == 0) {
                         return SideTitleWidget(
                           axisSide: meta.axisSide,
                           space: 8,
-                          child: Text('${value ~/ 1000}K', style: const TextStyle(fontSize: 12)),
+                          child: Text('${value ~/ 1000}K',
+                              style: const TextStyle(fontSize: 12)),
                         );
                       }
                       return const SizedBox.shrink();
@@ -71,7 +83,9 @@ class BarChartWidget extends StatelessWidget {
                     interval: 1,
                     getTitlesWidget: (value, meta) {
                       final idx = value.toInt();
-                      if (idx >= 0 && idx < data.length && (data[idx]['name']?.toString().isNotEmpty ?? false)) {
+                      if (idx >= 0 &&
+                          idx < data.length &&
+                          (data[idx]['name']?.toString().isNotEmpty ?? false)) {
                         return SideTitleWidget(
                           axisSide: meta.axisSide,
                           space: 8,
@@ -108,9 +122,11 @@ class BarChartWidget extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(width: 12, height: 12, color: colors[i % colors.length]),
+                  Container(
+                      width: 12, height: 12, color: colors[i % colors.length]),
                   const SizedBox(width: 4),
-                  Text(data[i]['name'].toString(), style: const TextStyle(fontSize: 12)),
+                  Text(data[i]['name'].toString(),
+                      style: const TextStyle(fontSize: 12)),
                 ],
               ),
           ],
@@ -118,4 +134,4 @@ class BarChartWidget extends StatelessWidget {
       ],
     );
   }
-} 
+}

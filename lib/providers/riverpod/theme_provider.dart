@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ThemeNotifier extends StateNotifier<ThemeState> {
-  ThemeNotifier() : super(ThemeState()) {
+  ThemeNotifier() : super(const ThemeState()) {
     _loadTheme();
   }
 
@@ -11,7 +11,7 @@ class ThemeNotifier extends StateNotifier<ThemeState> {
     final prefs = await SharedPreferences.getInstance();
     final isDarkMode = prefs.getBool('isDarkMode') ?? false;
     final primaryColorIndex = prefs.getInt('primaryColorIndex') ?? 0;
-    
+
     state = state.copyWith(
       isDarkMode: isDarkMode,
       primaryColorIndex: primaryColorIndex,
@@ -22,14 +22,14 @@ class ThemeNotifier extends StateNotifier<ThemeState> {
     final prefs = await SharedPreferences.getInstance();
     final newDarkMode = !state.isDarkMode;
     await prefs.setBool('isDarkMode', newDarkMode);
-    
+
     state = state.copyWith(isDarkMode: newDarkMode);
   }
 
   Future<void> setPrimaryColor(int colorIndex) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('primaryColorIndex', colorIndex);
-    
+
     state = state.copyWith(primaryColorIndex: colorIndex);
   }
 
@@ -77,10 +77,11 @@ final isDarkModeProvider = Provider<bool>((ref) {
 });
 
 final primaryColorProvider = Provider<Color>((ref) {
-  final index = ref.watch(themeProvider.select((value) => value.primaryColorIndex));
+  final index =
+      ref.watch(themeProvider.select((value) => value.primaryColorIndex));
   return ThemeNotifier.primaryColors[index];
 });
 
 final primaryColorIndexProvider = Provider<int>((ref) {
   return ref.watch(themeProvider).primaryColorIndex;
-}); 
+});
