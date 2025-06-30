@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase/firebase_options.dart';
+import 'firebase/notification_service.dart';
 import 'config/supabase_config.dart';
 import 'models/screen_args_model.dart';
 import 'providers/riverpod/theme_provider.dart';
@@ -12,21 +15,32 @@ import 'services/navigation_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Initialize Firebase
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   // Initialize Supabase
   await Supabase.initialize(
     url: SupabaseConfig.supabaseUrl,
     anonKey: SupabaseConfig.supabaseAnonKey,
   );
 
+  // Request notification permissions and set up FCM
+  final notificationServices = NotificationServices();
+  notificationServices.requestNotificationPermission();
+  notificationServices.isTokenRefresh();
+
   runApp(
-    const ProviderScope(
-      child: MyApp(),
+    ProviderScope(
+      child: MyApp(notificationServices: notificationServices),
     ),
   );
 }
 
 class MyApp extends ConsumerWidget {
-  const MyApp({super.key});
+  final NotificationServices notificationServices;
+  const MyApp({super.key, required this.notificationServices});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -45,14 +59,15 @@ class MyApp extends ConsumerWidget {
       ),
       navigatorKey: NavigationService.navigatorKey,
       onGenerateRoute: NavigationService.onGenerateRoute,
-      home: const AuthWrapper(),
+      home: AuthWrapper(notificationServices: notificationServices),
       debugShowCheckedModeBanner: false,
     );
   }
 }
 
 class AuthWrapper extends ConsumerWidget {
-  const AuthWrapper({super.key});
+  final NotificationServices notificationServices;
+  const AuthWrapper({super.key, required this.notificationServices});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -62,6 +77,8 @@ class AuthWrapper extends ConsumerWidget {
       data: (authState) {
         final session = authState.session;
         if (session != null) {
+          // Set up FCM in-app notification handling
+          notificationServices.firebaseInit(context);
           // Use a default route or fetch from user profile if needed
           return DynamicScreen(
               args: ScreenArgsModel(
