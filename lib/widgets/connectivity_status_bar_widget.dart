@@ -16,7 +16,7 @@ class _ConnectivityStatusBarStateWidget
   bool _isConnected = true;
 
   final Connectivity _connectivity = Connectivity();
-  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
+  late StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
 
   @override
   void initState() {
@@ -27,9 +27,9 @@ class _ConnectivityStatusBarStateWidget
   }
 
   Future<void> initConnectivity() async {
-    late ConnectivityResult result;
+    late List<ConnectivityResult> results;
     try {
-      result = await _connectivity.checkConnectivity();
+      results = await _connectivity.checkConnectivity();
     } on PlatformException catch (e) {
       debugPrint('Couldn\'t check connectivity status${e.toString()}');
       return;
@@ -37,14 +37,15 @@ class _ConnectivityStatusBarStateWidget
     if (!mounted) {
       return;
     }
-    _updateConnectionStatus(result);
+    _updateConnectionStatus(results);
   }
 
-  void _updateConnectionStatus(ConnectivityResult result) {
+  void _updateConnectionStatus(List<ConnectivityResult> results) {
+    final isConnected = results.any((r) => r != ConnectivityResult.none);
     setState(() {
-      _isConnected = result != ConnectivityResult.none;
+      _isConnected = isConnected;
     });
-    print('Connectivity changed: \\${_isConnected.toString()}');
+    print('Connectivity changed: $_isConnected');
   }
 
   @override

@@ -1,20 +1,18 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../config/app_constants.dart';
 import '../../models/page_item.dart';
 import '../../models/page_schema.dart';
 import 'dynamic_page_service.dart';
+import 'api_helper.dart';
 
-class SupabaseDynamicPageService implements DynamicPageService {
-  final SupabaseClient _supabase = Supabase.instance.client;
-
+class CustomDynamicPageService implements DynamicPageService {
   @override
   Future<PageSchema> getPageSchema(String routeName) async {
     try {
-      final response = await _supabase.rpc(ApiRoutes.pageSchema,
-          params: {'p_route_name': routeName, 'p_platform_id': 22});
+      final response = await ApiHelper.get(
+        'schema/$routeName',
+      );
       return PageSchema.fromJson(response);
     } catch (e) {
-      // Mute linting warning for print statement in a catch block
       // ignore: avoid_print
       print('Error fetching page schema: $e');
       throw Exception('Failed to load page schema for route: $routeName');
@@ -24,32 +22,28 @@ class SupabaseDynamicPageService implements DynamicPageService {
   @override
   Future<List<PageItem>> getUserPages() async {
     try {
-      final response = await _supabase
-          .rpc(ApiRoutes.userPages, params: {'p_platform_id': 22});
+      final response = await ApiHelper.get('userPages');
       final List<dynamic> data = response as List<dynamic>;
       List<PageItem> pages =
           data.map((item) => PageItem.fromJson(item)).toList();
       pages.sort((a, b) => a.displayOrder.compareTo(b.displayOrder));
       return pages;
     } catch (e) {
-      // Mute linting warning for print statement in a catch block
       // ignore: avoid_print
       print('Error fetching user pages: $e');
       throw Exception(
-          'Failed to load user pages. Please check Supabase function permissions and logs.');
+          'Failed to load user pages. Please check API function permissions and logs.');
     }
   }
 
   @override
   Future<List<dynamic>> getBindingListData(String functionName) async {
     try {
-      final response = await _supabase.rpc(functionName);
+      final response = await ApiHelper.get(functionName);
       return response as List<dynamic>;
     } catch (e) {
       // ignore: avoid_print
       print('Error fetching binding list data from $functionName: $e');
-
-      // Provide more specific error messages
       if (e.toString().contains('network') ||
           e.toString().contains('connection')) {
         throw Exception(
@@ -78,14 +72,7 @@ class SupabaseDynamicPageService implements DynamicPageService {
   Future<dynamic> postFormData(
       String functionName, Map<String, dynamic> formData) async {
     try {
-      // Prefix each key with 'p_'
-      final Map<String, dynamic> prefixedParams = {
-        for (final entry in formData.entries) 'p_${entry.key}': entry.value
-      };
-      // ignore: avoid_print
-      print('Posting form data to $functionName: $prefixedParams');
-      final response =
-          await _supabase.rpc(functionName, params: prefixedParams);
+      final response = await ApiHelper.post(functionName, formData);
       return response;
     } catch (e) {
       // ignore: avoid_print

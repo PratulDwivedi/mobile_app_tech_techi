@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'config/app_config.dart';
 import 'firebase/firebase_options.dart';
 import 'firebase/notification_service.dart';
-import 'config/supabase_config.dart';
 import 'models/screen_args_model.dart';
 import 'providers/riverpod/theme_provider.dart';
 import 'providers/riverpod/data_providers.dart';
@@ -20,12 +20,13 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // Initialize Supabase
-  await Supabase.initialize(
-    url: SupabaseConfig.supabaseUrl,
-    anonKey: SupabaseConfig.supabaseAnonKey,
-  );
-
+  if (appConfig.serviceType == ServiceType.supabase) {
+    // Initialize Supabase
+    await Supabase.initialize(
+      url: appConfig.apiBaseUrl,
+      anonKey: appConfig.localKey,
+    );
+  }
   // Request notification permissions and set up FCM
   final notificationServices = NotificationServices();
   notificationServices.requestNotificationPermission();

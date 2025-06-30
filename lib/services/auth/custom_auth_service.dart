@@ -1,8 +1,9 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../config/app_constants.dart';
 import 'auth_service.dart';
+import '../dynamic_page/api_helper.dart';
 
-class SupabaseAuthService implements AuthService {
+class CustomAuthService implements AuthService {
   final SupabaseClient _supabase = Supabase.instance.client;
 
   @override
@@ -40,8 +41,6 @@ class SupabaseAuthService implements AuthService {
           'profile': profileResponse,
         };
       } catch (e) {
-        // Mute linting warning for print statement in a catch block
-        // ignore: avoid_print
         print('Error fetching user profile: $e');
         return {
           'authResponse': authResponse,
@@ -59,9 +58,7 @@ class SupabaseAuthService implements AuthService {
   @override
   Future<Map<String, dynamic>> getProfile(String email) async {
     try {
-      final response =
-          await _supabase.rpc(ApiRoutes.profile, params: {'p_email': email});
-
+      final response = await ApiHelper.get('profile', params: {'email': email});
       if (response is List && response.isNotEmpty) {
         return response.first as Map<String, dynamic>;
       } else if (response is Map<String, dynamic>) {
@@ -70,8 +67,6 @@ class SupabaseAuthService implements AuthService {
         throw Exception('Invalid profile response format');
       }
     } catch (e) {
-      // Mute linting warning for print statement in a catch block
-      // ignore: avoid_print
       print('Error fetching user profile: $e');
       throw Exception('Failed to load user profile');
     }

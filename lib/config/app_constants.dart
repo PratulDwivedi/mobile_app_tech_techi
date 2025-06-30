@@ -1,4 +1,3 @@
-
 class TenantAuthTypes {
   static const int form = 1;
   static const int saml = 2;
@@ -41,7 +40,6 @@ class ControlDisplayModes {
   static const int noneHidden = 37;
 }
 
-
 class ChildDiaplayModes {
   static const int form = 31;
   static const int dataTable = 32;
@@ -49,7 +47,6 @@ class ChildDiaplayModes {
   static const int dataTableReportAdvance = 40;
   static const int googleMap = 41;
 }
-
 
 class ControlTypes {
   static const int alphaNumeric = 1;
@@ -91,4 +88,10 @@ class ControlTypes {
   static const int colorPicker = 37;
 }
 
-
+class ApiRoutes {
+  static const String profile = 'fn_get_profile';
+  static const String logoUrl = 'fn_get_tenant_logo_url';
+  static const String userPages = 'fn_get_user_pages';
+  static const String pageSchema = 'fn_get_page_schema';
+  // Add more routes as needed
+}

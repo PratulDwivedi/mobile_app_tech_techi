@@ -617,3 +617,24 @@ For issues and questions:
 ---
 
 **Note**: This documentation serves as a comprehensive guide for understanding, maintaining, and extending the Tech Techi mobile application. It should be updated whenever significant changes are made to the system architecture or functionality.
+
+# Environment Switching with --dart-define
+
+You can dynamically select the app environment (local, staging, production) at build or run time using the --dart-define flag.
+
+## Example Commands
+
+- **Local (default):**
+  ```sh
+  flutter run
+  ```
+- **Staging:**
+  ```sh
+  flutter run --dart-define=APP_ENV=staging
+  ```
+- **Production:**
+  ```sh
+  flutter build apk --dart-define=APP_ENV=production
+  ```
+
+The app will use the configuration for the selected environment as defined in `lib/config/app_config.dart`.
