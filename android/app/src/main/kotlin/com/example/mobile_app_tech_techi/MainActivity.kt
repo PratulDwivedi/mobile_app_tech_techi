@@ -1,4 +1,4 @@
-package com.example.mobile_app_tech_techi
+package com.tech_techi.app
 
 import io.flutter.embedding.android.FlutterActivity
 

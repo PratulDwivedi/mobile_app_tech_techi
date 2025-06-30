@@ -561,6 +561,10 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
                         ? pageSchema.sections.first
                         : null;
 
+                    if (pageSchema.bindingNameGet == null) {
+                      return const Center(
+                          child: Text('No data found to prefill.'));
+                    }
                     return DataTableReportWidget(
                         bindingName: pageSchema.bindingNameGet!,
                         section: section);
