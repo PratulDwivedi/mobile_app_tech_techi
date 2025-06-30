@@ -17,6 +17,8 @@ import '../widgets/data_table_report_widget.dart';
 import '../widgets/custom_error_widget.dart';
 import '../widgets/screen_decoration_widget.dart';
 import '../screens/data_table_report_screen.dart';
+import 'package:mobile_app_tech_techi/widgets/connectivity_status_bar_widget.dart';
+import 'package:mobile_app_tech_techi/services/toast_service.dart';
 
 class DynamicScreen extends ConsumerStatefulWidget {
   final ScreenArgsModel args;
@@ -273,6 +275,10 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
 
     if (sections.length == 1) {
       final section = sections.first;
+      if (section.bindingName == null) {
+        ToastService.showInfo(context, 'No detail found');
+        return;
+      }
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => DataTableReportScreen(section: section),
@@ -292,6 +298,10 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
         ),
       );
       if (selected != null) {
+        if (selected.bindingName == null) {
+          ToastService.showInfo(context, 'No detail found');
+          return;
+        }
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => DataTableReportScreen(section: selected),
@@ -535,54 +545,85 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
               ),
             )
           : null,
-      body: ScreenDecorationWidget(
-        isDarkMode: isDarkMode,
-        primaryColor: primaryColor,
-        child: pageSchemaAsync.when(
-          data: (pageSchema) {
-            if (pageSchema.pageTypeId == PageTypes.report) {
-              // Use the first section for columns/controls
-              final section = pageSchema.sections.isNotEmpty
-                  ? pageSchema.sections.first
-                  : null;
+      body: Column(
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          const ConnectivityStatusBarWidget(),
+          Expanded(
+            child: ScreenDecorationWidget(
+              isDarkMode: isDarkMode,
+              primaryColor: primaryColor,
+              child: pageSchemaAsync.when(
+                data: (pageSchema) {
+                  if (pageSchema.pageTypeId == PageTypes.report) {
+                    // Use the first section for columns/controls
+                    final section = pageSchema.sections.isNotEmpty
+                        ? pageSchema.sections.first
+                        : null;
 
-              return DataTableReportWidget(
-                  bindingName: pageSchema.bindingNameGet!, section: section);
-            }
-            // Prefill logic
-            if (widget.args.data.isNotEmpty &&
-                pageSchema.bindingNameGet != null &&
-                pageSchema.bindingNameGet!.isNotEmpty) {
-              // Need to fetch data from API
-              return FutureBuilder<dynamic>(
-                future: ref.read(dynamicPageServiceProvider).postFormData(
-                      pageSchema.bindingNameGet!,
-                      widget.args.data,
-                    ),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
+                    return DataTableReportWidget(
+                        bindingName: pageSchema.bindingNameGet!,
+                        section: section);
                   }
-                  if (snapshot.hasError) {
-                    return Center(
-                        child: Text('Error loading data: \\${snapshot.error}'));
+                  // Prefill logic
+                  if (widget.args.data.isNotEmpty &&
+                      pageSchema.bindingNameGet != null &&
+                      pageSchema.bindingNameGet!.isNotEmpty) {
+                    // Need to fetch data from API
+                    return FutureBuilder<dynamic>(
+                      future: ref.read(dynamicPageServiceProvider).postFormData(
+                            pageSchema.bindingNameGet!,
+                            widget.args.data,
+                          ),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        }
+                        if (snapshot.hasError) {
+                          return Center(
+                              child: Text(
+                                  'Error loading data: \\${snapshot.error}'));
+                        }
+                        final result = snapshot.data;
+                        Map<String, dynamic> apiData = {};
+                        if (result is List &&
+                            result.isNotEmpty &&
+                            result.first is Map<String, dynamic>) {
+                          apiData = result.first as Map<String, dynamic>;
+                        } else if (result is Map<String, dynamic>) {
+                          apiData = result;
+                        } else if (result is List && result.isEmpty) {
+                          return const Center(
+                              child: Text('No data found to prefill.'));
+                        }
+                        // Set form data
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          _formDataCollectorKey.currentState
+                              ?.setFormData(apiData);
+                        });
+                        return SingleChildScrollView(
+                          padding: const EdgeInsets.all(24.0),
+                          child: Form(
+                            key: _formKey,
+                            child: FormDataCollector(
+                              key: _formDataCollectorKey,
+                              pageSchema: pageSchema,
+                              formKey: _formKey,
+                              child: const SizedBox.shrink(),
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  } else if (widget.args.data.isNotEmpty) {
+                    // Just prefill with args.data
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      _formDataCollectorKey.currentState
+                          ?.setFormData(widget.args.data);
+                    });
                   }
-                  final result = snapshot.data;
-                  Map<String, dynamic> apiData = {};
-                  if (result is List &&
-                      result.isNotEmpty &&
-                      result.first is Map<String, dynamic>) {
-                    apiData = result.first as Map<String, dynamic>;
-                  } else if (result is Map<String, dynamic>) {
-                    apiData = result;
-                  } else if (result is List && result.isEmpty) {
-                    return const Center(
-                        child: Text('No data found to prefill.'));
-                  }
-                  // Set form data
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    _formDataCollectorKey.currentState?.setFormData(apiData);
-                  });
                   return SingleChildScrollView(
                     padding: const EdgeInsets.all(24.0),
                     child: Form(
@@ -596,35 +637,17 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
                     ),
                   );
                 },
-              );
-            } else if (widget.args.data.isNotEmpty) {
-              // Just prefill with args.data
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                _formDataCollectorKey.currentState
-                    ?.setFormData(widget.args.data);
-              });
-            }
-            return SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
-              child: Form(
-                key: _formKey,
-                child: FormDataCollector(
-                  key: _formDataCollectorKey,
-                  pageSchema: pageSchema,
-                  formKey: _formKey,
-                  child: const SizedBox.shrink(),
+                loading: () => Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
+                  ),
                 ),
+                error: (error, stack) =>
+                    CustomErrorWidget(error: error, isDarkMode: isDarkMode),
               ),
-            );
-          },
-          loading: () => Center(
-            child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
             ),
           ),
-          error: (error, stack) =>
-              CustomErrorWidget(error: error, isDarkMode: isDarkMode),
-        ),
+        ],
       ),
       bottomNavigationBar: widget.args.isHome
           ? userPagesAsync.when(
