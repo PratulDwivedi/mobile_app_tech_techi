@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/riverpod/service_providers.dart';
 import 'data_table_card_view_widget.dart';
 import '../models/page_schema.dart';
+import 'skeleton_card_widget.dart';
 
 class DataTableReportWidget extends ConsumerStatefulWidget {
   final String bindingName;
@@ -34,7 +35,10 @@ class _DataTableReportWidgetState extends ConsumerState<DataTableReportWidget> {
             future: dynamicPageService.getBindingListData(widget.bindingName),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
+                return const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  child: SkeletonCardListWidget(cardCount: 5, fieldCount: 3),
+                );
               }
               if (snapshot.hasError) {
                 return Center(child: Text('Error: \\${snapshot.error}'));
