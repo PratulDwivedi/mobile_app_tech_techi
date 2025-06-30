@@ -89,7 +89,7 @@ class AuthWrapper extends ConsumerWidget {
       },
       loading: () => const Scaffold(
         body: Center(
-          child: CircularProgressIndicator(),
+          child: Text('Loading...'),
         ),
       ),
       error: (error, stack) => Scaffold(

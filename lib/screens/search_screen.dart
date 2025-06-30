@@ -7,6 +7,7 @@ import '../providers/riverpod/theme_provider.dart';
 import '../providers/riverpod/data_providers.dart';
 import '../models/screen_args_model.dart';
 import '../utils/icon_utils.dart';
+import '../widgets/skeleton_card_widget.dart';
 
 class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key});
@@ -328,9 +329,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   );
                 },
                 loading: () => Center(
-                  child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
-                  ),
+                  child: const SkeletonCardWidget(fieldCount: 1),
                 ),
                 error: (error, stack) => Center(
                   child: Container(

@@ -13,6 +13,9 @@ class LineChartWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (data.isEmpty) {
+      return const SizedBox.shrink();
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

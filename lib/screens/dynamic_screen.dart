@@ -19,6 +19,7 @@ import '../widgets/screen_decoration_widget.dart';
 import '../screens/data_table_report_screen.dart';
 import 'package:mobile_app_tech_techi/widgets/connectivity_status_bar_widget.dart';
 import 'package:mobile_app_tech_techi/services/toast_service.dart';
+import '../widgets/skeleton_card_widget.dart';
 
 class DynamicScreen extends ConsumerStatefulWidget {
   final ScreenArgsModel args;
@@ -527,14 +528,12 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
               data: (pages) => userProfileAsync.when(
                 data: (profile) =>
                     AppDrawer(pages: pages, userProfile: profile),
-                loading: () => const Drawer(
-                    child: Center(child: CircularProgressIndicator())),
+                loading: () => const Drawer(child: Center(child: Text('...'))),
                 error: (error, stack) => Drawer(
                   child: Center(child: Text('Error: $error')),
                 ),
               ),
-              loading: () => const Drawer(
-                  child: Center(child: CircularProgressIndicator())),
+              loading: () => const Drawer(child: Center(child: Text('...'))),
               error: (error, stack) => Drawer(
                 child: Center(
                   child: Padding(
@@ -582,8 +581,7 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
-                          return const Center(
-                              child: CircularProgressIndicator());
+                          return const Center(child: Text('...'));
                         }
                         if (snapshot.hasError) {
                           return Center(
@@ -608,7 +606,7 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
                               ?.setFormData(apiData);
                         });
                         return SingleChildScrollView(
-                          padding: const EdgeInsets.all(24.0),
+                          padding: const EdgeInsets.all(12.0),
                           child: Form(
                             key: _formKey,
                             child: FormDataCollector(
@@ -629,7 +627,7 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
                     });
                   }
                   return SingleChildScrollView(
-                    padding: const EdgeInsets.all(24.0),
+                    padding: const EdgeInsets.all(12.0),
                     child: Form(
                       key: _formKey,
                       child: FormDataCollector(
@@ -641,11 +639,7 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
                     ),
                   );
                 },
-                loading: () => Center(
-                  child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
-                  ),
-                ),
+                loading: () => const Center(child: Text('...')),
                 error: (error, stack) =>
                     CustomErrorWidget(error: error, isDarkMode: isDarkMode),
               ),

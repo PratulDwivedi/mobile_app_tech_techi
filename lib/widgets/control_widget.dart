@@ -8,6 +8,7 @@ import 'data_picker_dialog.dart';
 import 'bar_chart_widget.dart';
 import 'pie_chart_widget.dart';
 import 'line_chart_widget.dart';
+import 'skeleton_card_widget.dart';
 
 class ControlWidget extends ConsumerStatefulWidget {
   final Control control;
@@ -168,7 +169,7 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
             .watch(bindingListProvider(widget.control.bindingListRouteName!));
         return listData.when(
           data: (data) => data.isEmpty ? null : data,
-          loading: () => null,
+          loading: () => const SkeletonCardWidget(fieldCount: 1),
           error: (error, stack) => null,
         );
       default:
@@ -623,7 +624,7 @@ class _ControlWidgetState extends ConsumerState<ControlWidget> {
                 child: chart,
               );
             },
-            loading: () => const Center(child: CircularProgressIndicator()),
+            loading: () => const SkeletonCardWidget(fieldCount: 1),
             error: (error, stack) => Text('Error: $error'),
           ),
         );

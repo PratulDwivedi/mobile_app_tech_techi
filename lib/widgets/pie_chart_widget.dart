@@ -15,6 +15,9 @@ class PieChartWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (data.isEmpty) {
+      return const SizedBox.shrink();
+    }
     final colors = pieColors ??
         [
           Colors.pink,

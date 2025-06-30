@@ -3,12 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_app_tech_techi/models/page_schema.dart';
 import 'package:mobile_app_tech_techi/providers/riverpod/data_providers.dart';
 import 'package:mobile_app_tech_techi/config/app_constants.dart';
+import 'package:mobile_app_tech_techi/widgets/skeleton_card_widget.dart';
 
 class DataPickerDialog extends ConsumerStatefulWidget {
   final Control control;
   final dynamic selectedValue; // id, item, or list of ids/items for multi
 
-  const DataPickerDialog({super.key, required this.control, this.selectedValue});
+  const DataPickerDialog(
+      {super.key, required this.control, this.selectedValue});
 
   @override
   ConsumerState<DataPickerDialog> createState() => _DataPickerDialogState();
@@ -25,10 +27,13 @@ class _DataPickerDialogState extends ConsumerState<DataPickerDialog> {
     // For multi-select, initialize selected ids and items
     if (_isMultiSelect) {
       if (widget.selectedValue is List) {
-        _multiSelectedItems = Set.from((widget.selectedValue as List).map((e) => e is Map ? e : {'id': e, 'name': ''}));
+        _multiSelectedItems = Set.from((widget.selectedValue as List)
+            .map((e) => e is Map ? e : {'id': e, 'name': ''}));
         _multiSelectedIds = Set.from(_multiSelectedItems.map((e) => e['id']));
       } else if (widget.selectedValue != null) {
-        final item = widget.selectedValue is Map ? widget.selectedValue : {'id': widget.selectedValue, 'name': ''};
+        final item = widget.selectedValue is Map
+            ? widget.selectedValue
+            : {'id': widget.selectedValue, 'name': ''};
         _multiSelectedItems = {item};
         _multiSelectedIds = {item['id']};
       }
@@ -47,7 +52,8 @@ class _DataPickerDialogState extends ConsumerState<DataPickerDialog> {
         content: Text('Binding list route name is not defined.'),
       );
     }
-    final listData = ref.watch(bindingListProvider(widget.control.bindingListRouteName!));
+    final listData =
+        ref.watch(bindingListProvider(widget.control.bindingListRouteName!));
 
     return AlertDialog(
       title: Text('Select ${widget.control.name}'),
@@ -61,7 +67,8 @@ class _DataPickerDialogState extends ConsumerState<DataPickerDialog> {
                 hintText: 'Search...',
                 prefixIcon: Icon(Icons.search),
               ),
-              onChanged: (val) => setState(() => _search = val.trim().toLowerCase()),
+              onChanged: (val) =>
+                  setState(() => _search = val.trim().toLowerCase()),
             ),
             const SizedBox(height: 8),
             Expanded(
@@ -69,16 +76,19 @@ class _DataPickerDialogState extends ConsumerState<DataPickerDialog> {
                 data: (data) {
                   if (widget.control.controlTypeId == ControlTypes.dropdown) {
                     return _buildDropdownList(context, data);
-                  } else if (widget.control.controlTypeId == ControlTypes.dropdownMultiselect) {
+                  } else if (widget.control.controlTypeId ==
+                      ControlTypes.dropdownMultiselect) {
                     return _buildDropdownMultiList(context, data);
-                  } else if (widget.control.controlTypeId == ControlTypes.treeViewSingle) {
+                  } else if (widget.control.controlTypeId ==
+                      ControlTypes.treeViewSingle) {
                     return _buildTreeView(context, data, false);
-                  } else if (widget.control.controlTypeId == ControlTypes.treeViewMulti) {
+                  } else if (widget.control.controlTypeId ==
+                      ControlTypes.treeViewMulti) {
                     return _buildTreeView(context, data, true);
                   }
                   return const Text('Unsupported control type for dialog.');
                 },
-                loading: () => const Center(child: CircularProgressIndicator()),
+                loading: () => const SkeletonCardWidget(fieldCount: 1),
                 error: (error, stack) => Text('Error: $error'),
               ),
             ),
@@ -102,9 +112,13 @@ class _DataPickerDialogState extends ConsumerState<DataPickerDialog> {
   }
 
   Widget _buildDropdownList(BuildContext context, List<dynamic> data) {
-    final filtered = data.where((item) =>
-      item['name'].toString().toLowerCase().contains(_search)).toList();
-    final selectedId = widget.selectedValue is Map ? widget.selectedValue['id'] : widget.selectedValue;
+    final filtered = data
+        .where(
+            (item) => item['name'].toString().toLowerCase().contains(_search))
+        .toList();
+    final selectedId = widget.selectedValue is Map
+        ? widget.selectedValue['id']
+        : widget.selectedValue;
     return ListView.builder(
       itemCount: filtered.length,
       itemBuilder: (context, index) {
@@ -113,8 +127,10 @@ class _DataPickerDialogState extends ConsumerState<DataPickerDialog> {
         return ListTile(
           title: Text(item['name']),
           selected: isSelected,
-          selectedTileColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-          trailing: isSelected ? const Icon(Icons.check, color: Colors.green) : null,
+          selectedTileColor:
+              Theme.of(context).colorScheme.primary.withOpacity(0.1),
+          trailing:
+              isSelected ? const Icon(Icons.check, color: Colors.green) : null,
           onTap: () {
             Navigator.of(context).pop(item);
           },
@@ -124,8 +140,10 @@ class _DataPickerDialogState extends ConsumerState<DataPickerDialog> {
   }
 
   Widget _buildDropdownMultiList(BuildContext context, List<dynamic> data) {
-    final filtered = data.where((item) =>
-      item['name'].toString().toLowerCase().contains(_search)).toList();
+    final filtered = data
+        .where(
+            (item) => item['name'].toString().toLowerCase().contains(_search))
+        .toList();
     return ListView.builder(
       itemCount: filtered.length,
       itemBuilder: (context, index) {
@@ -138,7 +156,8 @@ class _DataPickerDialogState extends ConsumerState<DataPickerDialog> {
               setState(() {
                 if (checked == true) {
                   _multiSelectedIds.add(item['id']);
-                  _multiSelectedItems.add({'id': item['id'], 'name': item['name']});
+                  _multiSelectedItems
+                      .add({'id': item['id'], 'name': item['name']});
                 } else {
                   _multiSelectedIds.remove(item['id']);
                   _multiSelectedItems.removeWhere((e) => e['id'] == item['id']);
@@ -152,7 +171,8 @@ class _DataPickerDialogState extends ConsumerState<DataPickerDialog> {
               final checked = !_multiSelectedIds.contains(item['id']);
               if (checked) {
                 _multiSelectedIds.add(item['id']);
-                _multiSelectedItems.add({'id': item['id'], 'name': item['name']});
+                _multiSelectedItems
+                    .add({'id': item['id'], 'name': item['name']});
               } else {
                 _multiSelectedIds.remove(item['id']);
                 _multiSelectedItems.removeWhere((e) => e['id'] == item['id']);
@@ -167,17 +187,28 @@ class _DataPickerDialogState extends ConsumerState<DataPickerDialog> {
   Widget _buildTreeView(BuildContext context, List<dynamic> data, bool multi) {
     final filtered = _search.isEmpty
         ? data
-        : data.where((item) =>
-            item['name'].toString().toLowerCase().contains(_search) ||
-            (item['children'] as List?)?.any((child) => child['name'].toString().toLowerCase().contains(_search)) == true
-          ).toList();
-    final selectedId = widget.selectedValue is Map ? widget.selectedValue['id'] : widget.selectedValue;
+        : data
+            .where((item) =>
+                item['name'].toString().toLowerCase().contains(_search) ||
+                (item['children'] as List?)?.any((child) => child['name']
+                        .toString()
+                        .toLowerCase()
+                        .contains(_search)) ==
+                    true)
+            .toList();
+    final selectedId = widget.selectedValue is Map
+        ? widget.selectedValue['id']
+        : widget.selectedValue;
     return ListView(
-      children: filtered.map((item) => _buildTreeNode(context, item, multi, selectedId)).toList(),
+      children: filtered
+          .map((item) => _buildTreeNode(context, item, multi, selectedId))
+          .toList(),
     );
   }
 
-  Widget _buildTreeNode(BuildContext context, dynamic item, bool multi, dynamic selectedId, {int depth = 0}) {
+  Widget _buildTreeNode(
+      BuildContext context, dynamic item, bool multi, dynamic selectedId,
+      {int depth = 0}) {
     final children = item['children'] as List<dynamic>? ?? [];
     final isLeaf = children.isEmpty;
     final isChecked = _multiSelectedIds.contains(item['id']);
@@ -193,7 +224,8 @@ class _DataPickerDialogState extends ConsumerState<DataPickerDialog> {
               setState(() {
                 if (checked == true) {
                   _multiSelectedIds.add(item['id']);
-                  _multiSelectedItems.add({'id': item['id'], 'name': item['name']});
+                  _multiSelectedItems
+                      .add({'id': item['id'], 'name': item['name']});
                 } else {
                   _multiSelectedIds.remove(item['id']);
                   _multiSelectedItems.removeWhere((e) => e['id'] == item['id']);
@@ -210,7 +242,8 @@ class _DataPickerDialogState extends ConsumerState<DataPickerDialog> {
               final checked = !_multiSelectedIds.contains(item['id']);
               if (checked) {
                 _multiSelectedIds.add(item['id']);
-                _multiSelectedItems.add({'id': item['id'], 'name': item['name']});
+                _multiSelectedItems
+                    .add({'id': item['id'], 'name': item['name']});
               } else {
                 _multiSelectedIds.remove(item['id']);
                 _multiSelectedItems.removeWhere((e) => e['id'] == item['id']);
@@ -222,9 +255,13 @@ class _DataPickerDialogState extends ConsumerState<DataPickerDialog> {
         return ExpansionTile(
           title: Padding(
             padding: padding,
-            child: Text(item['name'], style: const TextStyle(fontWeight: FontWeight.bold)),
+            child: Text(item['name'],
+                style: const TextStyle(fontWeight: FontWeight.bold)),
           ),
-          children: children.map((child) => _buildTreeNode(context, child, multi, selectedId, depth: depth + 1)).toList(),
+          children: children
+              .map((child) => _buildTreeNode(context, child, multi, selectedId,
+                  depth: depth + 1))
+              .toList(),
         );
       }
     } else {
@@ -235,8 +272,10 @@ class _DataPickerDialogState extends ConsumerState<DataPickerDialog> {
             child: Text(item['name']),
           ),
           selected: isSelected,
-          selectedTileColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-          trailing: isSelected ? const Icon(Icons.check, color: Colors.green) : null,
+          selectedTileColor:
+              Theme.of(context).colorScheme.primary.withOpacity(0.1),
+          trailing:
+              isSelected ? const Icon(Icons.check, color: Colors.green) : null,
           onTap: () {
             Navigator.of(context).pop(item);
           },
@@ -245,11 +284,15 @@ class _DataPickerDialogState extends ConsumerState<DataPickerDialog> {
         return ExpansionTile(
           title: Padding(
             padding: padding,
-            child: Text(item['name'], style: const TextStyle(fontWeight: FontWeight.bold)),
+            child: Text(item['name'],
+                style: const TextStyle(fontWeight: FontWeight.bold)),
           ),
-          children: children.map((child) => _buildTreeNode(context, child, multi, selectedId, depth: depth + 1)).toList(),
+          children: children
+              .map((child) => _buildTreeNode(context, child, multi, selectedId,
+                  depth: depth + 1))
+              .toList(),
         );
       }
     }
   }
-} 
+}

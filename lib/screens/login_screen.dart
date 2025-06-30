@@ -422,16 +422,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                       ),
                                     ),
                                     child: _isLoading
-                                        ? const SizedBox(
-                                            width: 24,
-                                            height: 24,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                              valueColor:
-                                                  AlwaysStoppedAnimation<Color>(
-                                                      Colors.white),
-                                            ),
-                                          )
+                                        ? Center(child: Text('Loading...'))
                                         : Text(
                                             _isSignUp
                                                 ? 'Create Account'
