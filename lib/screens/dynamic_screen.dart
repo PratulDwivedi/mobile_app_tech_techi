@@ -19,7 +19,6 @@ import '../widgets/screen_decoration_widget.dart';
 import '../screens/data_table_report_screen.dart';
 import 'package:mobile_app_tech_techi/widgets/connectivity_status_bar_widget.dart';
 import 'package:mobile_app_tech_techi/services/toast_service.dart';
-import '../widgets/skeleton_card_widget.dart';
 
 class DynamicScreen extends ConsumerStatefulWidget {
   final ScreenArgsModel args;
@@ -298,6 +297,7 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
               .toList(),
         ),
       );
+      if (!mounted) return; // <-- ADD THIS LINE
       if (selected != null) {
         if (selected.bindingName == null) {
           ToastService.showInfo(context, 'No detail found');

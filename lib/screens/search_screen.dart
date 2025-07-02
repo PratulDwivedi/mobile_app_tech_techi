@@ -328,8 +328,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                     },
                   );
                 },
-                loading: () => Center(
-                  child: const SkeletonCardWidget(fieldCount: 1),
+                loading: () => const Center(
+                  child: SkeletonCardWidget(fieldCount: 1),
                 ),
                 error: (error, stack) => Center(
                   child: Container(

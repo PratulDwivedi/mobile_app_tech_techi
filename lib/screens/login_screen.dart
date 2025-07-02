@@ -422,7 +422,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                       ),
                                     ),
                                     child: _isLoading
-                                        ? Center(child: Text('Loading...'))
+                                        ? const Center(
+                                            child: Text('Loading...'))
                                         : Text(
                                             _isSignUp
                                                 ? 'Create Account'

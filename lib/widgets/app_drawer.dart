@@ -28,8 +28,8 @@ class AppDrawer extends StatelessWidget {
           children: [
             _buildDrawerHeader(context),
             if (features.isNotEmpty) ...[
-              _buildSectionHeader('FEATURES'),
-              ...features.map((page) => _buildDrawerItem(context, page)),
+              ...features
+                  .map((page) => _buildDrawerItem(context, page, level: 0)),
             ],
             const SizedBox(height: 16),
             ListTile(
@@ -123,28 +123,74 @@ class AppDrawer extends StatelessWidget {
     );
   }
 
-  Widget _buildDrawerItem(BuildContext context, PageItem page) {
-    if (page.children.isEmpty) {
-      return ListTile(
-        leading: Icon(getIconFromString(page.itemIcon)),
-        title: Text(page.name),
-        onTap: () {
-          Navigator.of(context).pop();
-          NavigationService.navigateTo(
-            page.routeName,
-            arguments: ScreenArgsModel(
-                routeName: page.routeName, pageName: page.name, isHome: false),
+  Widget _buildDrawerItem(BuildContext context, PageItem page,
+      {int level = 0}) {
+    final isExpandable = page.children.isNotEmpty;
+    final double indent = 16.0 + 20.0 * level;
+    final Color accent =
+        Theme.of(context).colorScheme.primary.withOpacity(0.10);
+    final Color accentLine =
+        Theme.of(context).colorScheme.primary.withOpacity(0.25);
+
+    Widget content = isExpandable
+        ? Theme(
+            data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+            child: ExpansionTile(
+              tilePadding: EdgeInsets.only(left: indent, right: 8),
+              leading: Icon(getIconFromString(page.itemIcon), size: 22),
+              title: Text(
+                page.name,
+                style: TextStyle(
+                  fontWeight: level == 0 ? FontWeight.bold : FontWeight.normal,
+                ),
+              ),
+              backgroundColor: level > 0 ? accent : null,
+              collapsedBackgroundColor:
+                  level > 0 ? accent.withOpacity(0.7) : null,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
+              trailing:
+                  const Icon(Icons.expand_more, size: 20, color: Colors.grey),
+              children: page.children
+                  .map((child) =>
+                      _buildDrawerItem(context, child, level: level + 1))
+                  .toList(),
+            ),
+          )
+        : ListTile(
+            contentPadding: EdgeInsets.only(left: indent, right: 16),
+            leading: Icon(getIconFromString(page.itemIcon), size: 22),
+            title: Text(
+              page.name,
+              style: TextStyle(
+                fontWeight: level == 0 ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+            tileColor: level > 0 ? accent : null,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            onTap: () {
+              Navigator.of(context).pop();
+              NavigationService.navigateTo(
+                page.routeName,
+                arguments: ScreenArgsModel(
+                    routeName: page.routeName,
+                    pageName: page.name,
+                    isHome: false),
+              );
+            },
           );
-        },
-      );
-    } else {
-      return ExpansionTile(
-        leading: Icon(getIconFromString(page.itemIcon)),
-        title: Text(page.name),
-        children: page.children
-            .map((child) => _buildDrawerItem(context, child))
-            .toList(),
-      );
-    }
+
+    if (level == 0) return content;
+
+    // Add vertical accent line for nested levels
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(width: 16.0 + 20.0 * (level - 1)),
+        Container(width: 3, height: 48, color: accentLine),
+        Expanded(child: content),
+      ],
+    );
   }
 }
