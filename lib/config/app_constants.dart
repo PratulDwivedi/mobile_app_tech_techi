@@ -46,6 +46,7 @@ class ChildDiaplayModes {
   static const int dataTableReport = 39;
   static const int dataTableReportAdvance = 40;
   static const int googleMap = 41;
+  static const int cardItem = 259;
 }
 
 class ControlTypes {
