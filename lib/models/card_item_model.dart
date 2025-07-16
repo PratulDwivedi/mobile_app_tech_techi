@@ -29,4 +29,16 @@ class CardItemModel {
       iconSymbol: json['icon_symbol'] ?? '',
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'url': url,
+      'title': title,
+      'value': value,
+      'item_icon': itemIcon,
+      'sub_title': subTitle,
+      'sub_title2': subTitle2,
+      'icon_symbol': iconSymbol,
+    };
+  }
 }
