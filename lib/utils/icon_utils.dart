@@ -15,6 +15,7 @@ Color? hexToColor(String? hex) {
 
 IconData getIconFromString(String? iconName) {
   switch (iconName) {
+    // Navigation & Layout
     case 'MessageSquare':
       return LucideIcons.messageSquare;
     case 'BookOpen':
@@ -31,6 +32,18 @@ IconData getIconFromString(String? iconName) {
       return LucideIcons.folder;
     case 'FileText':
       return LucideIcons.fileText;
+    case 'SidebarOpen':
+      return LucideIcons.panelRightOpen;
+    case 'SidebarClose':
+      return LucideIcons.panelRightClose;
+    case 'LayoutGrid':
+      return LucideIcons.layoutGrid;
+    case 'LayoutList':
+      return LucideIcons.layoutList;
+    case 'LayoutTemplate':
+      return LucideIcons.layout;
+    case 'Rows':
+      return LucideIcons.rows;
     case 'Home':
       return LucideIcons.home;
     case 'Settings':
@@ -45,6 +58,7 @@ IconData getIconFromString(String? iconName) {
       return LucideIcons.calendar;
     case 'Clock':
       return LucideIcons.clock;
+    // User & Authentication
     case 'Building':
       return LucideIcons.building;
     case 'Users':
@@ -53,33 +67,95 @@ IconData getIconFromString(String? iconName) {
       return LucideIcons.userPlus;
     case 'UserCheck':
       return LucideIcons.userCheck;
+    case 'UserCog':
+      return LucideIcons.userCog;
+    case 'UserX':
+      return LucideIcons.userX;
+    case 'UserCircle':
+      return LucideIcons.userCircle;
+    case 'UserCircle2':
+      return LucideIcons.userCircle2;
     case 'Shield':
       return LucideIcons.shield;
+    case 'ShieldAlert':
+      return LucideIcons.shieldAlert;
+    case 'ShieldCheck':
+      return LucideIcons.shieldCheck;
     case 'Key':
       return LucideIcons.key;
+    case 'KeyRound':
+      return LucideIcons.keyRound;
     case 'Lock':
       return LucideIcons.lock;
     case 'Unlock':
       return LucideIcons.unlock;
+    case 'Fingerprint':
+      return LucideIcons.fingerprint;
+    // E-commerce & Shipping
     case 'Package':
       return LucideIcons.package;
+    case 'Package2':
+      return LucideIcons.package2;
+    case 'PackagePlus':
+      return LucideIcons.packagePlus;
+    case 'PackageCheck':
+      return LucideIcons.packageCheck;
+    case 'PackageX':
+      return LucideIcons.packageX;
     case 'Truck':
       return LucideIcons.truck;
     case 'Warehouse':
       return LucideIcons.warehouse;
+    case 'Store':
+      return LucideIcons.store;
+    case 'Shop':
+      return LucideIcons.store;
     case 'Tag':
       return LucideIcons.tag;
+    case 'Tags':
+      return LucideIcons.tags;
+    case 'Bookmark':
+      return LucideIcons.bookmark;
+    case 'Gift':
+      return LucideIcons.gift;
     // case 'Barcode': return LucideIcons.barcode; // Not available in lucide_icons
+    // Devices & Communication
     case 'Monitor':
       return LucideIcons.monitor;
+    case 'Laptop':
+      return LucideIcons.laptop;
+    case 'Tablet':
+      return LucideIcons.tablet;
+    case 'Smartphone':
+      return LucideIcons.smartphone;
     case 'HardDrive':
       return LucideIcons.hardDrive;
     case 'Mail':
       return LucideIcons.mail;
+    case 'MailOpen':
+      return LucideIcons.mailOpen;
+    case 'Send':
+      return LucideIcons.send;
     case 'Phone':
       return LucideIcons.phone;
+    case 'PhoneCall':
+      return LucideIcons.phoneCall;
+    case 'PhoneOutgoing':
+      return LucideIcons.phoneOutgoing;
+    case 'PhoneIncoming':
+      return LucideIcons.phoneIncoming;
     case 'Headphones':
       return LucideIcons.headphones;
+    case 'Speaker':
+      return LucideIcons.speaker;
+    case 'Battery':
+      return LucideIcons.battery;
+    case 'BatteryCharging':
+      return LucideIcons.batteryCharging;
+    case 'Wifi':
+      return LucideIcons.wifi;
+    case 'Bluetooth':
+      return LucideIcons.bluetooth;
     case 'MessageCircle':
       return LucideIcons.messageCircle;
     case 'Bell':
@@ -96,18 +172,37 @@ IconData getIconFromString(String? iconName) {
       return LucideIcons.upload;
     case 'Printer':
       return LucideIcons.printer;
+    // Finance & Analytics
     case 'DollarSign':
       return LucideIcons.dollarSign;
+    case 'Landmark':
+      return LucideIcons.landmark;
     case 'CreditCard':
       return LucideIcons.creditCard;
     case 'Receipt':
       return LucideIcons.receipt;
+    case 'Calculator':
+      return LucideIcons.calculator;
+    case 'Percent':
+      return LucideIcons.percent;
     case 'TrendingUp':
       return LucideIcons.trendingUp;
+    case 'TrendingDown':
+      return LucideIcons.trendingDown;
+    case 'BarChart':
+      return LucideIcons.barChart;
+    case 'BarChart2':
+      return LucideIcons.barChart2;
     case 'BarChart3':
       return LucideIcons.barChart3;
+    case 'BarChart4':
+      return LucideIcons.barChart4;
+    case 'LineChart':
+      return LucideIcons.lineChart;
     case 'PieChart':
       return LucideIcons.pieChart;
+    case 'CandlestickChart':
+      return LucideIcons.candlestickChart;
     case 'Bot':
       return LucideIcons.bot;
     case 'Layout':
@@ -144,15 +239,45 @@ IconData getIconFromString(String? iconName) {
       return LucideIcons.code2;
     case 'Bug':
       return LucideIcons.bug;
+    // Development & Technology
     case 'Database':
       return LucideIcons.database;
-    case 'LineChart':
-      return LucideIcons.lineChart;
-    // case 'GaugeCircle': return LucideIcons.gaugeCircle; // Not available in lucide_icons
+    case 'GitBranch':
+      return LucideIcons.gitBranch;
+    case 'GitFork':
+      return LucideIcons.gitFork;
+    case 'GitPullRequest':
+      return LucideIcons.gitPullRequest;
+    case 'Code':
+      return LucideIcons.code;
+    case 'Code2':
+      return LucideIcons.code2;
+    case 'Terminal':
+      return LucideIcons.terminal;
+    case 'TerminalSquare':
+      return LucideIcons.terminalSquare;
+    case 'Webhook':
+      return LucideIcons.webhook;
+    case 'Server':
+      return LucideIcons.server;
+    case 'ServerCrash':
+      return LucideIcons.serverCrash;
+    case 'Cloud':
+      return LucideIcons.cloud;
+    case 'CloudOff':
+      return LucideIcons.cloudOff;
+    case 'CloudRain':
+      return LucideIcons.cloudRain;
+    case 'CloudSnow':
+      return LucideIcons.cloudSnow;
+    case 'CloudLightning':
+      return LucideIcons.cloudLightning;
     case 'Activity':
       return LucideIcons.activity;
-    case 'Sparkles':
-      return LucideIcons.sparkles;
+    case 'Cpu':
+      return LucideIcons.cpu;
+    case 'Chip':
+      return LucideIcons.cpu;
     case 'BrainCircuit':
       return LucideIcons.brainCircuit;
     case 'Rocket':
@@ -207,7 +332,52 @@ IconData getIconFromString(String? iconName) {
       return LucideIcons.clipboardCheck;
     case 'QrCode':
       return LucideIcons.qrCode;
+    // Modern Interface Elements
+    case 'ArrowUpRight':
+      return LucideIcons.arrowUpRight;
+    case 'ArrowDownLeft':
+      return LucideIcons.arrowDownLeft;
+    case 'ArrowUpDown':
+      return LucideIcons.arrowUpDown;
+    case 'ArrowLeftRight':
+      return LucideIcons.arrowLeftRight;
+    case 'MoveUpRight':
+      return LucideIcons.moveUpRight;
+    case 'MoveDownLeft':
+      return LucideIcons.moveDownLeft;
+    case 'Maximize':
+      return LucideIcons.maximize;
+    case 'Minimize':
+      return LucideIcons.minimize;
+    case 'Expand':
+      return LucideIcons.expand;
+    case 'Shrink':
+      return LucideIcons.shrink;
+    case 'Refresh':
+      return LucideIcons.refreshCcw;
+    case 'RefreshCw':
+      return LucideIcons.refreshCw;
+    case 'RotateCw':
+      return LucideIcons.rotateCw;
+    case 'RotateCcw':
+      return LucideIcons.rotateCcw;
+    case 'Loader':
+      return LucideIcons.loader;
+    case 'Loader2':
+      return LucideIcons.loader2;
+    case 'Filter':
+      return LucideIcons.filter;
+    case 'Settings2':
+      return LucideIcons.settings2;
+    case 'Sliders':
+      return LucideIcons.sliders;
+    case 'ToggleLeft':
+      return LucideIcons.toggleLeft;
+    case 'ToggleRight':
+      return LucideIcons.toggleRight;
+    case 'SlidersHorizontal':
+      return LucideIcons.slidersHorizontal;
     default:
-      return LucideIcons.circle;
+      return LucideIcons.barChart4;
   }
 }
