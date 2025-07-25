@@ -110,18 +110,6 @@ class AppDrawer extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionHeader(String title) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Text(
-        title,
-        style: const TextStyle(
-          fontWeight: FontWeight.bold,
-          color: Colors.grey,
-        ),
-      ),
-    );
-  }
 
   Widget _buildDrawerItem(BuildContext context, PageItem page,
       {int level = 0}) {

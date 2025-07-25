@@ -250,16 +250,10 @@ IconData getIconFromString(String? iconName) {
       return LucideIcons.gitPullRequest;
     case 'Code':
       return LucideIcons.code;
-    case 'Code2':
-      return LucideIcons.code2;
-    case 'Terminal':
-      return LucideIcons.terminal;
     case 'TerminalSquare':
       return LucideIcons.terminalSquare;
     case 'Webhook':
       return LucideIcons.webhook;
-    case 'Server':
-      return LucideIcons.server;
     case 'ServerCrash':
       return LucideIcons.serverCrash;
     case 'Cloud':
@@ -274,8 +268,6 @@ IconData getIconFromString(String? iconName) {
       return LucideIcons.cloudLightning;
     case 'Activity':
       return LucideIcons.activity;
-    case 'Cpu':
-      return LucideIcons.cpu;
     case 'Chip':
       return LucideIcons.cpu;
     case 'BrainCircuit':
