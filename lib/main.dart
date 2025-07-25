@@ -2,14 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'auth_wrapper.dart';
 import 'config/app_config.dart';
 import 'firebase/firebase_options.dart';
 import 'firebase/notification_service.dart';
-import 'models/screen_args_model.dart';
 import 'providers/riverpod/theme_provider.dart';
-import 'providers/riverpod/data_providers.dart';
-import 'screens/login_screen.dart';
-import 'screens/dynamic_screen.dart';
 import 'services/navigation_service.dart';
 
 void main() async {
@@ -27,6 +24,7 @@ void main() async {
       anonKey: appConfig.localKey,
     );
   }
+  
   // Request notification permissions and set up FCM
   final notificationServices = NotificationServices();
   notificationServices.requestNotificationPermission();
@@ -50,7 +48,7 @@ class MyApp extends ConsumerWidget {
     final primaryColor = ref.watch(primaryColorProvider);
 
     return MaterialApp(
-      title: 'Tech Techi',
+      title: appConfig.appName,
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
@@ -66,37 +64,3 @@ class MyApp extends ConsumerWidget {
   }
 }
 
-class AuthWrapper extends ConsumerWidget {
-  final NotificationServices notificationServices;
-  const AuthWrapper({super.key, required this.notificationServices});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final authStateAsync = ref.watch(authStateProvider);
-
-    return authStateAsync.when(
-      data: (authState) {
-        final session = authState.session;
-        if (session != null) {
-          // Set up FCM in-app notification handling
-          notificationServices.firebaseInit(context);
-          // Use a default route or fetch from user profile if needed
-          return DynamicScreen(
-              args: ScreenArgsModel(
-                  routeName: 'dashboard', pageName: 'dashboard', isHome: true));
-        }
-        return const LoginScreen();
-      },
-      loading: () => const Scaffold(
-        body: Center(
-          child: Text('Loading...'),
-        ),
-      ),
-      error: (error, stack) => Scaffold(
-        body: Center(
-          child: Text('Error: $error'),
-        ),
-      ),
-    );
-  }
-}

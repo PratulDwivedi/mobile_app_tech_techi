@@ -87,7 +87,9 @@ class _DynamicScreenState extends ConsumerState<DynamicScreen> {
           // Exclude button controls (adjust controlTypeId as needed)
           if (control.controlTypeId == ControlTypes.submit ||
               control.controlTypeId == ControlTypes.addTableRow ||
-              control.controlTypeId == ControlTypes.deleteTableRow) continue;
+              control.controlTypeId == ControlTypes.deleteTableRow) {
+            continue;
+          }
           // Exclude _name fields (display only)
           if (control.bindingName.endsWith('_name')) continue;
           allowedBindingNames.add(control.bindingName);
