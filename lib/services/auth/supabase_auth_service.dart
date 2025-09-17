@@ -59,9 +59,10 @@ class SupabaseAuthService implements AuthService {
   @override
   Future<Map<String, dynamic>> getProfile(String email) async {
     try {
-      final response =
+      final responseMessage =
           await _supabase.rpc(ApiRoutes.profile, params: {'p_email': email});
 
+      final response = responseMessage["data"];
       if (response is List && response.isNotEmpty) {
         return response.first as Map<String, dynamic>;
       } else if (response is Map<String, dynamic>) {

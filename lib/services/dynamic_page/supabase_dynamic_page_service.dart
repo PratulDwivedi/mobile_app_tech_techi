@@ -12,7 +12,7 @@ class SupabaseDynamicPageService implements DynamicPageService {
     try {
       final response = await _supabase.rpc(ApiRoutes.pageSchema,
           params: {'p_route_name': routeName, 'p_platform_id': 22});
-      return PageSchema.fromJson(response);
+      return PageSchema.fromJson(response["data"]);
     } catch (e) {
       // Mute linting warning for print statement in a catch block
       // ignore: avoid_print
@@ -26,7 +26,7 @@ class SupabaseDynamicPageService implements DynamicPageService {
     try {
       final response = await _supabase
           .rpc(ApiRoutes.userPages, params: {'p_platform_id': 22});
-      final List<dynamic> data = response as List<dynamic>;
+      final List<dynamic> data = response["data"] as List<dynamic>;
       List<PageItem> pages =
           data.map((item) => PageItem.fromJson(item)).toList();
       pages.sort((a, b) => a.displayOrder.compareTo(b.displayOrder));
@@ -44,7 +44,7 @@ class SupabaseDynamicPageService implements DynamicPageService {
   Future<List<dynamic>> getBindingListData(String functionName) async {
     try {
       final response = await _supabase.rpc(functionName);
-      return response as List<dynamic>;
+      return response["data"] as List<dynamic>;
     } catch (e) {
       // ignore: avoid_print
       print('Error fetching binding list data from $functionName: $e');
